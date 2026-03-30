@@ -133,12 +133,115 @@ const PACKAGE_OPTIONS = [
 ]
 
 const FIXED_PACKAGES = [
-  { id: 'abusua',       name: 'Abusua Asomdwee',      price: 'GH₵549–579',     monthly: 'GH₵193/mo', tag: 'Starter',  popular: false, items: ['Rice 10kg','Frytol Oil 2L','Tomato Paste','Sardines ×12','Maize Flour'] },
-  { id: 'medaase',      name: 'Medaase Me Dɔ',         price: 'GH₵769–858',     monthly: 'GH₵286/mo', tag: 'Popular',  popular: true,  items: ['Rice 25kg','Frytol Oil 5L','Tomato Paste','Mackerel ×12','Frozen Chicken','Spaghetti'] },
-  { id: 'youdo',        name: 'You Do All',             price: 'GH₵1,099–1,129', monthly: 'GH₵376/mo', tag: 'Family',   popular: false, items: ['Rice 25kg','Oil 5L','Tomato Paste','Mackerel','Sardines','Chicken','Detergents','Baked Beans'] },
-  { id: 'superlove',    name: 'Super Love',             price: 'GH₵1,299–1,350', monthly: 'GH₵450/mo', tag: 'Premium',  popular: false, items: ['Rice 25kg','Oil 5L','Tomato Paste','Mackerel','Sardines','Frozen Chicken','Detergents','Provisions','Foodstuffs'] },
-  { id: 'superlovegye', name: 'Super Love Gye Wo Two',  price: 'GH₵1,890',       monthly: 'GH₵630/mo', tag: 'Ultimate', popular: false, items: ['Rice 25kg','Oil ×2','All Canned','Frozen Foods','Full Detergents','Provisions','Foodstuffs','Extras'] },
-  { id: 'custom',       name: 'Customized Request',     price: 'Call us',         monthly: 'Flexible',  tag: 'Custom',   popular: false, items: ['Choose exactly what you want'] },
+  {
+    id: 'abusua',
+    name: 'Abusua Asomdwee',
+    tagline: 'Perfect for individuals & small families',
+    price: 'GH₵549–579',
+    monthly: 'GH₵193/mo',
+    tag: 'Starter',
+    popular: false,
+    items: [
+      { productId: 102, qty: 1,  label: 'Royal Feast Rice 10kg',        emoji: '🌾', img: '/images/royal-feast-rice.png' },
+      { productId: 202, qty: 1,  label: 'Frytol Vegetable Oil 2L',      emoji: '🫙', img: '/images/frytol-oil.png' },
+      { productId: 502, qty: 6,  label: 'Gino Tomato Paste 70g',        emoji: '🍅', img: '/images/gino-tomato-paste.png' },
+      { productId: 401, qty: 1,  label: 'Titus Sardines 125g ×12',      emoji: '🐟', img: '/images/titus-sardines.png' },
+      { productId: 901, qty: 1,  label: 'Maize Flour 5kg',              emoji: '🌽' },
+    ],
+  },
+  {
+    id: 'medaase',
+    name: 'Medaase Me Dɔ',
+    tagline: 'Great value for medium households',
+    price: 'GH₵769–858',
+    monthly: 'GH₵286/mo',
+    tag: 'Popular',
+    popular: true,
+    items: [
+      { productId: 101, qty: 1,  label: 'Royal Feast Rice 25kg',        emoji: '🌾', img: '/images/royal-feast-rice.png' },
+      { productId: 201, qty: 1,  label: 'Frytol Vegetable Oil 5L',      emoji: '🫙', img: '/images/frytol-oil.png' },
+      { productId: 501, qty: 1,  label: 'Gino Tomato Paste 400g ×6',   emoji: '🍅', img: '/images/gino-tomato-paste.png' },
+      { productId: 403, qty: 1,  label: 'Geisha Mackerel 155g ×12',    emoji: '🐟' },
+      { productId: 601, qty: 1,  label: 'Frozen Chicken Legs 2kg',      emoji: '🍗' },
+      { productId: 302, qty: 2,  label: 'OBA Spaghetti 500g',           emoji: '🍝' },
+    ],
+  },
+  {
+    id: 'youdo',
+    name: 'You Do All',
+    tagline: 'Complete grocery bundle for the whole family',
+    price: 'GH₵1,099–1,129',
+    monthly: 'GH₵376/mo',
+    tag: 'Family',
+    popular: false,
+    items: [
+      { productId: 101, qty: 1,  label: 'Royal Feast Rice 25kg',        emoji: '🌾', img: '/images/royal-feast-rice.png' },
+      { productId: 201, qty: 1,  label: 'Frytol Vegetable Oil 5L',      emoji: '🫙', img: '/images/frytol-oil.png' },
+      { productId: 501, qty: 1,  label: 'Gino Tomato Paste 400g ×6',   emoji: '🍅', img: '/images/gino-tomato-paste.png' },
+      { productId: 403, qty: 1,  label: 'Geisha Mackerel 155g ×12',    emoji: '🐟' },
+      { productId: 401, qty: 1,  label: 'Titus Sardines 125g ×12',      emoji: '🐟', img: '/images/titus-sardines.png' },
+      { productId: 601, qty: 1,  label: 'Frozen Chicken Legs 2kg',      emoji: '🍗' },
+      { productId: 701, qty: 1,  label: "Mama's Choice Detergent 5kg",  emoji: '🧺' },
+      { productId: 406, qty: 1,  label: 'Heinz Baked Beans 415g ×6',   emoji: '🫘' },
+    ],
+  },
+  {
+    id: 'superlove',
+    name: 'Super Love',
+    tagline: 'For families that want the very best',
+    price: 'GH₵1,299–1,350',
+    monthly: 'GH₵450/mo',
+    tag: 'Premium',
+    popular: false,
+    items: [
+      { productId: 101, qty: 1,  label: 'Royal Feast Rice 25kg',        emoji: '🌾', img: '/images/royal-feast-rice.png' },
+      { productId: 201, qty: 1,  label: 'Frytol Vegetable Oil 5L',      emoji: '🫙', img: '/images/frytol-oil.png' },
+      { productId: 501, qty: 1,  label: 'Gino Tomato Paste 400g ×6',   emoji: '🍅', img: '/images/gino-tomato-paste.png' },
+      { productId: 403, qty: 1,  label: 'Geisha Mackerel 155g ×12',    emoji: '🐟' },
+      { productId: 401, qty: 1,  label: 'Titus Sardines 125g ×12',      emoji: '🐟', img: '/images/titus-sardines.png' },
+      { productId: 603, qty: 1,  label: 'Frozen Drumsticks 3kg',        emoji: '🍗' },
+      { productId: 701, qty: 1,  label: "Mama's Choice Detergent 5kg",  emoji: '🧺' },
+      { productId: 703, qty: 1,  label: 'Omo Washing Powder 2kg',       emoji: '🫧' },
+      { productId: 801, qty: 1,  label: 'Milo 400g',                    emoji: '🍫' },
+      { productId: 903, qty: 1,  label: 'Cassava Powder (Fufu) 5kg',    emoji: '🫙' },
+    ],
+  },
+  {
+    id: 'superlovegye',
+    name: 'Super Love Gye Wo Two',
+    tagline: 'The full abundance package — nothing left out',
+    price: 'GH₵1,890',
+    monthly: 'GH₵630/mo',
+    tag: 'Ultimate',
+    popular: false,
+    items: [
+      { productId: 101, qty: 1,  label: 'Royal Feast Rice 25kg',        emoji: '🌾', img: '/images/royal-feast-rice.png' },
+      { productId: 201, qty: 2,  label: 'Frytol Vegetable Oil 5L',      emoji: '🫙', img: '/images/frytol-oil.png' },
+      { productId: 501, qty: 2,  label: 'Gino Tomato Paste 400g ×6',   emoji: '🍅', img: '/images/gino-tomato-paste.png' },
+      { productId: 403, qty: 1,  label: 'Geisha Mackerel 155g ×12',    emoji: '🐟' },
+      { productId: 401, qty: 1,  label: 'Titus Sardines 125g ×12',      emoji: '🐟', img: '/images/titus-sardines.png' },
+      { productId: 406, qty: 1,  label: 'Heinz Baked Beans 415g ×6',   emoji: '🫘' },
+      { productId: 603, qty: 1,  label: 'Frozen Drumsticks 3kg',        emoji: '🍗' },
+      { productId: 604, qty: 1,  label: 'Frozen Whole Chicken 2kg',     emoji: '🐔' },
+      { productId: 701, qty: 1,  label: "Mama's Choice Detergent 5kg",  emoji: '🧺' },
+      { productId: 703, qty: 1,  label: 'Omo Washing Powder 2kg',       emoji: '🫧' },
+      { productId: 705, qty: 1,  label: 'Dettol Antiseptic 500ml',      emoji: '🧴' },
+      { productId: 801, qty: 1,  label: 'Milo 400g',                    emoji: '🍫' },
+      { productId: 802, qty: 1,  label: 'Dano Full Cream Milk 400g',    emoji: '🥛' },
+      { productId: 903, qty: 1,  label: 'Cassava Powder (Fufu) 5kg',    emoji: '🫙' },
+      { productId: 905, qty: 1,  label: 'Onions (Bag) 10kg',            emoji: '🧅' },
+    ],
+  },
+  {
+    id: 'custom',
+    name: 'Customized Request',
+    tagline: 'Build your own — call or WhatsApp us',
+    price: 'Call us',
+    monthly: 'Flexible',
+    tag: 'Custom',
+    popular: false,
+    items: [],
+  },
 ]
 
 const HERO_IMAGES = [
@@ -444,15 +547,187 @@ const SectionTitle = ({ label, onSeeAll }) => (
   </div>
 )
 
+// ─── PRODUCT DETAIL PAGE ──────────────────────────────────────────────────────
+const ProductDetail = ({ product, qty, onAdd, onRemove, onBack, onViewProduct }) => {
+  const [localQty, setLocalQty] = useState(1)
+  const [added, setAdded] = useState(false)
+  const pct = disc(product.price, product.oldPrice)
+  const cat = CATEGORIES.find(c => c.id === product.cat)
+  const related = PRODUCTS.filter(p => p.cat === product.cat && p.id !== product.id).slice(0, 6)
+
+  const handleAddToCart = () => {
+    for (let i = 0; i < localQty; i++) onAdd()
+    setAdded(true)
+    setTimeout(() => setAdded(false), 1500)
+  }
+
+  // Lock body scroll while open
+  useEffect(() => {
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = '' }
+  }, [])
+
+  return (
+    <div className="fixed inset-0 z-50 bg-gray-50 overflow-y-auto">
+      {/* Top bar */}
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
+          <button onClick={onBack}
+            className="flex items-center gap-1.5 text-gray-600 hover:text-gray-900 text-sm font-semibold transition-colors">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/>
+            </svg>
+            Back
+          </button>
+          <span className="text-gray-300">|</span>
+          {/* Breadcrumb */}
+          <nav className="flex items-center gap-1.5 text-xs text-gray-400">
+            <button onClick={onBack} className="hover:text-gray-700 transition-colors">Home</button>
+            <span>/</span>
+            <span className="text-gray-500">{cat?.label}</span>
+            <span>/</span>
+            <span className="text-gray-800 font-medium truncate max-w-[200px]">{product.name}</span>
+          </nav>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Main product section */}
+        <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden mb-8">
+          <div className="flex flex-col md:flex-row">
+
+            {/* LEFT — product image */}
+            <div className="w-full md:w-[420px] flex-shrink-0 bg-gray-50 border-b md:border-b-0 md:border-r border-gray-100 flex items-center justify-center p-10" style={{ minHeight: '380px' }}>
+              {product.img
+                ? <img src={product.img} alt={product.name} className="max-h-72 w-full object-contain drop-shadow-sm" />
+                : <span className="text-[120px] select-none leading-none">{product.emoji}</span>
+              }
+            </div>
+
+            {/* RIGHT — product info */}
+            <div className="flex-1 p-8 flex flex-col">
+              {/* Category badge */}
+              <span className="inline-block text-[10px] font-bold uppercase tracking-widest text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full mb-3 w-fit">
+                {cat?.label}
+              </span>
+
+              {/* Name */}
+              <h1 className="text-2xl font-black text-gray-900 leading-tight mb-3">{product.name}</h1>
+
+              {/* Rating placeholder */}
+              <div className="flex items-center gap-2 mb-4">
+                <div className="flex gap-0.5">
+                  {[1,2,3,4,5].map(s => (
+                    <svg key={s} className={`w-4 h-4 ${s <= 4 ? 'text-amber-400' : 'text-gray-200'}`} fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                    </svg>
+                  ))}
+                </div>
+                <span className="text-gray-400 text-xs">(Available in stock)</span>
+              </div>
+
+              {/* Price block */}
+              <div className="flex items-baseline gap-3 mb-1">
+                <span className="text-3xl font-black text-gray-900">{fmt(product.price)}</span>
+              </div>
+              <p className="text-gray-400 text-xs mb-6">Per <span className="font-semibold text-gray-600">{product.unit}</span></p>
+
+              {/* Quantity + Add to cart */}
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden">
+                  <button
+                    onClick={() => setLocalQty(q => Math.max(1, q - 1))}
+                    className="w-10 h-11 bg-gray-50 hover:bg-gray-100 text-gray-600 font-black text-lg flex items-center justify-center transition-colors">
+                    −
+                  </button>
+                  <span className="w-12 text-center font-black text-base text-gray-800 border-x border-gray-200 h-11 flex items-center justify-center">
+                    {localQty}
+                  </span>
+                  <button
+                    onClick={() => setLocalQty(q => q + 1)}
+                    className="w-10 h-11 bg-gray-50 hover:bg-gray-100 text-gray-600 font-black text-lg flex items-center justify-center transition-colors">
+                    +
+                  </button>
+                </div>
+                <button
+                  onClick={handleAddToCart}
+                  className={`flex-1 h-11 rounded-xl font-black text-sm transition-all active:scale-95 ${added ? 'bg-gray-800 text-white' : 'bg-amber-400 hover:bg-amber-500 text-gray-900'}`}>
+                  {added ? `✓ ${localQty} Added to Cart!` : `Add ${localQty > 1 ? `(${localQty}) ` : ''}to Cart`}
+                </button>
+              </div>
+
+              {/* Current cart qty */}
+              {qty > 0 && (
+                <p className="text-gray-400 text-xs mb-4">
+                  Already in cart: <span className="font-bold text-gray-700">{qty} × {product.unit}</span>
+                  <button onClick={onRemove} className="ml-2 text-red-400 hover:text-red-600 hover:underline">remove one</button>
+                </p>
+              )}
+
+              {/* Product meta */}
+              <div className="border-t border-gray-100 pt-5 space-y-2.5">
+                {[
+                  { label: 'Category',    value: cat?.label },
+                  { label: 'Unit',        value: product.unit },
+                  { label: 'SKU',         value: `LJ-${String(product.id).padStart(4,'0')}` },
+                  { label: 'Availability',value: 'In Stock' },
+                  { label: 'Payment',     value: 'MoMo · Visa · Cash on Delivery' },
+                ].map(row => (
+                  <div key={row.label} className="flex gap-3 text-sm">
+                    <span className="text-gray-400 w-24 flex-shrink-0">{row.label}:</span>
+                    <span className="text-gray-700 font-medium">{row.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Related products */}
+        {related.length > 0 && (
+          <div>
+            <div className="flex items-center gap-2.5 mb-5">
+              <span className="w-1 h-5 bg-amber-400 rounded-full inline-block" />
+              <h2 className="text-base font-black text-gray-800">More from {cat?.label}</h2>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+              {related.map(p => (
+                <ProductCard key={p.id} product={p}
+                  qty={0}
+                  onAdd={() => {}}
+                  onRemove={() => {}}
+                  onView={() => onViewProduct(p)} />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // ─── PRODUCT CARD ─────────────────────────────────────────────────────────────
-const ProductCard = ({ product, qty, onAdd, onRemove }) => {
+const ProductCard = ({ product, qty, onAdd, onRemove, onView }) => {
   const [added, setAdded] = useState(false)
   const pct = disc(product.price, product.oldPrice)
 
-  const handleAdd = () => { onAdd(); setAdded(true); setTimeout(() => setAdded(false), 1200) }
+  const handleAdd = (e) => {
+    e.stopPropagation()
+    onAdd()
+    setAdded(true)
+    setTimeout(() => setAdded(false), 1200)
+  }
+
+  const handleRemove = (e) => {
+    e.stopPropagation()
+    onRemove()
+  }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 hover:border-gray-300 hover:shadow-sm transition-all duration-200 group flex flex-col overflow-hidden">
+    <div
+      onClick={() => onView && onView(product)}
+      className="bg-white rounded-xl border border-gray-100 hover:border-gray-300 hover:shadow-sm transition-all duration-200 group flex flex-col overflow-hidden cursor-pointer"
+    >
       {/* Image / Emoji */}
       <div className="relative bg-gray-50 flex items-center justify-center border-b border-gray-100 overflow-hidden" style={{ height: '130px' }}>
         {product.img
@@ -484,9 +759,9 @@ const ProductCard = ({ product, qty, onAdd, onRemove }) => {
           </button>
         ) : (
           <div className="mt-2 flex items-center border border-gray-200 rounded-lg overflow-hidden">
-            <button onClick={onRemove} className="flex-1 h-7 bg-gray-50 hover:bg-red-50 text-gray-500 hover:text-red-500 font-black text-base active:scale-90 transition-all">−</button>
+            <button onClick={handleRemove} className="flex-1 h-7 bg-gray-50 hover:bg-red-50 text-gray-500 hover:text-red-500 font-black text-base active:scale-90 transition-all">−</button>
             <span className="w-8 text-center font-black text-sm text-gray-800 border-x border-gray-200">{qty}</span>
-            <button onClick={onAdd} className="flex-1 h-7 bg-gray-50 hover:bg-amber-50 text-gray-500 hover:text-amber-600 font-black text-base active:scale-90 transition-all">+</button>
+            <button onClick={handleAdd} className="flex-1 h-7 bg-gray-50 hover:bg-amber-50 text-gray-500 hover:text-amber-600 font-black text-base active:scale-90 transition-all">+</button>
           </div>
         )}
       </div>
@@ -494,8 +769,9 @@ const ProductCard = ({ product, qty, onAdd, onRemove }) => {
   )
 }
 
+
 // ─── PRODUCT ROW (one per category on homepage) ───────────────────────────────
-const ProductRow = ({ catId, cart, onAdd, onRemove, onSeeAll }) => {
+const ProductRow = ({ catId, cart, onAdd, onRemove, onSeeAll, onView }) => {
   const cat = CATEGORIES.find(c => c.id === catId)
   const items = PRODUCTS.filter(p => p.cat === catId).slice(0, 6)
   if (!cat || items.length === 0) return null
@@ -510,7 +786,8 @@ const ProductRow = ({ catId, cart, onAdd, onRemove, onSeeAll }) => {
             <ProductCard key={p.id} product={p}
               qty={cart[p.id] || 0}
               onAdd={() => onAdd(p.id)}
-              onRemove={() => onRemove(p.id)} />
+              onRemove={() => onRemove(p.id)}
+              onView={onView} />
           ))}
         </div>
       </div>
@@ -530,7 +807,7 @@ const FEATURED_IDS = [
   1001, 901, 301, 402, 605, 804,
 ]
 
-const FeaturedGrid = ({ cart, onAdd, onRemove, onShop }) => {
+const FeaturedGrid = ({ cart, onAdd, onRemove, onShop, onView }) => {
   const featured = FEATURED_IDS.map(id => PRODUCTS.find(p => p.id === id)).filter(Boolean)
   return (
     <section className="bg-white py-7 px-4 border-b border-gray-100">
@@ -554,7 +831,8 @@ const FeaturedGrid = ({ cart, onAdd, onRemove, onShop }) => {
             <ProductCard key={p.id} product={p}
               qty={cart[p.id] || 0}
               onAdd={() => onAdd(p.id)}
-              onRemove={() => onRemove(p.id)} />
+              onRemove={() => onRemove(p.id)}
+              onView={onView} />
           ))}
         </div>
       </div>
@@ -584,12 +862,174 @@ const PromoStrip = ({ onApply, onShop }) => (
   </section>
 )
 
+// ─── PACKAGE DETAIL PAGE ──────────────────────────────────────────────────────
+const PackageDetail = ({ pkg, onBack, onApply, idx }) => {
+  useEffect(() => {
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = '' }
+  }, [])
+
+  const totalItems = pkg.items.reduce((s, i) => s + i.qty, 0)
+
+  return (
+    <div className="fixed inset-0 z-50 bg-gray-50 overflow-y-auto">
+      {/* Top bar */}
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
+        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
+          <button onClick={onBack}
+            className="flex items-center gap-1.5 text-gray-600 hover:text-gray-900 text-sm font-semibold transition-colors">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/>
+            </svg>
+            Back
+          </button>
+          <span className="text-gray-300">|</span>
+          <nav className="flex items-center gap-1.5 text-xs text-gray-400">
+            <button onClick={onBack} className="hover:text-gray-700 transition-colors">Home</button>
+            <span>/</span>
+            <button onClick={onBack} className="hover:text-gray-700 transition-colors">Packages</button>
+            <span>/</span>
+            <span className="text-gray-800 font-medium">{pkg.name}</span>
+          </nav>
+        </div>
+      </div>
+
+      <div className="max-w-5xl mx-auto px-4 py-8">
+
+        {/* Header card */}
+        <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <span className={`text-[10px] font-black tracking-widest uppercase px-2.5 py-1 rounded-full ${pkg.popular ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-600'}`}>
+                {pkg.tag}
+              </span>
+              {pkg.popular && (
+                <span className="text-[10px] font-black tracking-wider uppercase px-2.5 py-1 rounded-full bg-amber-400 text-gray-900">
+                  Most Popular
+                </span>
+              )}
+            </div>
+            <h1 className="text-2xl font-black text-gray-900 mb-1">{pkg.name}</h1>
+            <p className="text-gray-500 text-sm">{pkg.tagline}</p>
+          </div>
+          <div className="text-right flex-shrink-0">
+            <p className="text-3xl font-black text-gray-900">{pkg.price}</p>
+            <p className="text-gray-400 text-sm mt-0.5">≈ {pkg.monthly} over 3 months</p>
+            <p className="text-gray-400 text-xs mt-0.5">{totalItems} items included</p>
+          </div>
+        </div>
+
+        {/* 3-month callout */}
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 flex items-center gap-4">
+          <span className="text-2xl flex-shrink-0">📅</span>
+          <div>
+            <p className="text-amber-800 font-black text-sm">Pay comfortably over 3 months</p>
+            <p className="text-amber-700 text-xs mt-0.5">
+              No interest · Open to all Ghana govt workers · Pay via MoMo, Visa or Cash
+            </p>
+          </div>
+        </div>
+
+        {/* Items list */}
+        {pkg.id === 'custom' ? (
+          <div className="bg-white rounded-2xl border border-gray-200 p-10 text-center mb-6">
+            <p className="text-4xl mb-4">📞</p>
+            <h2 className="text-gray-800 font-black text-lg mb-2">Customized Request</h2>
+            <p className="text-gray-500 text-sm max-w-sm mx-auto mb-5">
+              Tell us exactly what you need and we'll build a custom package tailored to your household.
+            </p>
+            <a href="https://wa.me/233244854206"
+              className="inline-flex items-center gap-2 bg-gray-800 hover:bg-gray-900 text-white font-bold px-6 py-3 rounded-xl transition-colors text-sm">
+              💬 WhatsApp 0244854206
+            </a>
+          </div>
+        ) : (
+          <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden mb-6">
+            {/* Table header */}
+            <div className="grid grid-cols-12 gap-3 px-5 py-3 bg-gray-50 border-b border-gray-100 text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+              <div className="col-span-1">#</div>
+              <div className="col-span-2">Image</div>
+              <div className="col-span-6">Item</div>
+              <div className="col-span-1 text-center">Qty</div>
+              <div className="col-span-2 text-right">Unit</div>
+            </div>
+
+            {/* Items rows */}
+            {pkg.items.map((item, i) => (
+              <div key={i}
+                className={`grid grid-cols-12 gap-3 items-center px-5 py-4 border-b border-gray-50 last:border-0 ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
+                {/* Row number */}
+                <div className="col-span-1 text-gray-300 text-sm font-bold">{String(i + 1).padStart(2, '0')}</div>
+
+                {/* Product image / emoji */}
+                <div className="col-span-2">
+                  <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden border border-gray-200">
+                    {item.img
+                      ? <img src={item.img} alt={item.label} className="w-full h-full object-contain p-1.5" />
+                      : <span className="text-2xl">{item.emoji}</span>
+                    }
+                  </div>
+                </div>
+
+                {/* Item name */}
+                <div className="col-span-6">
+                  <p className="text-gray-800 text-sm font-semibold">{item.label}</p>
+                  {item.qty > 1 && (
+                    <p className="text-amber-600 text-xs font-bold mt-0.5">× {item.qty} units</p>
+                  )}
+                </div>
+
+                {/* Qty badge */}
+                <div className="col-span-1 flex justify-center">
+                  <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-black ${item.qty > 1 ? 'bg-amber-400 text-gray-900' : 'bg-gray-100 text-gray-600'}`}>
+                    {item.qty}
+                  </span>
+                </div>
+
+                {/* Unit type from PRODUCTS */}
+                <div className="col-span-2 text-right">
+                  {(() => {
+                    const p = PRODUCTS.find(pr => pr.id === item.productId)
+                    return <span className="text-gray-400 text-xs uppercase tracking-wider">{p?.unit || '—'}</span>
+                  })()}
+                </div>
+              </div>
+            ))}
+
+            {/* Total row */}
+            <div className="grid grid-cols-12 gap-3 items-center px-5 py-4 bg-gray-800 text-white">
+              <div className="col-span-9 font-black text-sm">Total Items in Package</div>
+              <div className="col-span-1 flex justify-center">
+                <span className="w-7 h-7 rounded-full bg-amber-400 text-gray-900 flex items-center justify-center text-xs font-black">{totalItems}</span>
+              </div>
+              <div className="col-span-2 text-right font-black text-sm">{pkg.price}</div>
+            </div>
+          </div>
+        )}
+
+        {/* CTA buttons */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          <button
+            onClick={() => { onApply(pkg.id === 'custom' ? PACKAGE_OPTIONS[5] : PACKAGE_OPTIONS[idx]); onBack() }}
+            className={`flex-1 py-4 rounded-2xl font-black text-base transition-all active:scale-95 shadow-sm ${pkg.popular ? 'bg-amber-400 hover:bg-amber-500 text-gray-900' : 'bg-gray-800 hover:bg-gray-900 text-white'}`}>
+            {pkg.id === 'custom' ? '💬 WhatsApp Us to Customise' : 'Select This Package & Apply →'}
+          </button>
+          <button onClick={onBack}
+            className="sm:w-auto px-8 py-4 rounded-2xl font-bold text-sm border border-gray-300 text-gray-700 hover:bg-gray-50 transition-all">
+            View Other Packages
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── FIXED PACKAGES ───────────────────────────────────────────────────────────
-const FixedPackages = ({ onApplyWithPackage }) => (
+const FixedPackages = ({ onApplyWithPackage, onViewPackage }) => (
   <section id="packages" className="bg-white py-10 px-4 border-b border-gray-100">
     <div className="max-w-7xl mx-auto">
       <SectionTitle label="Ready-Made Packages" />
-      <p className="text-gray-400 text-xs mb-6 -mt-3">Choose a plan that fits your household — apply in minutes.</p>
+      <p className="text-gray-400 text-xs mb-6 -mt-3">Choose a plan that fits your household — click to see full item list.</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {FIXED_PACKAGES.map((pkg, idx) => (
           <div key={pkg.id}
@@ -597,25 +1037,49 @@ const FixedPackages = ({ onApplyWithPackage }) => (
             {pkg.popular && <div className="absolute top-3 right-3 bg-amber-400 text-gray-900 text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider z-10">Most Popular</div>}
             <div className={`h-1 w-full ${pkg.popular ? 'bg-amber-400' : 'bg-gray-200'}`} />
             <div className="p-5 bg-white">
-              <span className={`inline-block text-[10px] font-black tracking-widest uppercase px-2.5 py-1 rounded-full mb-3 ${pkg.popular ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-600'}`}>{pkg.tag}</span>
-              <h3 className="text-gray-900 font-black text-base mb-1.5">{pkg.name}</h3>
+              <span className={`inline-block text-[10px] font-black tracking-widest uppercase px-2.5 py-1 rounded-full mb-3 ${pkg.popular ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-600'}`}>
+                {pkg.tag}
+              </span>
+              <h3 className="text-gray-900 font-black text-base mb-1">{pkg.name}</h3>
+              <p className="text-gray-400 text-xs mb-2">{pkg.tagline}</p>
               <p className="text-gray-900 font-black text-xl mb-0.5">{pkg.price}</p>
               <p className="text-gray-400 text-xs mb-4">≈ {pkg.monthly} over 3 months</p>
-              <ul className="space-y-1.5 mb-5">
-                {pkg.items.map(item => (
-                  <li key={item} className="flex items-center gap-2 text-gray-500 text-xs">
-                    <svg className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-                    </svg>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-              <button
-                onClick={() => onApplyWithPackage(pkg.id === 'custom' ? PACKAGE_OPTIONS[5] : PACKAGE_OPTIONS[idx])}
-                className={`w-full py-2.5 rounded-xl font-bold text-sm transition-all active:scale-95 ${pkg.popular ? 'bg-amber-400 hover:bg-amber-500 text-gray-900' : 'border border-gray-300 text-gray-700 hover:bg-gray-50'}`}>
-                {pkg.id === 'custom' ? 'Call 0244854206' : 'Select & Apply →'}
-              </button>
+
+              {/* Item previews — show first 4 with images/emoji */}
+              {pkg.items.length > 0 && (
+                <div className="flex items-center gap-1.5 mb-4">
+                  {pkg.items.slice(0, 4).map((item, i) => (
+                    <div key={i} className="w-9 h-9 bg-gray-50 border border-gray-200 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0" title={item.label}>
+                      {item.img
+                        ? <img src={item.img} alt={item.label} className="w-full h-full object-contain p-0.5" />
+                        : <span className="text-lg">{item.emoji}</span>
+                      }
+                    </div>
+                  ))}
+                  {pkg.items.length > 4 && (
+                    <div className="w-9 h-9 bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <span className="text-gray-500 text-[10px] font-black">+{pkg.items.length - 4}</span>
+                    </div>
+                  )}
+                  <span className="text-gray-400 text-xs ml-1">{pkg.items.length} items</span>
+                </div>
+              )}
+
+              {/* Buttons */}
+              <div className="flex gap-2">
+                {pkg.id !== 'custom' && (
+                  <button
+                    onClick={() => onViewPackage(pkg, idx)}
+                    className="flex-1 py-2.5 rounded-xl font-bold text-sm border border-gray-300 text-gray-700 hover:bg-gray-50 transition-all active:scale-95">
+                    View Items
+                  </button>
+                )}
+                <button
+                  onClick={() => onApplyWithPackage(pkg.id === 'custom' ? PACKAGE_OPTIONS[5] : PACKAGE_OPTIONS[idx])}
+                  className={`flex-1 py-2.5 rounded-xl font-bold text-sm transition-all active:scale-95 ${pkg.popular ? 'bg-amber-400 hover:bg-amber-500 text-gray-900' : 'border border-gray-300 text-gray-700 hover:bg-gray-50'}`}>
+                  {pkg.id === 'custom' ? 'Call 0244854206' : 'Apply →'}
+                </button>
+              </div>
             </div>
           </div>
         ))}
@@ -624,91 +1088,210 @@ const FixedPackages = ({ onApplyWithPackage }) => (
   </section>
 )
 
-// ─── SHOP SECTION ─────────────────────────────────────────────────────────────
-const ShopSection = ({ cart, onAdd, onRemove, onCartOpen, cartTotal, cartCount, defaultCat }) => {
-  const [activeCat, setActiveCat] = useState(defaultCat || 'all')
-  const [search, setSearch] = useState('')
+// ─── ROTATING PRODUCT SHOWCASE ────────────────────────────────────────────────
+// Picks 3 products from each category, rotates through them every 4s.
+// Clicking "Browse all" or a category pill opens the full cart drawer flow.
+const SHOWCASE_SIZE = 9   // 3 columns × 3 rows visible at once
+const ROTATE_MS    = 4000 // ms between rotations
+
+// Build a pool: 3 products per category, shuffled so rotation feels varied
+const buildPool = () => {
+  const pool = []
+  CATEGORIES.forEach(cat => {
+    const catProducts = PRODUCTS.filter(p => p.cat === cat.id)
+    // Take up to 3 from each category
+    for (let i = 0; i < Math.min(3, catProducts.length); i++) {
+      pool.push(catProducts[i])
+    }
+  })
+  return pool
+}
+const SHOWCASE_POOL = buildPool()
+
+const ShopSection = ({ cart, onAdd, onRemove, onCartOpen, cartTotal, cartCount, onView }) => {
+  const [offset, setOffset]       = useState(0)
+  const [visible, setVisible]     = useState(true)
+  const [activeCat, setActiveCat] = useState('all')
   const pct = Math.min(100, Math.round((cartTotal / MIN_ORDER) * 100))
 
-  useEffect(() => { if (defaultCat) setActiveCat(defaultCat) }, [defaultCat])
+  // Filter pool by active category
+  const pool = activeCat === 'all'
+    ? SHOWCASE_POOL
+    : PRODUCTS.filter(p => p.cat === activeCat)
 
-  const filtered = PRODUCTS.filter(p => {
-    const matchCat = activeCat === 'all' || p.cat === activeCat
-    const matchSearch = p.name.toLowerCase().includes(search.toLowerCase())
-    return matchCat && matchSearch
-  })
+  const total = pool.length
+  // Clamp offset when pool shrinks
+  const safeOffset = total <= SHOWCASE_SIZE ? 0 : offset % total
+
+  // Auto-rotate
+  useEffect(() => {
+    if (total <= SHOWCASE_SIZE) return
+    const id = setInterval(() => {
+      setVisible(false)
+      setTimeout(() => {
+        setOffset(o => (o + SHOWCASE_SIZE) % total)
+        setVisible(true)
+      }, 350)
+    }, ROTATE_MS)
+    return () => clearInterval(id)
+  }, [total, activeCat])
+
+  // Reset offset when category changes
+  useEffect(() => { setOffset(0); setVisible(true) }, [activeCat])
+
+  // Slice window of products to show
+  const shown = total === 0 ? [] : Array.from({ length: Math.min(SHOWCASE_SIZE, total) }, (_, i) =>
+    pool[(safeOffset + i) % total]
+  )
+
+  // Dot indicators — one per page
+  const pages = total <= SHOWCASE_SIZE ? 1 : Math.ceil(total / SHOWCASE_SIZE)
+  const currentPage = Math.floor(safeOffset / SHOWCASE_SIZE)
 
   return (
-    <section id="shop" className="bg-gray-50 py-10 px-4 border-b border-gray-100">
+    <section id="shop" className="bg-white py-10 px-4 border-b border-gray-100">
       <div className="max-w-7xl mx-auto">
-        <SectionTitle label="Browse & Build Your Own Package" />
-        <p className="text-gray-400 text-xs mb-6 -mt-3">Add items to your cart — we build your 3-month payment plan automatically.</p>
 
-        {/* Cart bar */}
-        {cartCount > 0 && (
-          <div className="sticky top-[107px] z-30 mb-5 bg-white border border-gray-200 rounded-2xl px-5 py-3 flex items-center justify-between gap-4 shadow-sm">
-            <div className="flex items-center gap-4 flex-1 min-w-0">
-              <span className="text-gray-800 font-black text-sm whitespace-nowrap">{cartCount} items · {fmt(cartTotal)}</span>
-              <div className="hidden sm:flex items-center gap-2 flex-1 min-w-0">
-                <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                  <div className={`h-full rounded-full transition-all duration-500 ${pct >= 100 ? 'bg-gray-800' : 'bg-amber-400'}`} style={{ width: `${pct}%` }} />
-                </div>
-                <span className={`text-xs font-bold whitespace-nowrap ${pct >= 100 ? 'text-gray-800' : 'text-amber-600'}`}>
-                  {pct >= 100 ? '✓ Min reached' : `${fmt(MIN_ORDER - cartTotal)} to min`}
-                </span>
-              </div>
+        {/* Header */}
+        <div className="flex items-start justify-between mb-1 gap-4">
+          <div>
+            <div className="flex items-center gap-2.5 mb-1">
+              <span className="w-1 h-5 bg-amber-400 rounded-full inline-block" />
+              <h2 className="text-base font-black text-gray-800">Build Your Own Package</h2>
             </div>
-            <button onClick={onCartOpen} className="bg-gray-800 hover:bg-gray-900 text-white font-black text-xs px-5 py-2 rounded-xl transition-colors whitespace-nowrap flex-shrink-0">
-              View Cart ({cartCount})
+            <p className="text-gray-400 text-xs ml-3.5">
+              Add items to your cart — pay over 3 months. Items rotate automatically.
+            </p>
+          </div>
+
+          {/* Cart pill */}
+          {cartCount > 0 && (
+            <button onClick={onCartOpen}
+              className="flex-shrink-0 flex items-center gap-2 bg-gray-800 hover:bg-gray-900 text-white font-black text-xs px-4 py-2.5 rounded-xl transition-colors">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+              </svg>
+              {cartCount} items · {fmt(cartTotal)}
+              {pct < 100 && <span className="text-amber-300 font-medium">· {fmt(MIN_ORDER - cartTotal)} to min</span>}
+              {pct >= 100 && <span className="text-green-400 font-medium">· ✓ Ready</span>}
             </button>
+          )}
+        </div>
+
+        {/* Progress bar — only when cart has items */}
+        {cartCount > 0 && (
+          <div className="ml-3.5 mb-5 mt-3">
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden max-w-xs">
+                <div className={`h-full rounded-full transition-all duration-500 ${pct >= 100 ? 'bg-gray-800' : 'bg-amber-400'}`} style={{ width: `${pct}%` }} />
+              </div>
+              <span className={`text-xs font-bold ${pct >= 100 ? 'text-gray-800' : 'text-amber-600'}`}>
+                {pct}% of min order
+              </span>
+            </div>
           </div>
         )}
 
-        {/* Search */}
-        <div className="flex gap-3 mb-4">
-          <div className="relative max-w-xs">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-            </svg>
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Filter products..."
-              className="w-full bg-white border border-gray-200 focus:border-amber-400 rounded-xl pl-9 pr-4 py-2.5 text-sm outline-none transition-all" />
-          </div>
-        </div>
-
         {/* Category filter pills */}
-        <div className="flex gap-2 overflow-x-auto pb-2 mb-5">
+        <div className="flex gap-2 overflow-x-auto pb-2 mb-5 mt-4">
           <button onClick={() => setActiveCat('all')}
-            className={`whitespace-nowrap text-xs font-bold px-4 py-2 rounded-full transition-all flex-shrink-0 ${activeCat === 'all' ? 'bg-gray-800 text-white' : 'bg-white border border-gray-200 text-gray-600 hover:border-gray-400'}`}>
-            All Items
+            className={`whitespace-nowrap text-xs font-bold px-4 py-2 rounded-full transition-all flex-shrink-0 ${activeCat === 'all' ? 'bg-gray-800 text-white' : 'bg-gray-50 border border-gray-200 text-gray-600 hover:border-gray-400'}`}>
+            All
           </button>
           {CATEGORIES.map(cat => (
             <button key={cat.id} onClick={() => setActiveCat(cat.id)}
-              className={`whitespace-nowrap text-xs font-bold px-4 py-2 rounded-full transition-all flex-shrink-0 ${activeCat === cat.id ? 'bg-gray-800 text-white' : 'bg-white border border-gray-200 text-gray-600 hover:border-gray-400'}`}>
+              className={`whitespace-nowrap text-xs font-bold px-4 py-2 rounded-full transition-all flex-shrink-0 ${activeCat === cat.id ? 'bg-gray-800 text-white' : 'bg-gray-50 border border-gray-200 text-gray-600 hover:border-gray-400'}`}>
               {cat.label}
             </button>
           ))}
         </div>
 
-        {/* Count */}
-        {activeCat !== 'all' && (
-          <p className="text-gray-400 text-xs mb-4">
-            {CATEGORIES.find(c => c.id === activeCat)?.emoji} {CATEGORIES.find(c => c.id === activeCat)?.label} — {filtered.length} products
-          </p>
-        )}
-
-        {filtered.length === 0
-          ? <div className="text-center py-16 text-gray-300 text-sm">No products found for "{search}"</div>
-          : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-              {filtered.map(p => (
-                <ProductCard key={p.id} product={p}
+        {/* Rotating 3-column grid */}
+        {shown.length === 0 ? (
+          <div className="text-center py-12 text-gray-300 text-sm">No products in this category yet.</div>
+        ) : (
+          <>
+            <div
+              className={`grid grid-cols-3 gap-3 transition-opacity duration-300 ${visible ? 'opacity-100' : 'opacity-0'}`}>
+              {shown.map((p, i) => (
+                <ProductCard key={`${p.id}-${i}`} product={p}
                   qty={cart[p.id] || 0}
                   onAdd={() => onAdd(p.id)}
-                  onRemove={() => onRemove(p.id)} />
+                  onRemove={() => onRemove(p.id)}
+                  onView={onView} />
               ))}
             </div>
-          )
-        }
+
+            {/* Dots + nav */}
+            {pages > 1 && (
+              <div className="flex items-center justify-center gap-3 mt-6">
+                {/* Prev */}
+                <button
+                  onClick={() => {
+                    setVisible(false)
+                    setTimeout(() => {
+                      setOffset(o => (o - SHOWCASE_SIZE + total) % total)
+                      setVisible(true)
+                    }, 300)
+                  }}
+                  className="w-7 h-7 rounded-full border border-gray-200 bg-white hover:bg-gray-50 flex items-center justify-center text-gray-400 hover:text-gray-700 transition-all">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/>
+                  </svg>
+                </button>
+
+                {/* Dot indicators */}
+                <div className="flex gap-1.5">
+                  {Array.from({ length: pages }).map((_, i) => (
+                    <button key={i}
+                      onClick={() => { setOffset(i * SHOWCASE_SIZE); setVisible(true) }}
+                      className="rounded-full transition-all duration-300"
+                      style={{
+                        width: i === currentPage ? '20px' : '6px',
+                        height: '6px',
+                        background: i === currentPage ? '#1f2937' : '#d1d5db',
+                      }} />
+                  ))}
+                </div>
+
+                {/* Next */}
+                <button
+                  onClick={() => {
+                    setVisible(false)
+                    setTimeout(() => {
+                      setOffset(o => (o + SHOWCASE_SIZE) % total)
+                      setVisible(true)
+                    }, 300)
+                  }}
+                  className="w-7 h-7 rounded-full border border-gray-200 bg-white hover:bg-gray-50 flex items-center justify-center text-gray-400 hover:text-gray-700 transition-all">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/>
+                  </svg>
+                </button>
+              </div>
+            )}
+
+            {/* Auto-rotate indicator */}
+            {pages > 1 && (
+              <p className="text-center text-gray-300 text-[11px] mt-2">
+                Rotating every {ROTATE_MS / 1000}s · {total} products available
+              </p>
+            )}
+          </>
+        )}
+
+        {/* View full catalogue CTA */}
+        <div className="mt-6 pt-5 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="text-gray-400 text-xs">
+            Showing {shown.length} of {total} products
+            {activeCat !== 'all' && ` in ${CATEGORIES.find(c => c.id === activeCat)?.label}`}
+          </p>
+          <button onClick={onCartOpen}
+            className="bg-amber-400 hover:bg-amber-500 text-gray-900 font-black text-sm px-6 py-2.5 rounded-xl transition-colors active:scale-95">
+            View Cart & Apply →
+          </button>
+        </div>
+
       </div>
     </section>
   )
@@ -987,10 +1570,13 @@ const Footer = () => (
 
 // ─── ROOT APP ─────────────────────────────────────────────────────────────────
 export default function App() {
-  const [cart, setCart]           = useState({})
-  const [cartOpen, setCartOpen]   = useState(false)
-  const [prefilled, setPrefilled] = useState('')
-  const [shopCat, setShopCat]     = useState('all')
+  const [cart, setCart]                     = useState({})
+  const [cartOpen, setCartOpen]             = useState(false)
+  const [prefilled, setPrefilled]           = useState('')
+  const [shopCat, setShopCat]               = useState('all')
+  const [selectedProduct, setSelectedProduct] = useState(null)
+  const [selectedPackage, setSelectedPackage] = useState(null)
+  const [selectedPackageIdx, setSelectedPackageIdx] = useState(0)
 
   const addToCart = id => setCart(p => ({ ...p, [id]: (p[id] || 0) + 1 }))
   const removeFromCart = id => setCart(p => {
@@ -1010,6 +1596,36 @@ export default function App() {
   const toApply = () => { setCartOpen(false); setTimeout(() => document.getElementById('apply')?.scrollIntoView({ behavior: 'smooth' }), 150) }
   const toShop  = (cat = 'all') => { setShopCat(cat); setTimeout(() => document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' }), 50) }
   const applyWithPkg = pkg => { setPrefilled(pkg); document.getElementById('apply')?.scrollIntoView({ behavior: 'smooth' }) }
+  const viewProduct = (product) => { setSelectedProduct(product); window.scrollTo(0, 0) }
+  const closeProduct = () => setSelectedProduct(null)
+  const viewPackage = (pkg, idx) => { setSelectedPackage(pkg); setSelectedPackageIdx(idx); window.scrollTo(0, 0) }
+  const closePackage = () => setSelectedPackage(null)
+
+  // Show product detail page
+  if (selectedProduct) {
+    return (
+      <ProductDetail
+        product={selectedProduct}
+        qty={cart[selectedProduct.id] || 0}
+        onAdd={() => addToCart(selectedProduct.id)}
+        onRemove={() => removeFromCart(selectedProduct.id)}
+        onBack={closeProduct}
+        onViewProduct={viewProduct}
+      />
+    )
+  }
+
+  // Show package detail page
+  if (selectedPackage) {
+    return (
+      <PackageDetail
+        pkg={selectedPackage}
+        idx={selectedPackageIdx}
+        onBack={closePackage}
+        onApply={(pkgOption) => { applyWithPkg(pkgOption); closePackage() }}
+      />
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
@@ -1024,14 +1640,14 @@ export default function App() {
       <CategoryTiles onCatClick={cat => toShop(cat)} />
 
       {/* 3 rows of mixed featured products — GH Basket style */}
-      <FeaturedGrid cart={cart} onAdd={addToCart} onRemove={removeFromCart} onShop={() => toShop()} />
+      <FeaturedGrid cart={cart} onAdd={addToCart} onRemove={removeFromCart} onShop={() => toShop()} onView={viewProduct} />
 
       <PromoStrip onApply={toApply} onShop={() => toShop()} />
-      <FixedPackages onApplyWithPackage={applyWithPkg} />
+      <FixedPackages onApplyWithPackage={applyWithPkg} onViewPackage={viewPackage} />
       <ShopSection cart={cart} onAdd={addToCart} onRemove={removeFromCart}
         onCartOpen={() => setCartOpen(true)}
         cartTotal={cartTotal} cartCount={cartCount}
-        defaultCat={shopCat} />
+        onView={viewProduct} />
       <ApplySection prefilledPackage={prefilled} cartTotal={cartTotal} cartItems={cartItems} />
       <Footer />
       <WhatsAppFloat />
