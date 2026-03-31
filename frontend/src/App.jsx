@@ -26,12 +26,15 @@ const CATEGORIES = [
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const PRODUCTS = [
   // ── BREAKFAST ESSENTIALS ──────────────────────────────────────────────────
-  { id: 801, name: 'Milo 400g',                    cat: 'breakfast',  price: 55,  oldPrice: 70,  unit: 'tin',     emoji: '🍫' },
-  { id: 802, name: 'Dano Full Cream Milk 400g',    cat: 'breakfast',  price: 60,  oldPrice: 76,  unit: 'tin',     emoji: '🥛' },
-  { id: 803, name: 'Cowbell Milk Powder 400g',     cat: 'breakfast',  price: 62,  oldPrice: 78,  unit: 'tin',     emoji: '🥛' },
-  { id: 804, name: 'Nido Milk Powder 400g',        cat: 'breakfast',  price: 68,  oldPrice: 85,  unit: 'tin',     emoji: '🥛' },
-  { id: 807, name: 'Lipton Tea Bags ×100',         cat: 'breakfast',  price: 35,  oldPrice: 45,  unit: 'box',     emoji: '🍵' },
-  { id: 809, name: 'Cabin Biscuits 400g',          cat: 'breakfast',  price: 20,  oldPrice: 26,  unit: 'pack',    emoji: '🍪' },
+  { id: 801, name: 'Milo 400g Tin',                cat: 'breakfast',  price: 55,  oldPrice: 70,  unit: 'tin',     img: '/images/Milo-Antigen-E-400g-405x330.jpg' },
+  { id: 813, name: 'Milo 200g Sachet',             cat: 'breakfast',  price: 28,  oldPrice: 36,  unit: 'sachet',  img: '/images/Milo-200g-1-405x330.jpg' },
+  { id: 802, name: 'Peak Full Cream Milk 1L',      cat: 'breakfast',  price: 32,  oldPrice: 42,  unit: 'pack',    img: '/images/PEAK-405x330.jpg' },
+  { id: 803, name: 'Ideal Evaporated Milk 160g',   cat: 'breakfast',  price: 14,  oldPrice: 18,  unit: 'tin',     img: '/images/IDEAL-ORIGINAL-EVAPORATED-MILK-160G-405x330.jpg' },
+  { id: 804, name: 'Carnation Tea Creamer 160g',   cat: 'breakfast',  price: 16,  oldPrice: 22,  unit: 'tin',     img: '/images/CARNATION-TEA-CREAMER-160G-405x330.jpg' },
+  { id: 807, name: 'Good Morning White Oats 500g', cat: 'breakfast',  price: 28,  oldPrice: 36,  unit: 'pack',    img: '/images/Good-Morning-Oats-500g-405x330.jpg' },
+  { id: 814, name: 'Kellogg\'s Corn Flakes',       cat: 'breakfast',  price: 65,  oldPrice: 82,  unit: 'box',     img: '/images/cornflakes.jpg' },
+  { id: 815, name: 'Weetabix Family Pack ×48',     cat: 'breakfast',  price: 85,  oldPrice: 105, unit: 'box',     img: '/images/1-350x330.jpeg', tag: 'Value' },
+  { id: 816, name: 'Givite Tombrown Porridge',     cat: 'breakfast',  price: 35,  oldPrice: 45,  unit: 'jar',     img: '/images/Givite-Tombrown-Big-Size-405x330.jpeg', tag: 'Local' },
 
   // ── CANNED PRODUCTS ───────────────────────────────────────────────────────
   { id: 401, name: 'Titus Sardines 125g ×12',      cat: 'canned',     price: 80,  oldPrice: 100, unit: 'carton',  img: '/images/titus-sardines.png' },
@@ -39,48 +42,49 @@ const PRODUCTS = [
   { id: 403, name: 'Geisha Mackerel 155g ×12',     cat: 'canned',     price: 85,  oldPrice: 108, unit: 'carton',  emoji: '🐟', tag: 'Bulk' },
   { id: 404, name: 'Geisha Mackerel 155g',         cat: 'canned',     price: 9,   oldPrice: 12,  unit: 'tin',     emoji: '🐟' },
   { id: 405, name: 'Lucky Star Pilchards 400g ×12',cat: 'canned',     price: 120, oldPrice: 148, unit: 'carton',  emoji: '🐟' },
-  { id: 406, name: 'Heinz Baked Beans 415g ×6',    cat: 'canned',     price: 95,  oldPrice: 118, unit: 'carton',  emoji: '🫘', tag: 'New' },
+  { id: 406, name: 'Heinz Baked Beans 415g ×6',    cat: 'canned',     price: 95,  oldPrice: 118, unit: 'carton',  emoji: '🫘', tag: 'Value' },
   { id: 407, name: 'Heinz Baked Beans 415g',       cat: 'canned',     price: 18,  oldPrice: 24,  unit: 'tin',     emoji: '🫘' },
-  { id: 408, name: 'Red Red Beans 400g ×12',       cat: 'canned',     price: 85,  oldPrice: 105, unit: 'carton',  emoji: '🫘' },
+  { id: 408, name: 'Black-Eyed Beans 400g',        cat: 'canned',     price: 15,  oldPrice: 20,  unit: 'pack',    img: '/images/black-eyed-beans.jpg', tag: 'Local' },
   { id: 410, name: 'Devon Corned Beef 340g ×6',    cat: 'canned',     price: 95,  oldPrice: 118, unit: 'carton',  emoji: '🥩' },
-  { id: 411, name: 'KOO Mixed Vegetables ×6',      cat: 'canned',     price: 55,  oldPrice: 70,  unit: 'pack',    emoji: '🥫' },
 
   // ── COOKING OILS & SPREADS ────────────────────────────────────────────────
   { id: 201, name: 'Frytol Vegetable Oil 5L',      cat: 'oil',        price: 110, oldPrice: 138, unit: 'bottle',  img: '/images/frytol-oil.png', tag: 'Popular' },
   { id: 202, name: 'Frytol Vegetable Oil 2L',      cat: 'oil',        price: 52,  oldPrice: 65,  unit: 'bottle',  img: '/images/frytol-oil.png' },
   { id: 203, name: 'Frytol Vegetable Oil 1L',      cat: 'oil',        price: 30,  oldPrice: 38,  unit: 'bottle',  img: '/images/frytol-oil.png' },
-  { id: 204, name: 'Ideal Vegetable Oil 5L',       cat: 'oil',        price: 105, oldPrice: 130, unit: 'bottle',  emoji: '🫙' },
-  { id: 205, name: 'Palm Oil 4L',                  cat: 'oil',        price: 65,  oldPrice: 82,  unit: 'bottle',  emoji: '🫙' },
+  { id: 205, name: 'Palm Oil 1L',                  cat: 'oil',        price: 22,  oldPrice: 30,  unit: 'bottle',  img: '/images/palm-oil.jpeg' },
+  { id: 206, name: 'Palm Oil 3 × 1L',             cat: 'oil',        price: 62,  oldPrice: 82,  unit: 'set',     img: '/images/palm-oil.jpeg', tag: 'Value' },
 
   // ── GHANA FOOD (local staples) ────────────────────────────────────────────
-  { id: 901, name: 'Maize Flour 5kg',              cat: 'foodstuffs', price: 38,  oldPrice: 48,  unit: 'bag',     emoji: '🌽' },
-  { id: 902, name: 'Maize Flour 2kg',              cat: 'foodstuffs', price: 18,  oldPrice: 24,  unit: 'bag',     emoji: '🌽' },
+  { id: 901, name: 'Corn Dough 2kg',               cat: 'foodstuffs', price: 20,  oldPrice: 26,  unit: 'pack',    img: '/images/corn-dough.jpg', tag: 'Local' },
+  { id: 902, name: 'Corn Dough 5kg',               cat: 'foodstuffs', price: 45,  oldPrice: 58,  unit: 'pack',    img: '/images/corn-dough.jpg', tag: 'Local' },
   { id: 903, name: 'Cassava Powder (Fufu) 5kg',    cat: 'foodstuffs', price: 42,  oldPrice: 54,  unit: 'bag',     emoji: '🫙', tag: 'Local' },
   { id: 904, name: 'Cassava Powder (Fufu) 2kg',    cat: 'foodstuffs', price: 20,  oldPrice: 26,  unit: 'bag',     emoji: '🫙', tag: 'Local' },
   { id: 905, name: 'Onions (Bag) 10kg',            cat: 'foodstuffs', price: 55,  oldPrice: 70,  unit: 'bag',     emoji: '🧅' },
   { id: 906, name: 'Onions (Bag) 5kg',             cat: 'foodstuffs', price: 30,  oldPrice: 38,  unit: 'bag',     emoji: '🧅' },
-  { id: 907, name: 'Gari (Fine) 5kg',              cat: 'foodstuffs', price: 35,  oldPrice: 45,  unit: 'bag',     emoji: '🌾', tag: 'Local' },
+  { id: 907, name: 'Gari (Fine) 5kg',              cat: 'foodstuffs', price: 35,  oldPrice: 45,  unit: 'bag',     img: '/images/gari.jpg', tag: 'Local' },
+  { id: 908, name: 'Koose Mix 120g',               cat: 'foodstuffs', price: 12,  oldPrice: 16,  unit: 'pack',    img: '/images/koose-mix.jpeg', tag: 'Local' },
   { id: 909, name: 'Groundnut (Peanuts) 2kg',      cat: 'foodstuffs', price: 25,  oldPrice: 32,  unit: 'bag',     emoji: '🥜' },
-  { id: 910, name: 'Dried Herrings (Keta Schoolboys)', cat: 'foodstuffs', price: 40, oldPrice: 52, unit: 'pack',  emoji: '🐟', tag: 'Local' },
+  { id: 910, name: 'Brown Rice 5kg',               cat: 'foodstuffs', price: 55,  oldPrice: 70,  unit: 'bag',     img: '/images/brown-rice.jpg', tag: 'Local' },
 
   // ── HOUSEHOLD & CLEANING ──────────────────────────────────────────────────
-  { id: 701, name: "Mama's Choice Detergent 5kg",  cat: 'cleaning',   price: 85,  oldPrice: 105, unit: 'bag',     emoji: '🧺', tag: 'Bulk' },
-  { id: 702, name: "Mama's Choice Detergent 2kg",  cat: 'cleaning',   price: 38,  oldPrice: 48,  unit: 'bag',     emoji: '🧺' },
-  { id: 703, name: 'Omo Washing Powder 2kg',       cat: 'cleaning',   price: 48,  oldPrice: 62,  unit: 'bag',     emoji: '🫧' },
-  { id: 704, name: 'Ariel Automatic 1.5kg',        cat: 'cleaning',   price: 78,  oldPrice: 96,  unit: 'bag',     emoji: '🫧' },
-  { id: 705, name: 'Dettol Antiseptic 500ml',      cat: 'cleaning',   price: 38,  oldPrice: 50,  unit: 'bottle',  emoji: '🧴' },
-  { id: 706, name: 'Morning Fresh Dish Soap 2L',   cat: 'cleaning',   price: 55,  oldPrice: 68,  unit: 'bottle',  emoji: '🧴' },
-  { id: 707, name: 'Sunlight Dishwash 750ml',      cat: 'cleaning',   price: 28,  oldPrice: 36,  unit: 'bottle',  emoji: '🧴' },
-  { id: 708, name: 'Key Soap Bar ×36',             cat: 'cleaning',   price: 65,  oldPrice: 82,  unit: 'carton',  emoji: '🧼' },
-  { id: 709, name: 'Parazone Bleach 750ml',        cat: 'cleaning',   price: 22,  oldPrice: 30,  unit: 'bottle',  emoji: '🫧' },
+  { id: 701, name: 'Madar Washing Powder 180g',    cat: 'cleaning',   price: 8,   oldPrice: 12,  unit: 'pack',    img: '/images/madar-washing-powder.jpg' },
+  { id: 702, name: 'Madar Washing Powder ×10',     cat: 'cleaning',   price: 72,  oldPrice: 95,  unit: 'carton',  img: '/images/madar-washing-powder.jpg', tag: 'Bulk' },
+  { id: 703, name: 'Madar Multipurpose Soap',      cat: 'cleaning',   price: 12,  oldPrice: 16,  unit: 'bar',     img: '/images/madar-soap.png' },
+  { id: 704, name: 'Camel Antiseptic 500ml',       cat: 'cleaning',   price: 38,  oldPrice: 50,  unit: 'bottle',  img: '/images/camel-antiseptic.png' },
+  { id: 705, name: 'Morning Fresh Dishwash 750ml', cat: 'cleaning',   price: 32,  oldPrice: 42,  unit: 'bottle',  img: '/images/morning-fresh.jpg' },
+  { id: 706, name: 'Sunlight Dishwash 750ml',      cat: 'cleaning',   price: 28,  oldPrice: 36,  unit: 'bottle',  img: '/images/sunlight-dishwash.jpg' },
+  { id: 707, name: 'Power Zone Bleach',            cat: 'cleaning',   price: 22,  oldPrice: 30,  unit: 'bottle',  img: '/images/power-zone.jpg' },
+  { id: 708, name: 'Glade Air Freshener',          cat: 'cleaning',   price: 35,  oldPrice: 45,  unit: 'can',     img: '/images/glade.jpg' },
+  { id: 709, name: 'Pride Toilet Tissue ×10',      cat: 'cleaning',   price: 38,  oldPrice: 50,  unit: 'pack',    img: '/images/pride-tissue.jpeg' },
+  { id: 710, name: 'Jumbo Multi-Purpose Towel',    cat: 'cleaning',   price: 18,  oldPrice: 24,  unit: 'roll',    img: '/images/jumbo-towel.jpg' },
 
   // ── FROZEN ────────────────────────────────────────────────────────────────
-  { id: 601, name: 'Frozen Chicken Legs 2kg',      cat: 'frozen',     price: 95,  oldPrice: 118, unit: 'pack',    emoji: '🍗', tag: 'Frozen' },
-  { id: 602, name: 'Frozen Chicken Wings 2kg',     cat: 'frozen',     price: 88,  oldPrice: 108, unit: 'pack',    emoji: '🍗', tag: 'Frozen' },
-  { id: 603, name: 'Frozen Drumsticks 3kg',        cat: 'frozen',     price: 120, oldPrice: 148, unit: 'pack',    emoji: '🍗', tag: 'Frozen' },
-  { id: 604, name: 'Frozen Whole Chicken 2kg',     cat: 'frozen',     price: 95,  oldPrice: 118, unit: 'pack',    emoji: '🐔', tag: 'Frozen' },
-  { id: 605, name: 'Frozen Tilapia 2kg',           cat: 'frozen',     price: 75,  oldPrice: 95,  unit: 'pack',    emoji: '🐟', tag: 'Frozen' },
-  { id: 606, name: 'Frozen Tuna Steaks 2kg',       cat: 'frozen',     price: 85,  oldPrice: 105, unit: 'pack',    emoji: '🐟', tag: 'Frozen' },
+  { id: 601, name: 'Frozen Chicken Thighs 2kg',    cat: 'frozen',     price: 95,  oldPrice: 118, unit: 'pack',    img: '/images/Chicken-thigh.jpeg', tag: 'Frozen' },
+  { id: 602, name: 'Frozen Chicken Wings 2kg',     cat: 'frozen',     price: 88,  oldPrice: 108, unit: 'pack',    img: '/images/chicken-wings.jpeg', tag: 'Frozen' },
+  { id: 603, name: 'Frozen Drumsticks 3kg',        cat: 'frozen',     price: 120, oldPrice: 148, unit: 'pack',    img: '/images/drumstick.jpeg', tag: 'Frozen' },
+  { id: 604, name: 'Chicken Gizzards 1kg',         cat: 'frozen',     price: 45,  oldPrice: 58,  unit: 'pack',    img: '/images/gizzard.jpeg', tag: 'Frozen' },
+  { id: 605, name: 'Sadia Chicken Sausages ×3',    cat: 'frozen',     price: 55,  oldPrice: 70,  unit: 'pack',    img: '/images/sausage.jpg', tag: 'Frozen' },
+  { id: 606, name: 'Frozen Tilapia 2kg',           cat: 'frozen',     price: 75,  oldPrice: 95,  unit: 'pack',    emoji: '🐟', tag: 'Frozen' },
   { id: 607, name: 'Frozen Beef Pieces 2kg',       cat: 'frozen',     price: 110, oldPrice: 138, unit: 'pack',    emoji: '🥩', tag: 'Frozen' },
 
   // ── FRESH FOOD ────────────────────────────────────────────────────────────
@@ -88,20 +92,25 @@ const PRODUCTS = [
   { id: 1002, name: 'Fresh Onions 1kg',            cat: 'fresh',      price: 10,  oldPrice: 14,  unit: 'kg',      emoji: '🧅' },
   { id: 1003, name: 'Fresh Pepper Assorted 500g',  cat: 'fresh',      price: 15,  oldPrice: 20,  unit: 'pack',    emoji: '🌶️' },
   { id: 1004, name: 'Fresh Garden Eggs 500g',      cat: 'fresh',      price: 12,  oldPrice: 16,  unit: 'pack',    emoji: '🍆', tag: 'Local' },
-  { id: 1005, name: 'Plantains (bunch)',           cat: 'fresh',      price: 25,  oldPrice: 32,  unit: 'bunch',   emoji: '🍌', tag: 'Local' },
-  { id: 1006, name: 'Yam Tuber (medium)',          cat: 'fresh',      price: 30,  oldPrice: 38,  unit: 'tuber',   emoji: '🍠', tag: 'Local' },
+  { id: 1005, name: 'Plantains (bunch)',            cat: 'fresh',      price: 25,  oldPrice: 32,  unit: 'bunch',   emoji: '🍌', tag: 'Local' },
+  { id: 1006, name: 'Yam Tuber (medium)',           cat: 'fresh',      price: 30,  oldPrice: 38,  unit: 'tuber',   emoji: '🍠', tag: 'Local' },
 
   // ── RICE, PASTA & GRAINS ──────────────────────────────────────────────────
   { id: 101, name: 'Royal Feast Rice 25kg',        cat: 'rice',       price: 180, oldPrice: 220, unit: 'bag',     img: '/images/royal-feast-rice.png', tag: 'Bestseller' },
-  { id: 102, name: 'Royal Feast Rice 10kg',        cat: 'rice',       price: 78,  oldPrice: 95,  unit: 'bag',     img: '/images/royal-feast-rice.png' },
-  { id: 103, name: 'Royal Feast Rice 5kg',         cat: 'rice',       price: 42,  oldPrice: 55,  unit: 'bag',     img: '/images/royal-feast-rice.png' },
-  { id: 104, name: 'Gino Thai Jasmine Rice 5kg',   cat: 'rice',       price: 48,  oldPrice: 62,  unit: 'bag',     emoji: '🌾' },
-  { id: 105, name: 'Mama Gold Parboiled Rice 5kg', cat: 'rice',       price: 45,  oldPrice: 58,  unit: 'bag',     emoji: '🌾' },
-  { id: 301, name: 'OBA Spaghetti 500g ×10',       cat: 'rice',       price: 95,  oldPrice: 118, unit: 'carton',  emoji: '🍝', tag: 'Value' },
-  { id: 302, name: 'OBA Spaghetti 500g',           cat: 'rice',       price: 12,  oldPrice: 16,  unit: 'pack',    emoji: '🍝' },
-  { id: 303, name: 'Indomie Noodles ×40',          cat: 'rice',       price: 95,  oldPrice: 115, unit: 'carton',  emoji: '🍜' },
-  { id: 304, name: 'Indomie Noodles (single)',      cat: 'rice',       price: 3,   oldPrice: 4,   unit: 'pack',    emoji: '🍜' },
-  { id: 305, name: 'Golden Penny Spaghetti 500g',  cat: 'rice',       price: 13,  oldPrice: 17,  unit: 'pack',    emoji: '🍝' },
+  { id: 102, name: 'Royal Aroma Rice 10kg',        cat: 'rice',       price: 78,  oldPrice: 95,  unit: 'bag',     img: '/images/royal-aroma-rice.jpg' },
+  { id: 103, name: 'Royal Umbrella Rice 5kg',      cat: 'rice',       price: 48,  oldPrice: 62,  unit: 'bag',     img: '/images/royal-umbrella-rice.jpg' },
+  { id: 104, name: 'Gino Thai Jasmine Rice 5kg',   cat: 'rice',       price: 48,  oldPrice: 62,  unit: 'bag',     img: '/images/gino-rice.jpg' },
+  { id: 106, name: 'Gino Thai Jasmine Rice 25kg',  cat: 'rice',       price: 185, oldPrice: 225, unit: 'bag',     img: '/images/gino-rice-25kg.jpg' },
+  { id: 107, name: 'Lele Thai Jasmine Rice 5kg',   cat: 'rice',       price: 50,  oldPrice: 65,  unit: 'bag',     img: '/images/lele-rice.jpg' },
+  { id: 108, name: 'Millicent Fragrant Rice 5kg',  cat: 'rice',       price: 46,  oldPrice: 60,  unit: 'bag',     img: '/images/millicent-rice-5kg.jpg' },
+  { id: 109, name: 'Millicent Fragrant Rice 25kg', cat: 'rice',       price: 188, oldPrice: 228, unit: 'bag',     img: '/images/millicent-rice-25kg.jpg' },
+  { id: 110, name: 'Cindy Rice 25kg',              cat: 'rice',       price: 182, oldPrice: 222, unit: 'bag',     img: '/images/cindy-rice-25kg.jpg' },
+  { id: 111, name: 'Red Eagle Rice 5kg',           cat: 'rice',       price: 44,  oldPrice: 58,  unit: 'bag',     img: '/images/red-eagle-rice.jpg' },
+  { id: 301, name: 'OBA Spaghetti 500g ×10',       cat: 'rice',       price: 95,  oldPrice: 118, unit: 'carton',  img: '/images/oba-spaghetti.jpg', tag: 'Value' },
+  { id: 302, name: 'OBA Spaghetti 500g',           cat: 'rice',       price: 12,  oldPrice: 16,  unit: 'pack',    img: '/images/oba-spaghetti.jpg' },
+  { id: 303, name: 'Indomie Noodles ×40',          cat: 'rice',       price: 95,  oldPrice: 115, unit: 'carton',  img: '/images/indomie.jpg' },
+  { id: 304, name: 'Indomie Noodles (single)',      cat: 'rice',       price: 3,   oldPrice: 4,   unit: 'pack',    img: '/images/indomie.jpg' },
+  { id: 306, name: 'Wheat Grain 2kg',              cat: 'rice',       price: 30,  oldPrice: 40,  unit: 'bag',     img: '/images/wheat-grain.jpg', tag: 'Local' },
 
   // ── SAUCES & SPICES ───────────────────────────────────────────────────────
   { id: 501, name: 'Gino Tomato Paste 400g ×6',    cat: 'condiments', price: 55,  oldPrice: 70,  unit: 'pack',    img: '/images/gino-tomato-paste.png', tag: 'Deal' },
@@ -113,12 +122,13 @@ const PRODUCTS = [
   { id: 507, name: 'Maggi Seasoning Cubes ×100',   cat: 'condiments', price: 30,  oldPrice: 38,  unit: 'pack',    emoji: '🧂' },
 
   // ── FOOD CUPBOARD (provisions) ────────────────────────────────────────────
-  { id: 805, name: 'Sugar 2kg',                    cat: 'provisions', price: 28,  oldPrice: 36,  unit: 'bag',     emoji: '🍬' },
-  { id: 806, name: 'Sugar 5kg',                    cat: 'provisions', price: 65,  oldPrice: 82,  unit: 'bag',     emoji: '🍬', tag: 'Value' },
+  { id: 805, name: 'St. Louis Cube Sugar',         cat: 'provisions', price: 22,  oldPrice: 30,  unit: 'box',     img: '/images/st-louis-sugar.jpg' },
+  { id: 806, name: 'White Sugar 2kg',              cat: 'provisions', price: 28,  oldPrice: 36,  unit: 'bag',     img: '/images/white-sugar.jpg', tag: 'Value' },
   { id: 808, name: 'Eva Table Water 1.5L ×12',     cat: 'provisions', price: 42,  oldPrice: 55,  unit: 'carton',  emoji: '💧' },
-  { id: 810, name: 'Golden Penny Flour 1kg',       cat: 'provisions', price: 18,  oldPrice: 24,  unit: 'pack',    emoji: '🌾' },
-  { id: 811, name: 'Salt 1kg',                     cat: 'provisions', price: 10,  oldPrice: 14,  unit: 'bag',     emoji: '🧂' },
-  { id: 812, name: 'Vegetable Bouillon Cubes ×50', cat: 'provisions', price: 20,  oldPrice: 26,  unit: 'pack',    emoji: '🧂' },
+  { id: 810, name: 'Almonds 200g',                 cat: 'provisions', price: 45,  oldPrice: 58,  unit: 'pack',    img: '/images/almonds.jpeg' },
+  { id: 811, name: 'Chia Seeds 200g',              cat: 'provisions', price: 38,  oldPrice: 50,  unit: 'pack',    img: '/images/chia-seeds.jpeg' },
+  { id: 812, name: 'Sunflower Seeds 200g',         cat: 'provisions', price: 32,  oldPrice: 42,  unit: 'pack',    img: '/images/sunflower-seeds.jpeg' },
+  { id: 817, name: 'Black Seeds 200g',             cat: 'provisions', price: 30,  oldPrice: 40,  unit: 'pack',    img: '/images/black-seeds.jpeg' },
 ]
 
 const MIN_ORDER = 549
@@ -274,13 +284,13 @@ const LogoMark = ({ size = 40 }) => (
 )
 
 // ─── NAVBAR ───────────────────────────────────────────────────────────────────
-const Navbar = ({ cartCount, onCartOpen, onApply }) => {
+const Navbar = ({ cartCount, onCartOpen, onApply, onDeptClick }) => {
   const [search, setSearch] = useState('')
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
       {/* Top bar */}
       <div className="bg-gray-800 text-gray-300 text-[11px] py-1.5 text-center tracking-wide">
-        🚚 Free delivery in Accra on orders above GH₵200 &nbsp;·&nbsp; 📱 MoMo accepted &nbsp;·&nbsp; 🏛️ Open to all Ghana govt workers
+        🚚 Free delivery in Accra on orders above GH₵200 &nbsp;·&nbsp; 📅 Pay over 1–3 months — no interest &nbsp;·&nbsp; 🏛️ Open to all Ghana govt workers
       </div>
 
       {/* Main nav */}
@@ -328,7 +338,9 @@ const Navbar = ({ cartCount, onCartOpen, onApply }) => {
       {/* Category strip */}
       <div className="border-t border-gray-100 overflow-x-auto bg-white">
         <div className="max-w-7xl mx-auto px-4 flex items-center min-w-max">
-          <button className="flex items-center gap-1.5 text-gray-700 bg-gray-100 hover:bg-gray-200 px-4 py-2.5 text-xs font-bold transition-colors flex-shrink-0 border-r border-gray-200">
+          <button
+            onClick={() => onDeptClick && onDeptClick('all')}
+            className="flex items-center gap-1.5 text-gray-700 bg-gray-100 hover:bg-gray-200 px-4 py-2.5 text-xs font-bold transition-colors flex-shrink-0 border-r border-gray-200">
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16"/>
             </svg>
@@ -336,6 +348,7 @@ const Navbar = ({ cartCount, onCartOpen, onApply }) => {
           </button>
           {CATEGORIES.map(cat => (
             <button key={cat.id}
+              onClick={() => onDeptClick && onDeptClick(cat.id)}
               className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-4 py-2.5 text-xs font-medium whitespace-nowrap flex-shrink-0 border-r border-gray-100 transition-colors">
               {cat.label}
             </button>
@@ -471,16 +484,16 @@ const TrustBar = () => (
 // Each category gets a background colour + up to 3 product images to display.
 // As you add real images to public/images/, slot them in here.
 const CAT_BANNERS = {
-  breakfast:  { bg: 'bg-orange-50',  border: 'border-orange-100', title: 'text-orange-800', imgs: ['/images/cornflakes.jpg'] },
+  breakfast:  { bg: 'bg-orange-50',  border: 'border-orange-100', title: 'text-orange-800', imgs: ['/images/cornflakes.jpg', '/images/milo-400g.jpg'] },
   canned:     { bg: 'bg-red-50',     border: 'border-red-100',    title: 'text-red-800',    imgs: ['/images/titus-sardines.png', '/images/gino-tomato-paste.png'] },
-  oil:        { bg: 'bg-yellow-50',  border: 'border-yellow-100', title: 'text-yellow-800', imgs: ['/images/frytol-oil.png'] },
-  foodstuffs: { bg: 'bg-green-50',   border: 'border-green-100',  title: 'text-green-800',  imgs: ['/images/slider-2.jpg'] },
-  cleaning:   { bg: 'bg-blue-50',    border: 'border-blue-100',   title: 'text-blue-800',   imgs: ['/images/power-zone-405x330.jpg'] },
-  frozen:     { bg: 'bg-sky-50',     border: 'border-sky-100',    title: 'text-sky-800',    imgs: ['/images/Chicken-thigh.jpeg'] },
+  oil:        { bg: 'bg-yellow-50',  border: 'border-yellow-100', title: 'text-yellow-800', imgs: ['/images/frytol-oil.png', '/images/palm-oil.jpeg'] },
+  foodstuffs: { bg: 'bg-green-50',   border: 'border-green-100',  title: 'text-green-800',  imgs: ['/images/gari.jpg', '/images/corn-dough.jpg'] },
+  cleaning:   { bg: 'bg-blue-50',    border: 'border-blue-100',   title: 'text-blue-800',   imgs: ['/images/power-zone.jpg', '/images/madar-soap.png'] },
+  frozen:     { bg: 'bg-sky-50',     border: 'border-sky-100',    title: 'text-sky-800',    imgs: ['/images/Chicken-thigh.jpeg', '/images/drumstick.jpeg'] },
   fresh:      { bg: 'bg-lime-50',    border: 'border-lime-100',   title: 'text-lime-800',   imgs: ['/images/slider-2.jpg'] },
-  rice:       { bg: 'bg-amber-50',   border: 'border-amber-100',  title: 'text-amber-800',  imgs: ['/images/royal-feast-rice.png'] },
+  rice:       { bg: 'bg-amber-50',   border: 'border-amber-100',  title: 'text-amber-800',  imgs: ['/images/royal-feast-rice.png', '/images/oba-spaghetti.jpg'] },
   condiments: { bg: 'bg-rose-50',    border: 'border-rose-100',   title: 'text-rose-800',   imgs: ['/images/gino-tomato-paste.png', '/images/titus-sardines.png'] },
-  provisions: { bg: 'bg-purple-50',  border: 'border-purple-100', title: 'text-purple-800', imgs: ['/images/slider-1.jpeg'] },
+  provisions: { bg: 'bg-purple-50',  border: 'border-purple-100', title: 'text-purple-800', imgs: ['/images/st-louis-sugar.jpg', '/images/almonds.jpeg'] },
 }
 
 // ─── CATEGORY TILES ───────────────────────────────────────────────────────────
@@ -548,10 +561,9 @@ const SectionTitle = ({ label, onSeeAll }) => (
 )
 
 // ─── PRODUCT DETAIL PAGE ──────────────────────────────────────────────────────
-const ProductDetail = ({ product, qty, onAdd, onRemove, onBack, onViewProduct }) => {
+const ProductDetail = ({ product, qty, onAdd, onRemove, onBack, onViewProduct, cartCount, onCartOpen, onDeptClick }) => {
   const [localQty, setLocalQty] = useState(1)
   const [added, setAdded] = useState(false)
-  const pct = disc(product.price, product.oldPrice)
   const cat = CATEGORIES.find(c => c.id === product.cat)
   const related = PRODUCTS.filter(p => p.cat === product.cat && p.id !== product.id).slice(0, 6)
 
@@ -569,9 +581,17 @@ const ProductDetail = ({ product, qty, onAdd, onRemove, onBack, onViewProduct })
 
   return (
     <div className="fixed inset-0 z-50 bg-gray-50 overflow-y-auto">
-      {/* Top bar */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
+      {/* Full Navbar — so cart count stays visible */}
+      <Navbar
+        cartCount={cartCount}
+        onCartOpen={onCartOpen}
+        onApply={onBack}
+        onDeptClick={(catId) => { onBack(); setTimeout(() => onDeptClick(catId), 100) }}
+      />
+
+      {/* Breadcrumb bar */}
+      <div className="bg-white border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center gap-3">
           <button onClick={onBack}
             className="flex items-center gap-1.5 text-gray-600 hover:text-gray-900 text-sm font-semibold transition-colors">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -580,7 +600,6 @@ const ProductDetail = ({ product, qty, onAdd, onRemove, onBack, onViewProduct })
             Back
           </button>
           <span className="text-gray-300">|</span>
-          {/* Breadcrumb */}
           <nav className="flex items-center gap-1.5 text-xs text-gray-400">
             <button onClick={onBack} className="hover:text-gray-700 transition-colors">Home</button>
             <span>/</span>
@@ -590,7 +609,6 @@ const ProductDetail = ({ product, qty, onAdd, onRemove, onBack, onViewProduct })
           </nav>
         </div>
       </div>
-
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Main product section */}
         <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden mb-8">
@@ -634,26 +652,39 @@ const ProductDetail = ({ product, qty, onAdd, onRemove, onBack, onViewProduct })
 
               {/* Quantity + Add to cart */}
               <div className="flex items-center gap-3 mb-4">
-                <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden">
+                {!added ? (
+                  <>
+                    <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden">
+                      <button
+                        onClick={() => setLocalQty(q => Math.max(1, q - 1))}
+                        className="w-10 h-11 bg-gray-50 hover:bg-gray-100 text-gray-600 font-black text-lg flex items-center justify-center transition-colors">
+                        −
+                      </button>
+                      <span className="w-12 text-center font-black text-base text-gray-800 border-x border-gray-200 h-11 flex items-center justify-center">
+                        {localQty}
+                      </span>
+                      <button
+                        onClick={() => setLocalQty(q => q + 1)}
+                        className="w-10 h-11 bg-gray-50 hover:bg-gray-100 text-gray-600 font-black text-lg flex items-center justify-center transition-colors">
+                        +
+                      </button>
+                    </div>
+                    <button
+                      onClick={handleAddToCart}
+                      className="flex-1 h-11 rounded-xl font-black text-sm bg-amber-400 hover:bg-amber-500 text-gray-900 transition-all active:scale-95">
+                      Add {localQty > 1 ? `(${localQty}) ` : ''}to Cart
+                    </button>
+                  </>
+                ) : (
                   <button
-                    onClick={() => setLocalQty(q => Math.max(1, q - 1))}
-                    className="w-10 h-11 bg-gray-50 hover:bg-gray-100 text-gray-600 font-black text-lg flex items-center justify-center transition-colors">
-                    −
+                    onClick={onCartOpen}
+                    className="w-full h-11 rounded-xl font-black text-sm bg-gray-800 hover:bg-gray-900 text-white transition-all active:scale-95 flex items-center justify-center gap-2">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                    View Cart
                   </button>
-                  <span className="w-12 text-center font-black text-base text-gray-800 border-x border-gray-200 h-11 flex items-center justify-center">
-                    {localQty}
-                  </span>
-                  <button
-                    onClick={() => setLocalQty(q => q + 1)}
-                    className="w-10 h-11 bg-gray-50 hover:bg-gray-100 text-gray-600 font-black text-lg flex items-center justify-center transition-colors">
-                    +
-                  </button>
-                </div>
-                <button
-                  onClick={handleAddToCart}
-                  className={`flex-1 h-11 rounded-xl font-black text-sm transition-all active:scale-95 ${added ? 'bg-gray-800 text-white' : 'bg-amber-400 hover:bg-amber-500 text-gray-900'}`}>
-                  {added ? `✓ ${localQty} Added to Cart!` : `Add ${localQty > 1 ? `(${localQty}) ` : ''}to Cart`}
-                </button>
+                )}
               </div>
 
               {/* Current cart qty */}
@@ -671,7 +702,7 @@ const ProductDetail = ({ product, qty, onAdd, onRemove, onBack, onViewProduct })
                   { label: 'Unit',        value: product.unit },
                   { label: 'SKU',         value: `LJ-${String(product.id).padStart(4,'0')}` },
                   { label: 'Availability',value: 'In Stock' },
-                  { label: 'Payment',     value: 'MoMo · Visa · Cash on Delivery' },
+                  { label: 'Payment',     value: '3-Month Plan · MoMo on purchase' },
                 ].map(row => (
                   <div key={row.label} className="flex gap-3 text-sm">
                     <span className="text-gray-400 w-24 flex-shrink-0">{row.label}:</span>
@@ -800,11 +831,11 @@ const ProductRow = ({ catId, cart, onAdd, onRemove, onSeeAll, onView }) => {
 // 3 rows × 6 columns = 18 cards on desktop, 3 rows × 2 cols = 18 on mobile.
 const FEATURED_IDS = [
   // Row 1 — Rice, Oil, Canned
-  101, 201, 401, 403, 406, 501,
-  // Row 2 — Frozen, Cleaning, Provisions, Condiments
-  601, 603, 701, 703, 801, 802,
-  // Row 3 — Fresh, Foodstuffs, Rice pasta, more canned
-  1001, 901, 301, 402, 605, 804,
+  101, 201, 401, 403, 501, 303,
+  // Row 2 — Frozen, Cleaning, Breakfast
+  601, 602, 603, 701, 801, 814,
+  // Row 3 — Foodstuffs, Provisions, More
+  907, 901, 104, 402, 605, 806,
 ]
 
 const FeaturedGrid = ({ cart, onAdd, onRemove, onShop, onView }) => {
@@ -1108,11 +1139,16 @@ const buildPool = () => {
 }
 const SHOWCASE_POOL = buildPool()
 
-const ShopSection = ({ cart, onAdd, onRemove, onCartOpen, cartTotal, cartCount, onView }) => {
+const ShopSection = ({ cart, onAdd, onRemove, onCartOpen, cartTotal, cartCount, onView, defaultCat }) => {
   const [offset, setOffset]       = useState(0)
   const [visible, setVisible]     = useState(true)
-  const [activeCat, setActiveCat] = useState('all')
+  const [activeCat, setActiveCat] = useState(defaultCat || 'all')
   const pct = Math.min(100, Math.round((cartTotal / MIN_ORDER) * 100))
+
+  // Sync when parent changes department via navbar
+  useEffect(() => {
+    if (defaultCat) { setActiveCat(defaultCat); setOffset(0); setVisible(true) }
+  }, [defaultCat])
 
   // Filter pool by active category
   const pool = activeCat === 'all'
@@ -1297,7 +1333,241 @@ const ShopSection = ({ cart, onAdd, onRemove, onCartOpen, cartTotal, cartCount, 
   )
 }
 
-// ─── CART DRAWER ──────────────────────────────────────────────────────────────
+// ─── FULL CART PAGE (GH Basket style) ────────────────────────────────────────
+const CartPage = ({ cart, onAdd, onRemove, onClear, onBack, onCheckout, cartCount, onCartOpen, onDeptClick, onShop }) => {
+  const cartItems = Object.entries(cart).filter(([, q]) => q > 0)
+  const subtotal  = cartItems.reduce((s, [id, q]) => {
+    const p = PRODUCTS.find(pr => pr.id === parseInt(id)); return s + (p ? p.price * q : 0)
+  }, 0)
+  const pct       = Math.min(100, Math.round((subtotal / MIN_ORDER) * 100))
+  const remaining = Math.max(0, MIN_ORDER - subtotal)
+
+  useEffect(() => {
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = '' }
+  }, [])
+
+  return (
+    <div className="fixed inset-0 z-50 bg-gray-50 overflow-y-auto">
+      <Navbar cartCount={cartCount} onCartOpen={onCartOpen} onApply={onBack}
+        onDeptClick={(catId) => { onBack(); setTimeout(() => onDeptClick(catId), 100) }} />
+
+      {/* Breadcrumb */}
+      <div className="bg-white border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center gap-3">
+          <button onClick={onShop} className="flex items-center gap-1.5 text-gray-600 hover:text-gray-900 text-sm font-semibold transition-colors">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/>
+            </svg>
+            Continue Shopping
+          </button>
+          <span className="text-gray-300">|</span>
+          <nav className="flex items-center gap-1.5 text-xs text-gray-400">
+            <button onClick={onBack} className="hover:text-gray-700">Home</button>
+            <span>/</span>
+            <span className="text-gray-800 font-medium">Your Cart</span>
+          </nav>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <h1 className="text-2xl font-black text-gray-900 mb-6">
+          Your Cart
+          {cartCount > 0 && <span className="ml-2 text-base font-normal text-gray-400">({cartCount} items)</span>}
+        </h1>
+
+        {cartItems.length === 0 ? (
+          /* Empty state */
+          <div className="bg-white rounded-2xl border border-gray-200 p-16 text-center">
+            <svg className="w-16 h-16 text-gray-200 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+            </svg>
+            <h2 className="text-gray-700 font-black text-lg mb-2">Your cart is empty</h2>
+            <p className="text-gray-400 text-sm mb-6">Add some products to get started on your 3-month package.</p>
+            <button onClick={onShop} className="bg-amber-400 hover:bg-amber-500 text-gray-900 font-black text-sm px-8 py-3 rounded-xl transition-colors active:scale-95">
+              Browse Products
+            </button>
+          </div>
+        ) : (
+          <div className="flex flex-col lg:flex-row gap-6 items-start">
+
+            {/* LEFT — cart table */}
+            <div className="flex-1 min-w-0">
+              <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+
+                {/* Table header */}
+                <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-3 bg-gray-50 border-b border-gray-100 text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+                  <div className="col-span-5">Product</div>
+                  <div className="col-span-2 text-center">Price</div>
+                  <div className="col-span-3 text-center">Quantity</div>
+                  <div className="col-span-2 text-right">Subtotal</div>
+                </div>
+
+                {/* Cart rows */}
+                {cartItems.map(([id, qty], rowIdx) => {
+                  const p = PRODUCTS.find(pr => pr.id === parseInt(id))
+                  if (!p) return null
+                  return (
+                    <div key={id}
+                      className={`flex flex-col md:grid md:grid-cols-12 gap-4 items-center px-6 py-5 border-b border-gray-50 last:border-0 ${rowIdx % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'}`}>
+
+                      {/* Product col */}
+                      <div className="col-span-5 flex items-center gap-4 w-full">
+                        {/* Remove button */}
+                        <button onClick={() => {
+                          // Remove all qty of this item
+                          const n = { ...cart }; delete n[parseInt(id)]
+                          onClear(parseInt(id))
+                        }}
+                          className="text-gray-300 hover:text-red-400 transition-colors flex-shrink-0"
+                          title="Remove item">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
+                          </svg>
+                        </button>
+                        {/* Image */}
+                        <div className="w-16 h-16 bg-gray-50 border border-gray-100 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
+                          {p.img
+                            ? <img src={p.img} alt={p.name} className="w-full h-full object-contain p-1.5"/>
+                            : <span className="text-2xl">{p.emoji}</span>}
+                        </div>
+                        {/* Name + unit */}
+                        <div>
+                          <p className="text-gray-800 text-sm font-semibold leading-snug">{p.name}</p>
+                          <p className="text-gray-400 text-xs uppercase tracking-wider mt-0.5">{p.unit}</p>
+                        </div>
+                      </div>
+
+                      {/* Price */}
+                      <div className="col-span-2 text-center">
+                        <span className="text-gray-700 font-semibold text-sm">{fmt(p.price)}</span>
+                      </div>
+
+                      {/* Qty stepper */}
+                      <div className="col-span-3 flex justify-center">
+                        <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
+                          <button onClick={() => onRemove(p.id)}
+                            className="w-8 h-8 bg-gray-50 hover:bg-red-50 text-gray-500 hover:text-red-500 font-black text-base flex items-center justify-center transition-colors">
+                            −
+                          </button>
+                          <span className="w-10 text-center font-black text-sm text-gray-800 border-x border-gray-200 h-8 flex items-center justify-center">
+                            {qty}
+                          </span>
+                          <button onClick={() => onAdd(p.id)}
+                            className="w-8 h-8 bg-gray-50 hover:bg-amber-50 text-gray-500 hover:text-amber-600 font-black text-base flex items-center justify-center transition-colors">
+                            +
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Subtotal */}
+                      <div className="col-span-2 text-right">
+                        <span className="text-gray-900 font-black text-sm">{fmt(p.price * qty)}</span>
+                      </div>
+                    </div>
+                  )
+                })}
+
+                {/* Table footer */}
+                <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-between items-center">
+                  <button onClick={() => onClear('all')}
+                    className="text-xs text-gray-400 hover:text-red-500 transition-colors font-medium">
+                    Clear cart
+                  </button>
+                  <button onClick={onShop}
+                    className="text-xs text-amber-600 hover:text-amber-700 font-semibold hover:underline">
+                    ← Continue shopping
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* RIGHT — order summary */}
+            <div className="w-full lg:w-80 flex-shrink-0">
+              <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden sticky top-[140px]">
+                <div className="px-5 py-4 border-b border-gray-100">
+                  <h2 className="font-black text-gray-800 text-base">Order Summary</h2>
+                </div>
+
+                <div className="px-5 py-4 space-y-3">
+                  {/* Min order progress */}
+                  <div>
+                    <div className="flex justify-between text-xs mb-1.5">
+                      <span className="font-bold text-gray-600">Minimum Order</span>
+                      <span className="font-black text-gray-800">{pct}%</span>
+                    </div>
+                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full transition-all duration-500 ${pct >= 100 ? 'bg-gray-800' : 'bg-amber-400'}`} style={{ width: `${pct}%` }} />
+                    </div>
+                    <div className="flex justify-between mt-1.5 text-[11px] text-gray-400">
+                      <span>{fmt(subtotal)} added</span>
+                      {pct < 100
+                        ? <span className="text-amber-600 font-semibold">Add {fmt(remaining)} more</span>
+                        : <span className="text-gray-800 font-bold">✓ Minimum reached!</span>}
+                    </div>
+                  </div>
+
+                  <div className="border-t border-gray-100 pt-3 space-y-2">
+                    <div className="flex justify-between text-sm text-gray-500">
+                      <span>Subtotal ({cartCount} items)</span>
+                      <span className="font-semibold text-gray-700">{fmt(subtotal)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm text-gray-500">
+                      <span>Payment plan</span>
+                      <span className="font-semibold text-gray-700">3 months</span>
+                    </div>
+                    <div className="flex justify-between text-sm text-gray-500">
+                      <span>Monthly instalment</span>
+                      <span className="font-semibold text-gray-700">{fmt(Math.ceil(subtotal / 3))}</span>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-gray-100 pt-3">
+                    <div className="flex justify-between items-baseline">
+                      <span className="font-black text-gray-800 text-base">Total</span>
+                      <span className="font-black text-gray-900 text-2xl">{fmt(subtotal)}</span>
+                    </div>
+                    <p className="text-gray-400 text-[11px] mt-0.5">Pay over 3 months — no interest</p>
+                  </div>
+                </div>
+
+                {/* CTA */}
+                <div className="px-5 pb-5 pt-1 space-y-2">
+                  <button
+                    onClick={onCheckout}
+                    disabled={pct < 100}
+                    className={`w-full py-3.5 rounded-xl font-black text-sm transition-all active:scale-95 ${pct >= 100 ? 'bg-gray-800 hover:bg-gray-900 text-white' : 'bg-gray-100 text-gray-300 cursor-not-allowed'}`}>
+                    {pct >= 100 ? 'Proceed to Apply →' : `Add ${fmt(remaining)} more to continue`}
+                  </button>
+                  <button onClick={onShop}
+                    className="w-full py-2.5 rounded-xl font-semibold text-sm border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors">
+                    Continue Shopping
+                  </button>
+                </div>
+
+                {/* Trust badges */}
+                <div className="px-5 pb-5 space-y-2 border-t border-gray-100 pt-4">
+                  {[
+                    { icon: '🏛️', text: 'Open to all Ghana govt workers' },
+                    { icon: '📅', text: 'Pay over 1–3 months, no interest' },
+                    { icon: '🚚', text: 'Nationwide delivery' },
+                  ].map(b => (
+                    <div key={b.text} className="flex items-center gap-2 text-xs text-gray-500">
+                      <span>{b.icon}</span><span>{b.text}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ─── CART DRAWER (quick slide-in) ─────────────────────────────────────────────
 const CartDrawer = ({ open, onClose, cart, onAdd, onRemove, onClear, onCheckout, total }) => {
   const pct = Math.min(100, Math.round((total / MIN_ORDER) * 100))
   const remaining = Math.max(0, MIN_ORDER - total)
@@ -1570,10 +1840,11 @@ const Footer = () => (
 
 // ─── ROOT APP ─────────────────────────────────────────────────────────────────
 export default function App() {
-  const [cart, setCart]                     = useState({})
-  const [cartOpen, setCartOpen]             = useState(false)
-  const [prefilled, setPrefilled]           = useState('')
-  const [shopCat, setShopCat]               = useState('all')
+  const [cart, setCart]                       = useState({})
+  const [cartOpen, setCartOpen]               = useState(false)
+  const [cartPageOpen, setCartPageOpen]       = useState(false)
+  const [prefilled, setPrefilled]             = useState('')
+  const [shopCat, setShopCat]                 = useState('all')
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [selectedPackage, setSelectedPackage] = useState(null)
   const [selectedPackageIdx, setSelectedPackageIdx] = useState(0)
@@ -1584,6 +1855,10 @@ export default function App() {
     if (q <= 0) { const n = { ...p }; delete n[id]; return n }
     return { ...p, [id]: q }
   })
+  const removeAllFromCart = (id) => {
+    if (id === 'all') { setCart({}); return }
+    setCart(p => { const n = { ...p }; delete n[id]; return n })
+  }
   const clearCart = () => setCart({})
 
   const cartTotal = Object.entries(cart).reduce((s, [id, q]) => {
@@ -1611,6 +1886,27 @@ export default function App() {
         onRemove={() => removeFromCart(selectedProduct.id)}
         onBack={closeProduct}
         onViewProduct={viewProduct}
+        cartCount={cartCount}
+        onCartOpen={() => setCartPageOpen(true)}
+        onDeptClick={(catId) => { setShopCat(catId); setTimeout(() => document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' }), 150) }}
+      />
+    )
+  }
+
+  // Show full cart page
+  if (cartPageOpen) {
+    return (
+      <CartPage
+        cart={cart}
+        onAdd={addToCart}
+        onRemove={removeFromCart}
+        onClear={removeAllFromCart}
+        onBack={() => setCartPageOpen(false)}
+        onShop={() => { setCartPageOpen(false); setTimeout(() => document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' }), 100) }}
+        onCheckout={() => { setCartPageOpen(false); setTimeout(toApply, 100) }}
+        cartCount={cartCount}
+        onCartOpen={() => setCartPageOpen(true)}
+        onDeptClick={(catId) => { setCartPageOpen(false); setShopCat(catId); setTimeout(() => document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' }), 150) }}
       />
     )
   }
@@ -1622,14 +1918,19 @@ export default function App() {
         pkg={selectedPackage}
         idx={selectedPackageIdx}
         onBack={closePackage}
-        onApply={(pkgOption) => { applyWithPkg(pkgOption); closePackage() }}
+        onApply={(pkgOption) => {
+          setPrefilled(pkgOption)
+          closePackage()
+          setTimeout(() => document.getElementById('apply')?.scrollIntoView({ behavior: 'smooth' }), 150)
+        }}
       />
     )
   }
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
-      <Navbar cartCount={cartCount} onCartOpen={() => setCartOpen(true)} onApply={toApply} />
+      <Navbar cartCount={cartCount} onCartOpen={() => setCartPageOpen(true)} onApply={toApply}
+        onDeptClick={(catId) => { setShopCat(catId); setTimeout(() => document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' }), 80) }} />
 
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)}
         cart={cart} onAdd={addToCart} onRemove={removeFromCart}
@@ -1645,9 +1946,9 @@ export default function App() {
       <PromoStrip onApply={toApply} onShop={() => toShop()} />
       <FixedPackages onApplyWithPackage={applyWithPkg} onViewPackage={viewPackage} />
       <ShopSection cart={cart} onAdd={addToCart} onRemove={removeFromCart}
-        onCartOpen={() => setCartOpen(true)}
+        onCartOpen={() => setCartPageOpen(true)}
         cartTotal={cartTotal} cartCount={cartCount}
-        onView={viewProduct} />
+        onView={viewProduct} defaultCat={shopCat} />
       <ApplySection prefilledPackage={prefilled} cartTotal={cartTotal} cartItems={cartItems} />
       <Footer />
       <WhatsAppFloat />
