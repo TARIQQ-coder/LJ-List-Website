@@ -5,16 +5,13 @@ import { useState, useEffect, useRef } from 'react'
 //  To add a new category: add an entry here. That's it.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const CATEGORIES = [
-  { id: 'breakfast',  label: 'Breakfast Essentials',     description: 'Milk, milo, tea, cereals & morning staples' },
-  { id: 'canned',     label: 'Canned Products',          description: 'Mackerel, sardines, baked beans, corned beef & more' },
-  { id: 'oil',        label: 'Cooking Oils & Spreads',   description: 'Vegetable oil, palm oil & blended oils' },
-  { id: 'foodstuffs', label: 'Ghana Food',               description: 'Maize, cassava powder, gari, onions & local staples' },
-  { id: 'cleaning',   label: 'Household & Cleaning',     description: 'Washing powder, soaps, disinfectants & cleaning products' },
-  { id: 'frozen',     label: 'Frozen',                   description: 'Frozen chicken, fish & meats' },
-  { id: 'fresh',      label: 'Fresh Food',               description: 'Fresh vegetables, fruits & produce' },
-  { id: 'rice',       label: 'Rice, Pasta & Grains',     description: 'Rice, spaghetti, noodles & grains' },
-  { id: 'condiments', label: 'Sauces & Spices',          description: 'Tomato paste, mayonnaise, ketchup & seasonings' },
-  { id: 'provisions', label: 'Food Cupboard',            description: 'Sugar, biscuits, water & everyday provisions' },
+  { id: 'rice',       label: 'Rice, Spaghetti & Grains',      description: 'Rice, spaghetti, noodles & grains' },
+  { id: 'oil',        label: 'Cooking Oil',                   description: 'Vegetable oil, palm oil & blended oils' },
+  { id: 'canned',     label: 'Canned Fish & Tin Tomatoes',    description: 'Mackerel, sardines, baked beans, corned beef & more' },
+  { id: 'provisions', label: 'Provisions',                    description: 'Milk, Milo, cereals, sugar, biscuits, water & everyday essentials' },
+  { id: 'frozen',     label: 'Frozen Foods',                  description: 'Frozen chicken, fish & meats' },
+  { id: 'cleaning',   label: 'Detergents',                    description: 'Washing powder, soaps, disinfectants & cleaning products' },
+  { id: 'fresh',      label: 'Vegetables',                    description: 'Fresh vegetables, fruits & produce' },
 ]
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -26,15 +23,15 @@ const CATEGORIES = [
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const PRODUCTS = [
   // ── BREAKFAST ESSENTIALS ──────────────────────────────────────────────────
-  { id: 801, name: 'Milo 400g Tin',                cat: 'breakfast',  price: 55,  oldPrice: 70,  unit: 'tin',     img: '/images/Milo-Antigen-E-400g-405x330.jpg' },
-  { id: 813, name: 'Milo 200g Sachet',             cat: 'breakfast',  price: 28,  oldPrice: 36,  unit: 'sachet',  img: '/images/Milo-200g-1-405x330.jpg' },
-  { id: 802, name: 'Peak Full Cream Milk 1L',      cat: 'breakfast',  price: 32,  oldPrice: 42,  unit: 'pack',    img: '/images/PEAK-405x330.jpg' },
-  { id: 803, name: 'Ideal Evaporated Milk 160g',   cat: 'breakfast',  price: 14,  oldPrice: 18,  unit: 'tin',     img: '/images/IDEAL-ORIGINAL-EVAPORATED-MILK-160G-405x330.jpg' },
-  { id: 804, name: 'Carnation Tea Creamer 160g',   cat: 'breakfast',  price: 16,  oldPrice: 22,  unit: 'tin',     img: '/images/CARNATION-TEA-CREAMER-160G-405x330.jpg' },
-  { id: 807, name: 'Good Morning White Oats 500g', cat: 'breakfast',  price: 28,  oldPrice: 36,  unit: 'pack',    img: '/images/Good-Morning-Oats-500g-405x330.jpg' },
-  { id: 814, name: 'Kellogg\'s Corn Flakes',       cat: 'breakfast',  price: 65,  oldPrice: 82,  unit: 'box',     img: '/images/cornflakes.jpg' },
-  { id: 815, name: 'Weetabix Family Pack ×48',     cat: 'breakfast',  price: 85,  oldPrice: 105, unit: 'box',     img: '/images/1-350x330.jpeg', tag: 'Value' },
-  { id: 816, name: 'Givite Tombrown Porridge',     cat: 'breakfast',  price: 35,  oldPrice: 45,  unit: 'jar',     img: '/images/Givite-Tombrown-Big-Size-405x330.jpeg', tag: 'Local' },
+  { id: 801, name: 'Milo 400g Tin',                cat: 'provisions',  price: 55,  oldPrice: 70,  unit: 'tin',     img: '/images/Milo-Antigen-E-400g-405x330.jpg' },
+  { id: 813, name: 'Milo 200g Sachet',             cat: 'provisions',  price: 28,  oldPrice: 36,  unit: 'sachet',  img: '/images/Milo-200g-1-405x330.jpg' },
+  { id: 802, name: 'Peak Full Cream Milk 1L',      cat: 'provisions',  price: 32,  oldPrice: 42,  unit: 'pack',    img: '/images/PEAK-405x330.jpg' },
+  { id: 803, name: 'Ideal Evaporated Milk 160g',   cat: 'provisions',  price: 14,  oldPrice: 18,  unit: 'tin',     img: '/images/IDEAL-ORIGINAL-EVAPORATED-MILK-160G-405x330.jpg' },
+  { id: 804, name: 'Carnation Tea Creamer 160g',   cat: 'provisions',  price: 16,  oldPrice: 22,  unit: 'tin',     img: '/images/CARNATION-TEA-CREAMER-160G-405x330.jpg' },
+  { id: 807, name: 'Good Morning White Oats 500g', cat: 'provisions',  price: 28,  oldPrice: 36,  unit: 'pack',    img: '/images/Good-Morning-Oats-500g-405x330.jpg' },
+  { id: 814, name: 'Kellogg\'s Corn Flakes',       cat: 'provisions',  price: 65,  oldPrice: 82,  unit: 'box',     img: '/images/cornflakes.jpg' },
+  { id: 815, name: 'Weetabix Family Pack ×48',     cat: 'provisions',  price: 85,  oldPrice: 105, unit: 'box',     img: '/images/1-350x330.jpeg', tag: 'Value' },
+  { id: 816, name: 'Givite Tombrown Porridge',     cat: 'provisions',  price: 35,  oldPrice: 45,  unit: 'jar',     img: '/images/Givite-Tombrown-Big-Size-405x330.jpeg', tag: 'Local' },
 
   // ── CANNED PRODUCTS ───────────────────────────────────────────────────────
   { id: 401, name: 'Titus Sardines 125g ×12',      cat: 'canned',     price: 80,  oldPrice: 100, unit: 'carton',  img: '/images/titus-sardines.png' },
@@ -44,7 +41,7 @@ const PRODUCTS = [
   { id: 405, name: 'Lucky Star Pilchards 400g ×12',cat: 'canned',     price: 120, oldPrice: 148, unit: 'carton',  emoji: '🐟' },
   { id: 406, name: 'Heinz Baked Beans 415g ×6',    cat: 'canned',     price: 95,  oldPrice: 118, unit: 'carton',  emoji: '🫘', tag: 'Value' },
   { id: 407, name: 'Heinz Baked Beans 415g',       cat: 'canned',     price: 18,  oldPrice: 24,  unit: 'tin',     emoji: '🫘' },
-  { id: 408, name: 'Black-Eyed Beans 400g',        cat: 'canned',     price: 15,  oldPrice: 20,  unit: 'pack',    img: '/images/black-eyed-beans.jpg', tag: 'Local' },
+  { id: 408, name: 'Black-Eyed Beans 400g',        cat: 'canned',     price: 15,  oldPrice: 20,  unit: 'pack',    img: '/images/black-eyed-beans-405x330.jpg', tag: 'Local' },
   { id: 410, name: 'Devon Corned Beef 340g ×6',    cat: 'canned',     price: 95,  oldPrice: 118, unit: 'carton',  emoji: '🥩' },
 
   // ── COOKING OILS & SPREADS ────────────────────────────────────────────────
@@ -55,28 +52,28 @@ const PRODUCTS = [
   { id: 206, name: 'Palm Oil 3 × 1L',             cat: 'oil',        price: 62,  oldPrice: 82,  unit: 'set',     img: '/images/palm-oil.jpeg', tag: 'Value' },
 
   // ── GHANA FOOD (local staples) ────────────────────────────────────────────
-  { id: 901, name: 'Corn Dough 2kg',               cat: 'foodstuffs', price: 20,  oldPrice: 26,  unit: 'pack',    img: '/images/corn-dough.jpg', tag: 'Local' },
-  { id: 902, name: 'Corn Dough 5kg',               cat: 'foodstuffs', price: 45,  oldPrice: 58,  unit: 'pack',    img: '/images/corn-dough.jpg', tag: 'Local' },
+  { id: 901, name: 'Corn Dough 2kg',               cat: 'foodstuffs', price: 20,  oldPrice: 26,  unit: 'pack',    img: '/images/Corn-dough.jpg', tag: 'Local' },
+  { id: 902, name: 'Corn Dough 5kg',               cat: 'foodstuffs', price: 45,  oldPrice: 58,  unit: 'pack',    img: '/images/Corn-dough.jpg', tag: 'Local' },
   { id: 903, name: 'Cassava Powder (Fufu) 5kg',    cat: 'foodstuffs', price: 42,  oldPrice: 54,  unit: 'bag',     emoji: '🫙', tag: 'Local' },
   { id: 904, name: 'Cassava Powder (Fufu) 2kg',    cat: 'foodstuffs', price: 20,  oldPrice: 26,  unit: 'bag',     emoji: '🫙', tag: 'Local' },
   { id: 905, name: 'Onions (Bag) 10kg',            cat: 'foodstuffs', price: 55,  oldPrice: 70,  unit: 'bag',     emoji: '🧅' },
   { id: 906, name: 'Onions (Bag) 5kg',             cat: 'foodstuffs', price: 30,  oldPrice: 38,  unit: 'bag',     emoji: '🧅' },
   { id: 907, name: 'Gari (Fine) 5kg',              cat: 'foodstuffs', price: 35,  oldPrice: 45,  unit: 'bag',     img: '/images/gari.jpg', tag: 'Local' },
-  { id: 908, name: 'Koose Mix 120g',               cat: 'foodstuffs', price: 12,  oldPrice: 16,  unit: 'pack',    img: '/images/koose-mix.jpeg', tag: 'Local' },
+  { id: 908, name: 'Koose Mix 120g',               cat: 'foodstuffs', price: 12,  oldPrice: 16,  unit: 'pack',    img: '/images/WhatsApp-Image-2020-08-25-at-1_37_45-PM-405x330.jpeg', tag: 'Local' },
   { id: 909, name: 'Groundnut (Peanuts) 2kg',      cat: 'foodstuffs', price: 25,  oldPrice: 32,  unit: 'bag',     emoji: '🥜' },
-  { id: 910, name: 'Brown Rice 5kg',               cat: 'foodstuffs', price: 55,  oldPrice: 70,  unit: 'bag',     img: '/images/brown-rice.jpg', tag: 'Local' },
+  { id: 910, name: 'Brown Rice 5kg',               cat: 'foodstuffs', price: 55,  oldPrice: 70,  unit: 'bag',     img: '/images/brown-rice-1.jpg', tag: 'Local' },
 
   // ── HOUSEHOLD & CLEANING ──────────────────────────────────────────────────
-  { id: 701, name: 'Madar Washing Powder 180g',    cat: 'cleaning',   price: 8,   oldPrice: 12,  unit: 'pack',    img: '/images/madar-washing-powder.jpg' },
-  { id: 702, name: 'Madar Washing Powder ×10',     cat: 'cleaning',   price: 72,  oldPrice: 95,  unit: 'carton',  img: '/images/madar-washing-powder.jpg', tag: 'Bulk' },
-  { id: 703, name: 'Madar Multipurpose Soap',      cat: 'cleaning',   price: 12,  oldPrice: 16,  unit: 'bar',     img: '/images/madar-soap.png' },
-  { id: 704, name: 'Camel Antiseptic 500ml',       cat: 'cleaning',   price: 38,  oldPrice: 50,  unit: 'bottle',  img: '/images/camel-antiseptic.png' },
-  { id: 705, name: 'Morning Fresh Dishwash 750ml', cat: 'cleaning',   price: 32,  oldPrice: 42,  unit: 'bottle',  img: '/images/morning-fresh.jpg' },
-  { id: 706, name: 'Sunlight Dishwash 750ml',      cat: 'cleaning',   price: 28,  oldPrice: 36,  unit: 'bottle',  img: '/images/sunlight-dishwash.jpg' },
-  { id: 707, name: 'Power Zone Bleach',            cat: 'cleaning',   price: 22,  oldPrice: 30,  unit: 'bottle',  img: '/images/power-zone.jpg' },
+  { id: 701, name: 'Madar Washing Powder 180g',    cat: 'cleaning',   price: 8,   oldPrice: 12,  unit: 'pack',    img: '/images/Madar-Washing-Powder-180g-405x330.jpg' },
+  { id: 702, name: 'Madar Washing Powder ×10',     cat: 'cleaning',   price: 72,  oldPrice: 95,  unit: 'carton',  img: '/images/Madar-Washing-Powder-180g-405x330.jpg', tag: 'Bulk' },
+  { id: 703, name: 'Madar Multipurpose Soap',      cat: 'cleaning',   price: 12,  oldPrice: 16,  unit: 'bar',     img: '/images/Madar-Soap-Large-Size-405x330.png' },
+  { id: 704, name: 'Camel Antiseptic 500ml',       cat: 'cleaning',   price: 38,  oldPrice: 50,  unit: 'bottle',  img: '/images/Camel-Antiseptic-Liquid-Zesty-Lime-Fresh-405x330.png' },
+  { id: 705, name: 'Morning Fresh Dishwash 750ml', cat: 'cleaning',   price: 32,  oldPrice: 42,  unit: 'bottle',  img: '/images/Morning-Fresh-Dishwash-750ml-405x330.jpg' },
+  { id: 706, name: 'Sunlight Dishwash 750ml',      cat: 'cleaning',   price: 28,  oldPrice: 36,  unit: 'bottle',  img: '/images/sunlight-750ml-dishwashing-liquid-soap-with-real-lemon-juice.jpg' },
+  { id: 707, name: 'Power Zone Bleach',            cat: 'cleaning',   price: 22,  oldPrice: 30,  unit: 'bottle',  img: '/images/power-zone-405x330.jpg' },
   { id: 708, name: 'Glade Air Freshener',          cat: 'cleaning',   price: 35,  oldPrice: 45,  unit: 'can',     img: '/images/glade.jpg' },
-  { id: 709, name: 'Pride Toilet Tissue ×10',      cat: 'cleaning',   price: 38,  oldPrice: 50,  unit: 'pack',    img: '/images/pride-tissue.jpeg' },
-  { id: 710, name: 'Jumbo Multi-Purpose Towel',    cat: 'cleaning',   price: 18,  oldPrice: 24,  unit: 'roll',    img: '/images/jumbo-towel.jpg' },
+  { id: 709, name: 'Pride Toilet Tissue ×10',      cat: 'cleaning',   price: 38,  oldPrice: 50,  unit: 'pack',    img: '/images/WhatsApp-Image-2021-05-14-at-14_38_21-405x330.jpeg' },
+  { id: 710, name: 'Jumbo Multi-Purpose Towel',    cat: 'cleaning',   price: 18,  oldPrice: 24,  unit: 'roll',    img: '/images/jumbo-405x330.jpg' },
 
   // ── FROZEN ────────────────────────────────────────────────────────────────
   { id: 601, name: 'Frozen Chicken Thighs 2kg',    cat: 'frozen',     price: 95,  oldPrice: 118, unit: 'pack',    img: '/images/Chicken-thigh.jpeg', tag: 'Frozen' },
@@ -88,47 +85,41 @@ const PRODUCTS = [
   { id: 607, name: 'Frozen Beef Pieces 2kg',       cat: 'frozen',     price: 110, oldPrice: 138, unit: 'pack',    emoji: '🥩', tag: 'Frozen' },
 
   // ── FRESH FOOD ────────────────────────────────────────────────────────────
-  { id: 1001, name: 'Fresh Tomatoes 1kg',          cat: 'fresh',      price: 12,  oldPrice: 16,  unit: 'kg',      emoji: '🍅' },
-  { id: 1002, name: 'Fresh Onions 1kg',            cat: 'fresh',      price: 10,  oldPrice: 14,  unit: 'kg',      emoji: '🧅' },
-  { id: 1003, name: 'Fresh Pepper Assorted 500g',  cat: 'fresh',      price: 15,  oldPrice: 20,  unit: 'pack',    emoji: '🌶️' },
+  { id: 1001, name: 'Fresh Tomatoes 1kg',          cat: 'fresh',      price: 12,  oldPrice: 16,  unit: 'kg',      img: '/images/0003285_maxmart-tomatoes.jpeg' },
+  { id: 1007, name: 'Lettuce',                     cat: 'fresh',      price: 12,  oldPrice: 16,  unit: 'kg',      img: '/images/0004522_maxmart-lettuce_360.jpeg' },
+  { id: 1002, name: 'Fresh Onions 1kg',            cat: 'fresh',      price: 10,  oldPrice: 14,  unit: 'kg',      img: '/images/007398_eden-tree-onion-local-kg-00087_510.jpeg' },
+  { id: 1003, name: 'Fresh Pepper Assorted 500g',  cat: 'fresh',      price: 15,  oldPrice: 20,  unit: 'pack',    img: '/images/0014075_maxmart-redyellow-bell-pepper-kg_360.jpeg' },
   { id: 1004, name: 'Fresh Garden Eggs 500g',      cat: 'fresh',      price: 12,  oldPrice: 16,  unit: 'pack',    emoji: '🍆', tag: 'Local' },
-  { id: 1005, name: 'Plantains (bunch)',            cat: 'fresh',      price: 25,  oldPrice: 32,  unit: 'bunch',   emoji: '🍌', tag: 'Local' },
+  { id: 1005, name: 'Plantains (bunch)',            cat: 'fresh',      price: 25,  oldPrice: 32,  unit: 'bunch',   img: '/images/0018390_stella-plantain-kg.jpeg', tag: 'Local' },
   { id: 1006, name: 'Yam Tuber (medium)',           cat: 'fresh',      price: 30,  oldPrice: 38,  unit: 'tuber',   emoji: '🍠', tag: 'Local' },
 
   // ── RICE, PASTA & GRAINS ──────────────────────────────────────────────────
-  { id: 101, name: 'Royal Feast Rice 25kg',        cat: 'rice',       price: 180, oldPrice: 220, unit: 'bag',     img: '/images/royal-feast-rice.png', tag: 'Bestseller' },
-  { id: 102, name: 'Royal Aroma Rice 10kg',        cat: 'rice',       price: 78,  oldPrice: 95,  unit: 'bag',     img: '/images/royal-aroma-rice.jpg' },
-  { id: 103, name: 'Royal Umbrella Rice 5kg',      cat: 'rice',       price: 48,  oldPrice: 62,  unit: 'bag',     img: '/images/royal-umbrella-rice.jpg' },
-  { id: 104, name: 'Gino Thai Jasmine Rice 5kg',   cat: 'rice',       price: 48,  oldPrice: 62,  unit: 'bag',     img: '/images/gino-rice.jpg' },
-  { id: 106, name: 'Gino Thai Jasmine Rice 25kg',  cat: 'rice',       price: 185, oldPrice: 225, unit: 'bag',     img: '/images/gino-rice-25kg.jpg' },
-  { id: 107, name: 'Lele Thai Jasmine Rice 5kg',   cat: 'rice',       price: 50,  oldPrice: 65,  unit: 'bag',     img: '/images/lele-rice.jpg' },
-  { id: 108, name: 'Millicent Fragrant Rice 5kg',  cat: 'rice',       price: 46,  oldPrice: 60,  unit: 'bag',     img: '/images/millicent-rice-5kg.jpg' },
-  { id: 109, name: 'Millicent Fragrant Rice 25kg', cat: 'rice',       price: 188, oldPrice: 228, unit: 'bag',     img: '/images/millicent-rice-25kg.jpg' },
-  { id: 110, name: 'Cindy Rice 25kg',              cat: 'rice',       price: 182, oldPrice: 222, unit: 'bag',     img: '/images/cindy-rice-25kg.jpg' },
-  { id: 111, name: 'Red Eagle Rice 5kg',           cat: 'rice',       price: 44,  oldPrice: 58,  unit: 'bag',     img: '/images/red-eagle-rice.jpg' },
-  { id: 301, name: 'OBA Spaghetti 500g ×10',       cat: 'rice',       price: 95,  oldPrice: 118, unit: 'carton',  img: '/images/oba-spaghetti.jpg', tag: 'Value' },
-  { id: 302, name: 'OBA Spaghetti 500g',           cat: 'rice',       price: 12,  oldPrice: 16,  unit: 'pack',    img: '/images/oba-spaghetti.jpg' },
-  { id: 303, name: 'Indomie Noodles ×40',          cat: 'rice',       price: 95,  oldPrice: 115, unit: 'carton',  img: '/images/indomie.jpg' },
-  { id: 304, name: 'Indomie Noodles (single)',      cat: 'rice',       price: 3,   oldPrice: 4,   unit: 'pack',    img: '/images/indomie.jpg' },
-  { id: 306, name: 'Wheat Grain 2kg',              cat: 'rice',       price: 30,  oldPrice: 40,  unit: 'bag',     img: '/images/wheat-grain.jpg', tag: 'Local' },
+  // ── RICE, SPAGHETTI & GRAINS ──────────────────────────────────────────────
+  // ↓ Prices from stock list. Quantity = 1 BAG per item.
+  { id: 101, name: 'Royal Aroma Rice 25kg (5*5)',            cat: 'rice', price: 400, oldPrice: 440, unit: 'bag',    img: '/images/royal.jpg',                tag: 'In Stock' },
+  { id: 109, name: 'Millicent Fragrant Rice 25kg (5*5)',     cat: 'rice', price: 405, oldPrice: 445, unit: 'bag',    img: '/images/Millicent-Rice-25kg_R.jpg', tag: 'In Stock' },
+  { id: 112, name: 'Everest Viet Rice (Yellow) 5×5',        cat: 'rice', price: 400, oldPrice: 440, unit: 'bag',    emoji: '🌾',                              tag: 'In Stock' },
+  { id: 113, name: 'Ginny Viet Rice 5×5',                   cat: 'rice', price: 330, oldPrice: 370, unit: 'bag',    emoji: '🌾',                              tag: 'In Stock' },
+  { id: 114, name: 'Ginny Gold Thai Rice 5×5',              cat: 'rice', price: 595, oldPrice: 650, unit: 'bag',    emoji: '🌾',                              tag: 'Premium' },
+  { id: 115, name: 'Everest Thai Holm Rice 25kg (5*5) Red', cat: 'rice', price: 720, oldPrice: 780, unit: 'bag',    emoji: '🌾',                              tag: 'Premium' },
+  { id: 301, name: 'Spaghetti Big Size 400g ×20',     cat: 'rice', price: 150, oldPrice: 175, unit: 'half box', img: '/images/Oba-Spagetti-405x330.jpg', tag: 'In Stock' },
 
-  // ── SAUCES & SPICES ───────────────────────────────────────────────────────
-  { id: 501, name: 'Gino Tomato Paste 400g ×6',    cat: 'condiments', price: 55,  oldPrice: 70,  unit: 'pack',    img: '/images/gino-tomato-paste.png', tag: 'Deal' },
-  { id: 502, name: 'Gino Tomato Paste 70g',        cat: 'condiments', price: 6,   oldPrice: 8,   unit: 'sachet',  img: '/images/gino-tomato-paste.png' },
-  { id: 503, name: 'Tasty Tom Tomato Paste 70g ×50',cat:'condiments', price: 70,  oldPrice: 88,  unit: 'carton',  emoji: '🍅' },
-  { id: 504, name: 'Frytol Mayonnaise 500g',       cat: 'condiments', price: 35,  oldPrice: 45,  unit: 'jar',     emoji: '🥄' },
-  { id: 505, name: 'Frytol Mayonnaise 1kg',        cat: 'condiments', price: 62,  oldPrice: 78,  unit: 'jar',     emoji: '🥄', tag: 'Value' },
-  { id: 506, name: 'Heinz Tomato Ketchup 570g',    cat: 'condiments', price: 38,  oldPrice: 50,  unit: 'bottle',  emoji: '🍅' },
-  { id: 507, name: 'Maggi Seasoning Cubes ×100',   cat: 'condiments', price: 30,  oldPrice: 38,  unit: 'pack',    emoji: '🧂' },
+  // ── COOKING OIL ───────────────────────────────────────────────────────────
+  { id: 201, name: 'Frytol/Sunflower Oil 1L',          cat: 'oil', price: 40,  oldPrice: 50,  unit: 'bottle', img: '/images/frytol-oil.png',  tag: 'In Stock' },
+  { id: 202, name: 'Sunflower Oil 5L',                 cat: 'oil', price: 180, oldPrice: 210, unit: 'gallon', img: '/images/frytol-oil.png',  tag: 'In Stock' },
 
-  // ── FOOD CUPBOARD (provisions) ────────────────────────────────────────────
-  { id: 805, name: 'St. Louis Cube Sugar',         cat: 'provisions', price: 22,  oldPrice: 30,  unit: 'box',     img: '/images/st-louis-sugar.jpg' },
-  { id: 806, name: 'White Sugar 2kg',              cat: 'provisions', price: 28,  oldPrice: 36,  unit: 'bag',     img: '/images/white-sugar.jpg', tag: 'Value' },
-  { id: 808, name: 'Eva Table Water 1.5L ×12',     cat: 'provisions', price: 42,  oldPrice: 55,  unit: 'carton',  emoji: '💧' },
-  { id: 810, name: 'Almonds 200g',                 cat: 'provisions', price: 45,  oldPrice: 58,  unit: 'pack',    img: '/images/almonds.jpeg' },
-  { id: 811, name: 'Chia Seeds 200g',              cat: 'provisions', price: 38,  oldPrice: 50,  unit: 'pack',    img: '/images/chia-seeds.jpeg' },
-  { id: 812, name: 'Sunflower Seeds 200g',         cat: 'provisions', price: 32,  oldPrice: 42,  unit: 'pack',    img: '/images/sunflower-seeds.jpeg' },
-  { id: 817, name: 'Black Seeds 200g',             cat: 'provisions', price: 30,  oldPrice: 40,  unit: 'pack',    img: '/images/black-seeds.jpeg' },
+  // ── CANNED FISH & TIN TOMATOES ────────────────────────────────────────────
+  { id: 401, name: 'Tasty Tom Tomato 210g ×24',       cat: 'canned', price: 230, oldPrice: 265, unit: 'half box (12pc)', img: '/images/0005393_tasty-tom-tomato-paste-400g_510.jpeg', tag: 'In Stock' },
+  { id: 402, name: 'Rosa/Hondi Tomato 2.2kg ×6',      cat: 'canned', price: 45,  oldPrice: 55,  unit: '2 pcs',          img: '/images/gino-tomato-paste.png', tag: 'In Stock' },
+  { id: 403, name: 'Mackerel 420g ×24',               cat: 'canned', price: 420, oldPrice: 470, unit: 'quarter box (6pcs)',  img: '/images/titus-sardines.png', tag: 'In Stock' },
+  { id: 404, name: 'Mackerel 155g ×50',               cat: 'canned', price: 430, oldPrice: 480, unit: 'quarter box (12pcs)', img: '/images/titus-sardines.png', tag: 'In Stock' },
+  { id: 405, name: 'Sardine ×50',                     cat: 'canned', price: 430, oldPrice: 480, unit: 'quarter box (12pcs)', img: '/images/titus-sardines.png', tag: 'In Stock' },
+
+  // ── FROZEN FOODS ──────────────────────────────────────────────────────────
+  { id: 601, name: 'Frozen Chicken Thigh 10kg (Hard)', cat: 'frozen', price: 435, oldPrice: 480, unit: 'full box', img: '/images/Chicken-thigh.jpeg', tag: 'Frozen' },
+  { id: 602, name: 'Frozen Chicken Thigh 10kg (Soft)', cat: 'frozen', price: 370, oldPrice: 415, unit: 'full box', img: '/images/Chicken-thigh.jpeg', tag: 'Frozen' },
+  { id: 603, name: 'Frozen Drumsticks 3kg',            cat: 'frozen', price: 120, oldPrice: 148, unit: 'pack',     img: '/images/drumstick.jpeg',     tag: 'Frozen' },
+  { id: 604, name: 'Frozen Chicken Wings 2kg',         cat: 'frozen', price: 88,  oldPrice: 108, unit: 'pack',     img: '/images/chicken-wings.jpeg', tag: 'Frozen' },
 ]
 
 const MIN_ORDER = 549
@@ -255,9 +246,10 @@ const FIXED_PACKAGES = [
 ]
 
 const HERO_IMAGES = [
-  { src: '/images/slider-3.jpg',  alt: 'Grocery basket with essentials' },
-  { src: '/images/slider-1.jpeg', alt: 'Canned goods and pantry staples' },
-  { src: '/images/slider-2.jpg',  alt: 'Fresh vegetables' },
+  { src: '/images/cover-1.png', alt: 'Grocery package with rice and essentials' },
+  { src: '/images/cover-2.png', alt: 'Ginny Gold rice and grocery bundle' },
+  { src: '/images/cover-3.png', alt: 'Royal Aroma and Millicent rice packages' },
+  { src: '/images/slider-2.jpg', alt: 'Fresh vegetables' },
 ]
 
 const TRUST = [
@@ -289,8 +281,8 @@ const Navbar = ({ cartCount, onCartOpen, onApply, onDeptClick }) => {
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
       {/* Top bar */}
-      <div className="bg-gray-800 text-gray-300 text-[11px] py-1.5 text-center tracking-wide">
-        🚚 Free delivery in Accra on orders above GH₵200 &nbsp;·&nbsp; 📅 Pay over 1–3 months — no interest &nbsp;·&nbsp; 🏛️ Open to all Ghana govt workers
+      <div className="bg-gray-900 text-amber-400 py-2.5 text-center tracking-widest font-black text-sm uppercase">
+        🛒 Buy Groceries in Bulk and Pay Within 3 Months
       </div>
 
       {/* Main nav */}
@@ -345,6 +337,12 @@ const Navbar = ({ cartCount, onCartOpen, onApply, onDeptClick }) => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16"/>
             </svg>
             All Departments
+          </button>
+          {/* Packages tab — scrolls to #packages */}
+          <button
+            onClick={() => onDeptClick && onDeptClick('packages')}
+            className="text-amber-700 bg-amber-50 hover:bg-amber-100 border-r border-amber-100 px-4 py-2.5 text-xs font-bold whitespace-nowrap flex-shrink-0 transition-colors">
+            📦 Our Packages
           </button>
           {CATEGORIES.map(cat => (
             <button key={cat.id}
@@ -484,16 +482,13 @@ const TrustBar = () => (
 // Each category gets a background colour + up to 3 product images to display.
 // As you add real images to public/images/, slot them in here.
 const CAT_BANNERS = {
-  breakfast:  { bg: 'bg-orange-50',  border: 'border-orange-100', title: 'text-orange-800', imgs: ['/images/cornflakes.jpg', '/images/milo-400g.jpg'] },
-  canned:     { bg: 'bg-red-50',     border: 'border-red-100',    title: 'text-red-800',    imgs: ['/images/titus-sardines.png', '/images/gino-tomato-paste.png'] },
+  rice:       { bg: 'bg-amber-50',   border: 'border-amber-100',  title: 'text-amber-800',  imgs: ['/images/royal25.webp', '/images/Oba-Spagetti-405x330.jpg'] },
   oil:        { bg: 'bg-yellow-50',  border: 'border-yellow-100', title: 'text-yellow-800', imgs: ['/images/frytol-oil.png', '/images/palm-oil.jpeg'] },
-  foodstuffs: { bg: 'bg-green-50',   border: 'border-green-100',  title: 'text-green-800',  imgs: ['/images/gari.jpg', '/images/corn-dough.jpg'] },
-  cleaning:   { bg: 'bg-blue-50',    border: 'border-blue-100',   title: 'text-blue-800',   imgs: ['/images/power-zone.jpg', '/images/madar-soap.png'] },
+  canned:     { bg: 'bg-red-50',     border: 'border-red-100',    title: 'text-red-800',    imgs: ['/images/titus-sardines.png', '/images/gino-tomato-paste.png'] },
+  provisions: { bg: 'bg-purple-50',  border: 'border-purple-100', title: 'text-purple-800', imgs: ['/images/Milo-Antigen-E-400g-405x330.jpg', '/images/cornflakes.jpg'] },
   frozen:     { bg: 'bg-sky-50',     border: 'border-sky-100',    title: 'text-sky-800',    imgs: ['/images/Chicken-thigh.jpeg', '/images/drumstick.jpeg'] },
+  cleaning:   { bg: 'bg-blue-50',    border: 'border-blue-100',   title: 'text-blue-800',   imgs: ['/images/power-zone-405x330.jpg', '/images/Madar-Soap-Large-Size-405x330.png'] },
   fresh:      { bg: 'bg-lime-50',    border: 'border-lime-100',   title: 'text-lime-800',   imgs: ['/images/slider-2.jpg'] },
-  rice:       { bg: 'bg-amber-50',   border: 'border-amber-100',  title: 'text-amber-800',  imgs: ['/images/royal-feast-rice.png', '/images/oba-spaghetti.jpg'] },
-  condiments: { bg: 'bg-rose-50',    border: 'border-rose-100',   title: 'text-rose-800',   imgs: ['/images/gino-tomato-paste.png', '/images/titus-sardines.png'] },
-  provisions: { bg: 'bg-purple-50',  border: 'border-purple-100', title: 'text-purple-800', imgs: ['/images/st-louis-sugar.jpg', '/images/almonds.jpeg'] },
 }
 
 // ─── CATEGORY TILES ───────────────────────────────────────────────────────────
@@ -777,7 +772,7 @@ const ProductCard = ({ product, qty, onAdd, onRemove, onView }) => {
       {/* Info */}
       <div className="p-3 flex flex-col flex-1">
         <p className="text-gray-800 text-xs font-semibold line-clamp-2 leading-snug mb-1">{product.name}</p>
-        <p className="text-gray-300 text-[10px] uppercase tracking-wider mb-auto">{product.unit}</p>
+        <p className="text-gray-500 text-[11px] font-medium uppercase tracking-wide mb-auto">{product.unit}</p>
         <div className="flex items-baseline gap-1.5 mt-2">
           <span className="text-gray-900 font-black text-sm">{fmt(product.price)}</span>
           <span className="text-gray-300 text-[10px] line-through">{fmt(product.oldPrice)}</span>
@@ -812,6 +807,21 @@ const ProductRow = ({ catId, cart, onAdd, onRemove, onSeeAll, onView }) => {
       <div className="max-w-7xl mx-auto">
         <SectionTitle label={cat.label} onSeeAll={() => onSeeAll(catId)} />
         <p className="text-gray-400 text-xs mb-4 -mt-3">{cat.description}</p>
+
+        {/* Rice custom request notice */}
+        {catId === 'rice' && (
+          <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-5">
+            <span className="text-xl flex-shrink-0 mt-0.5">🌾</span>
+            <p className="text-amber-800 text-xs leading-relaxed">
+              <span className="font-black">Don't see your preferred rice brand?</span> We can source and deliver any rice brand on request.{' '}
+              <a href="https://wa.me/233244854206?text=Hello%20List%20J!%20I'd%20like%20to%20request%20a%20specific%20rice%20brand."
+                className="underline font-bold hover:text-amber-900 transition-colors" target="_blank" rel="noopener noreferrer">
+                WhatsApp us to request →
+              </a>
+            </p>
+          </div>
+        )}
+
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
           {items.map(p => (
             <ProductCard key={p.id} product={p}
@@ -1159,8 +1169,9 @@ const ShopSection = ({ cart, onAdd, onRemove, onCartOpen, cartTotal, cartCount, 
   // Clamp offset when pool shrinks
   const safeOffset = total <= SHOWCASE_SIZE ? 0 : offset % total
 
-  // Auto-rotate
+  // Auto-rotate — ONLY when showing "All" categories
   useEffect(() => {
+    if (activeCat !== 'all') return      // ← static when a department is selected
     if (total <= SHOWCASE_SIZE) return
     const id = setInterval(() => {
       setVisible(false)
@@ -1242,6 +1253,20 @@ const ShopSection = ({ cart, onAdd, onRemove, onCartOpen, cartTotal, cartCount, 
           ))}
         </div>
 
+        {/* Rice custom request notice — shown when rice dept is selected */}
+        {activeCat === 'rice' && (
+          <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-5">
+            <span className="text-xl flex-shrink-0 mt-0.5">🌾</span>
+            <p className="text-amber-800 text-xs leading-relaxed">
+              <span className="font-black">Don't see your preferred rice brand?</span> We can source and deliver any rice brand on request.{' '}
+              <a href="https://wa.me/233244854206?text=Hello%20List%20J!%20I'd%20like%20to%20request%20a%20specific%20rice%20brand."
+                className="underline font-bold hover:text-amber-900 transition-colors" target="_blank" rel="noopener noreferrer">
+                WhatsApp us to request →
+              </a>
+            </p>
+          </div>
+        )}
+
         {/* Rotating 3-column grid */}
         {shown.length === 0 ? (
           <div className="text-center py-12 text-gray-300 text-sm">No products in this category yet.</div>
@@ -1307,10 +1332,15 @@ const ShopSection = ({ cart, onAdd, onRemove, onCartOpen, cartTotal, cartCount, 
               </div>
             )}
 
-            {/* Auto-rotate indicator */}
-            {pages > 1 && (
+            {/* Auto-rotate indicator — only for All */}
+            {pages > 1 && activeCat === 'all' && (
               <p className="text-center text-gray-300 text-[11px] mt-2">
                 Rotating every {ROTATE_MS / 1000}s · {total} products available
+              </p>
+            )}
+            {pages > 1 && activeCat !== 'all' && (
+              <p className="text-center text-gray-300 text-[11px] mt-2">
+                {total} products · use arrows to browse
               </p>
             )}
           </>
@@ -1930,7 +1960,14 @@ export default function App() {
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
       <Navbar cartCount={cartCount} onCartOpen={() => setCartPageOpen(true)} onApply={toApply}
-        onDeptClick={(catId) => { setShopCat(catId); setTimeout(() => document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' }), 80) }} />
+        onDeptClick={(catId) => {
+          if (catId === 'packages') {
+            document.getElementById('packages')?.scrollIntoView({ behavior: 'smooth' })
+          } else {
+            setShopCat(catId)
+            setTimeout(() => document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' }), 80)
+          }
+        }} />
 
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)}
         cart={cart} onAdd={addToCart} onRemove={removeFromCart}
@@ -1940,11 +1977,13 @@ export default function App() {
       <TrustBar />
       <CategoryTiles onCatClick={cat => toShop(cat)} />
 
+      {/* Packages shown first after homepage */}
+      <FixedPackages onApplyWithPackage={applyWithPkg} onViewPackage={viewPackage} />
+
       {/* 3 rows of mixed featured products — GH Basket style */}
       <FeaturedGrid cart={cart} onAdd={addToCart} onRemove={removeFromCart} onShop={() => toShop()} onView={viewProduct} />
 
       <PromoStrip onApply={toApply} onShop={() => toShop()} />
-      <FixedPackages onApplyWithPackage={applyWithPkg} onViewPackage={viewPackage} />
       <ShopSection cart={cart} onAdd={addToCart} onRemove={removeFromCart}
         onCartOpen={() => setCartPageOpen(true)}
         cartTotal={cartTotal} cartCount={cartCount}
