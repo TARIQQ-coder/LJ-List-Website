@@ -32,15 +32,15 @@ const PRODUCTS = [
   { id: 301, name: 'Spaghetti Big Size 400g ×20',      cat: 'rice', price: 150, oldPrice: 175, unit: 'half box', img: '/images/Oba-Spagetti-405x330.jpg',   tag: 'In Stock' },
 
   // ── COOKING OIL ───────────────────────────────────────────────────────────
-  { id: 201, name: 'Frytol/Sunflower Oil 1L', cat: 'oil', price: 40,  oldPrice: 50,  unit: 'bottle', img: '/images/Sunflower-Oil-1L.png',  tag: 'In Stock' },
-  { id: 202, name: 'Sunflower Oil 5L',        cat: 'oil', price: 180, oldPrice: 210, unit: 'gallon', img: '/images/Sunflower-Oil-5L.jpeg', tag: 'In Stock' },
+  { id: 201, name: 'Frytol/Sunflower Oil 1L', cat: 'oil', price: 40,  oldPrice: 50,  unit: 'bottle', img: '/images/Cindy-Sunflower-1L.jpg',  tag: 'In Stock' },
+  { id: 202, name: 'Sunflower Oil 5L',        cat: 'oil', price: 180, oldPrice: 210, unit: 'gallon', img: '/images/Magic-Sunflower-5L.jpg', tag: 'In Stock' },
 
   // ── CANNED FISH & TIN TOMATOES ────────────────────────────────────────────
-  { id: 401, name: 'Tasty Tom Tomato 210g ×24', cat: 'canned', price: 230, oldPrice: 265, unit: 'half box (12pc)',     img: '/images/Taste-Tom-2.2kg.jpg',     tag: 'In Stock' },
-  { id: 402, name: 'Rosa/Hondi Tomato 2.2kg',   cat: 'canned', price: 45,  oldPrice: 55,  unit: '2 pcs',              img: '/images/Hondi.jpg',               tag: 'In Stock' },
+  { id: 401, name: 'Tasty Tom Tomato 2.2kg', cat: 'canned', price: 230, oldPrice: 265, unit: 'full can',     img: '/images/Taste-Tom-2.2kg.jpg',     tag: 'In Stock' },
+  { id: 402, name: 'Rosa/Hondi Tomato 2.2kg',   cat: 'canned', price: 45,  oldPrice: 55,  unit: ' full can',              img: '/images/Rosa-tomato-paste.webp',               tag: 'In Stock' },
   { id: 403, name: 'Mackerel 420g ×24',         cat: 'canned', price: 420, oldPrice: 470, unit: 'quarter box (6pcs)', img: '/images/African-Queen-420g.jpeg', tag: 'In Stock' },
-  { id: 404, name: 'Mackerel 155g ×50',         cat: 'canned', price: 430, oldPrice: 480, unit: 'quarter box (12pcs)',img: '/images/geisha.jpg',              tag: 'In Stock' },
-  { id: 405, name: 'Sardine ×50',               cat: 'canned', price: 430, oldPrice: 480, unit: 'quarter box (12pcs)',img: '/images/titus-sardines.png',      tag: 'In Stock' },
+  { id: 404, name: 'Mackerel 155g ×50',         cat: 'canned', price: 430, oldPrice: 480, unit: 'quarter box (12pcs)',img: '/images/Magic-Mackerel.jpg',              tag: 'In Stock' },
+  { id: 405, name: 'Sardine ×50',               cat: 'canned', price: 430, oldPrice: 480, unit: 'quarter box (12pcs)',img: '/images/Loki-Sardine.jpg',      tag: 'In Stock' },
 
   // ── PROVISIONS — sold as packages only (see PROVISIONS_PACKAGES) ──────────
 
@@ -50,8 +50,10 @@ const PRODUCTS = [
 
   // ── DETERGENTS — sold as packages only (see DETERGENT_PACKAGES) ────────────
 
-  // ── VEGETABLES — currently out of stock ──────────────────────────────────
-  // Items will appear here once stock is available
+  // ── VEGETABLES ────────────────────────────────────────────────────────────
+  { id: 1001, name: 'Fresh Tomatoes (Basket)',        cat: 'fresh', price: null, oldPrice: null, unit: 'basket', img: '/images/Basket-tomatoes.png', tag: 'Seasonal' },
+  { id: 1002, name: 'Fresh Onions (Basket)',          cat: 'fresh', price: null, oldPrice: null, unit: 'basket', img: '/images/Basket-Onions.jpg',   tag: 'Seasonal' },
+  { id: 1003, name: 'Fresh Pepper (Basket)',          cat: 'fresh', price: null, oldPrice: null, unit: 'basket', img: '/images/Basket-pepper.webp',  tag: 'Seasonal' },
 ]
 
 const MIN_ORDER = 549
@@ -77,10 +79,10 @@ const FIXED_PACKAGES = [
     popular: false,
     riceOptions: 'Ginny Viet · Ginny Gold · Everest Viet',
     items: [
-      { productId: 113, qty: 1, label: '25KG Rice 25kg (5*5)',            emoji: '🌾', img: '/images/royal.jpg' },
-      { productId: 202, qty: 1, label: '2 Litre Oil',                     emoji: '🫙', img: '/images/frytol-oil.png' },
-      { productId: 402, qty: 1, label: '2.2KG (Olonka) Tomato Paste',     emoji: '🍅', img: '/images/gino-tomato-paste.png' },
-      { productId: 301, qty: 1, label: '¼ Box Spaghetti',                 emoji: '🍝', img: '/images/Oba-Spagetti-405x330.jpg' },
+      { productId: 113, qty: 1, label: 'Rice 25kg (5*5)',               emoji: '🌾', img: '/images/ginny45kg.png' },
+      { productId: 202, qty: 2, label: '1L Sunflower Oil',              emoji: '🫙', img: '/images/Cindy-Sunflower-1L.jpg' },
+      { productId: 402, qty: 1, label: 'Rosa/Hondi Tomato 2.2kg',       emoji: '🍅', img: '/images/Rosa-tomato-paste.webp' },
+      { productId: 301, qty: 1, label: '¼ Box Spaghetti',               emoji: '🍝', img: '/images/Oba-Spagetti-405x330.jpg' },
     ],
   },
   {
@@ -93,11 +95,11 @@ const FIXED_PACKAGES = [
     popular: true,
     riceOptions: 'Royal Aroma · Millicent · Everest Viet',
     items: [
-      { productId: 101, qty: 1, label: '25KG Rice 25kg (5*5)',            emoji: '🌾', img: '/images/royal.jpg' },
-      { productId: 202, qty: 1, label: '3 Litre Oil',                     emoji: '🫙', img: '/images/frytol-oil.png' },
-      { productId: 402, qty: 1, label: '2.2KG (Olonka) Tomato Paste',     emoji: '🍅', img: '/images/gino-tomato-paste.png' },
-      { productId: 301, qty: 1, label: '¼ Box Spaghetti',                 emoji: '🍝', img: '/images/Oba-Spagetti-405x330.jpg' },
-      { productId: 403, qty: 1, label: '¼ Box Mackerel',                  emoji: '🐟', img: '/images/titus-sardines.png' },
+      { productId: 101, qty: 1, label: 'Rice 25kg (5*5)',               emoji: '🌾', img: '/images/royal.jpg' },
+      { productId: 202, qty: 3, label: '1L Sunflower Oil',              emoji: '🫙', img: '/images/Cindy-Sunflower-1L.jpg' },
+      { productId: 402, qty: 1, label: 'Rosa/Hondi Tomato 2.2kg',       emoji: '🍅', img: '/images/Rosa-tomato-paste.webp' },
+      { productId: 301, qty: 1, label: '¼ Box Spaghetti',               emoji: '🍝', img: '/images/Oba-Spagetti-405x330.jpg' },
+      { productId: 403, qty: 1, label: '¼ Box Mackerel 420g',           emoji: '🐟', img: '/images/African-Queen-420g.jpeg' },
     ],
   },
   {
@@ -110,11 +112,11 @@ const FIXED_PACKAGES = [
     popular: false,
     riceOptions: 'Royal Aroma · Millicent · Everest Viet',
     items: [
-      { productId: 101, qty: 1, label: '25KG Rice 25kg (5*5)',            emoji: '🌾', img: '/images/royal.jpg' },
-      { productId: 202, qty: 1, label: '5 Litre Oil',                     emoji: '🫙', img: '/images/frytol-oil.png' },
-      { productId: 402, qty: 2, label: '2pcs 2.2KG (Olonka) Tomato Paste',emoji: '🍅', img: '/images/gino-tomato-paste.png' },
-      { productId: 301, qty: 1, label: '½ Box Spaghetti',                 emoji: '🍝', img: '/images/Oba-Spagetti-405x330.jpg' },
-      { productId: 403, qty: 1, label: '¼ Box Mackerel',                  emoji: '🐟', img: '/images/titus-sardines.png' },
+      { productId: 101, qty: 1, label: 'Rice 25kg (5*5)',               emoji: '🌾', img: '/images/royal.jpg' },
+      { productId: 202, qty: 1, label: '5L Sunflower Oil',              emoji: '🫙', img: '/images/Magic-Sunflower-5L.jpg' },
+      { productId: 402, qty: 2, label: 'Rosa/Hondi Tomato 2.2kg',       emoji: '🍅', img: '/images/Rosa-tomato-paste.webp' },
+      { productId: 301, qty: 1, label: '½ Box Spaghetti',               emoji: '🍝', img: '/images/Oba-Spagetti-405x330.jpg' },
+      { productId: 403, qty: 1, label: '¼ Box Mackerel 420g',           emoji: '🐟', img: '/images/African-Queen-420g.jpeg' },
     ],
   },
   {
@@ -127,11 +129,11 @@ const FIXED_PACKAGES = [
     popular: false,
     riceOptions: 'Ginny Gold Thai · Everest Thai Holm',
     items: [
-      { productId: 114, qty: 1, label: '25KG Rice 25kg (5*5)',            emoji: '🌾', img: '/images/royal.jpg' },
-      { productId: 202, qty: 1, label: '5 Litre Oil',                     emoji: '🫙', img: '/images/frytol-oil.png' },
-      { productId: 402, qty: 2, label: '2pcs 2.2KG (Olonka) Tomato Paste',emoji: '🍅', img: '/images/gino-tomato-paste.png' },
-      { productId: 301, qty: 1, label: '1 Box Spaghetti',                 emoji: '🍝', img: '/images/Oba-Spagetti-405x330.jpg' },
-      { productId: 403, qty: 1, label: '½ Box Mackerel',                  emoji: '🐟', img: '/images/titus-sardines.png' },
+      { productId: 114, qty: 1, label: 'Rice 25kg (5*5)',               emoji: '🌾', img: '/images/ginny-gold-4.5kg.png' },
+      { productId: 202, qty: 1, label: '5L Sunflower Oil',              emoji: '🫙', img: '/images/Sunflower-Oil-5L.jpeg' },
+      { productId: 401, qty: 2, label: 'Tasty Tom Tomato 2.2kg',     emoji: '🍅', img: '/images/Taste-Tom-2.2kg.jpg' },
+      { productId: 301, qty: 1, label: '1 Box Spaghetti',               emoji: '🍝', img: '/images/Oba-Spagetti-405x330.jpg' },
+      { productId: 403, qty: 1, label: '½ Box Mackerel 420g',           emoji: '🐟', img: '/images/African-Queen-420g.jpeg' },
     ],
   },
   {
@@ -144,17 +146,17 @@ const FIXED_PACKAGES = [
     popular: false,
     riceOptions: 'Millicent Fragrant · Everest Thai Holm',
     items: [
-      { productId: 109, qty: 1, label: '25KG Rice 25kg (5*5)',            emoji: '🌾', img: '/images/Millicent-Rice-25kg_R.jpg' },
-      { productId: 202, qty: 1, label: '5 Litre Oil',                     emoji: '🫙', img: '/images/frytol-oil.png' },
-      { productId: 402, qty: 2, label: '2pcs 2.2KG (Olonka) Tomato Paste',emoji: '🍅', img: '/images/gino-tomato-paste.png' },
-      { productId: 301, qty: 1, label: '1 Box Spaghetti',                 emoji: '🍝', img: '/images/Oba-Spagetti-405x330.jpg' },
-      { productId: 403, qty: 1, label: '1 Box Mackerel',                  emoji: '🐟', img: '/images/titus-sardines.png' },
-      { productId: 405, qty: 1, label: '½ Box Sardine',                   emoji: '🐟', img: '/images/titus-sardines.png' },
+      { productId: 109, qty: 1, label: 'Rice 25kg (5*5)',               emoji: '🌾', img: '/images/Millicent-Rice-25kg_R.jpg' },
+      { productId: 202, qty: 1, label: '5L Sunflower Oil',              emoji: '🫙', img: '/images/Sunflower-Oil-5L.jpeg' },
+      { productId: 401, qty: 2, label: 'Tasty Tom Tomato 2.2kg',     emoji: '🍅', img: '/images/Taste-Tom-2.2kg.jpg' },
+      { productId: 301, qty: 1, label: '1 Box Spaghetti',               emoji: '🍝', img: '/images/Oba-Spagetti-405x330.jpg' },
+      { productId: 403, qty: 1, label: '1 Box Mackerel 420g',           emoji: '🐟', img: '/images/African-Queen-420g.jpeg' },
+      { productId: 405, qty: 1, label: '½ Box Sardine ×50',             emoji: '🐟', img: '/images/titus-sardines.png' },
     ],
   },
   {
     id: 'valentine',
-    name: 'Valentine Package',
+    name: 'Love Package',
     tagline: 'You Do All + a full box of chicken — spoil them right!',
     price: 'GH₵1,260',
     monthly: 'GH₵420/mo',
@@ -162,11 +164,11 @@ const FIXED_PACKAGES = [
     popular: false,
     riceOptions: 'Royal Aroma · Millicent · Everest Viet',
     items: [
-      { productId: 101, qty: 1, label: '25KG Rice 25kg (5*5)',            emoji: '🌾', img: '/images/royal.jpg' },
-      { productId: 202, qty: 1, label: '5 Litre Oil',                     emoji: '🫙', img: '/images/frytol-oil.png' },
-      { productId: 402, qty: 2, label: '2pcs 2.2KG (Olonka) Tomato Paste',emoji: '🍅', img: '/images/gino-tomato-paste.png' },
-      { productId: 301, qty: 1, label: '½ Box Spaghetti',                 emoji: '🍝', img: '/images/Oba-Spagetti-405x330.jpg' },
-      { productId: 403, qty: 1, label: '¼ Box Mackerel',                  emoji: '🐟', img: '/images/titus-sardines.png' },
+      { productId: 101, qty: 1, label: 'Rice 25kg (5*5)',               emoji: '🌾', img: '/images/royal.jpg' },
+      { productId: 202, qty: 1, label: '5L Sunflower Oil',              emoji: '🫙', img: '/images/Sunflower-Oil-5L.jpeg' },
+      { productId: 402, qty: 2, label: 'Tasty Tom Tomato 2.2kg',       emoji: '🍅', img: '/images/Taste-Tom-2.2kg.jpg' },
+      { productId: 301, qty: 1, label: '½ Box Spaghetti',               emoji: '🍝', img: '/images/Oba-Spagetti-405x330.jpg' },
+      { productId: 403, qty: 1, label: '¼ Box Mackerel 420g',           emoji: '🐟', img: '/images/African-Queen-420g.jpeg' },
       { productId: 601, qty: 1, label: 'Box of Chicken 10kg',             emoji: '🍗', img: '/images/Chicken-thigh.jpeg' },
     ],
   },
@@ -187,19 +189,19 @@ const PROVISIONS_PACKAGES = [
   {
     id: 'maakye',
     name: 'Maakye',
-    price: null,
+    price: 250,
     items: '1 Milo tin or 2 strips of 20g Milo · ¼ Carton of Milk / 2 strips of Nido (Small) · 1 pack of oats · Sugar (½ olonka) · Gari (1 olonka) · 1 Box of Lipton',
   },
   {
     id: 'metwa',
     name: 'Me Twa Menum',
-    price: null,
+    price: 350,
     items: '2 tins of Milo or 4 strips of 20g Milo · ¼ Carton of Milk + 2 strips of Nido (Small) or ½ carton of milk · Sugar (1 olonka) · Gari (1 olonka) · Tombrown (1 olonka) · 2 packs of oats · 1 pack of Lipton · 1 pack of school biscuit',
   },
   {
     id: 'abusuaanopa',
     name: 'Abusua Anopa',
-    price: null,
+    price: 529,
     items: '3 strips of 20g Milo · ¼ Carton of Milk + 2 strips of Nido (Small) or ½ carton of milk · Sugar (½ olonka) · Gari (1 olonka) · Tombrown (½ olonka) · 1 pack of oats · 1 Box of Lipton · 1 pack of school biscuit',
   },
 ]
@@ -475,12 +477,12 @@ const TrustBar = () => (
 // As you add real images to public/images/, slot them in here.
 const CAT_BANNERS = {
   rice:       { bg: 'bg-amber-50',   border: 'border-amber-100',  title: 'text-amber-800',  imgs: ['/images/royal25.webp', '/images/Oba-Spagetti-405x330.jpg'] },
-  oil:        { bg: 'bg-yellow-50',  border: 'border-yellow-100', title: 'text-yellow-800', imgs: ['/images/frytol-oil.png', '/images/palm-oil.jpeg'] },
-  canned:     { bg: 'bg-red-50',     border: 'border-red-100',    title: 'text-red-800',    imgs: ['/images/titus-sardines.png', '/images/gino-tomato-paste.png'] },
+  oil:        { bg: 'bg-yellow-50',  border: 'border-yellow-100', title: 'text-yellow-800', imgs: ['/images/Sunflower-Oil-1L.png', '/images/Sunflower-Oil-5L.jpeg'] },
+  canned:     { bg: 'bg-red-50',     border: 'border-red-100',    title: 'text-red-800',    imgs: ['/images/African-Queen-420g.jpeg', '/images/Hondi.jpg'] },
   provisions: { bg: 'bg-purple-50',  border: 'border-purple-100', title: 'text-purple-800', imgs: ['/images/Milo-Antigen-E-400g-405x330.jpg', '/images/cornflakes.jpg'] },
   frozen:     { bg: 'bg-sky-50',     border: 'border-sky-100',    title: 'text-sky-800',    imgs: ['/images/Chicken-thigh.jpeg', '/images/drumstick.jpeg'] },
   cleaning:   { bg: 'bg-blue-50',    border: 'border-blue-100',   title: 'text-blue-800',   imgs: ['/images/power-zone-405x330.jpg', '/images/Madar-Soap-Large-Size-405x330.png'] },
-  fresh:      { bg: 'bg-lime-50',    border: 'border-lime-100',   title: 'text-lime-800',   imgs: ['/images/slider-2.jpg'] },
+  fresh:      { bg: 'bg-lime-50',    border: 'border-lime-100',   title: 'text-lime-800',   imgs: ['/images/Basket-tomatoes.png', '/images/Basket-Onions.jpg'] },
 }
 
 // ─── CATEGORY TILES ───────────────────────────────────────────────────────────
@@ -637,13 +639,22 @@ const ProductDetail = ({ product, qty, onAdd, onRemove, onBack, onViewProduct, c
 
               {/* Price block */}
               <div className="flex items-baseline gap-3 mb-1">
-                <span className="text-3xl font-black text-gray-900">{fmt(product.price)}</span>
+                {product.price !== null && product.price !== undefined
+                  ? <span className="text-3xl font-black text-gray-900">{fmt(product.price)}</span>
+                  : <span className="text-2xl font-black text-lime-700">Price on Request</span>
+                }
               </div>
               <p className="text-gray-400 text-xs mb-6">Per <span className="font-semibold text-gray-600">{product.unit}</span></p>
 
               {/* Quantity + Add to cart */}
               <div className="flex items-center gap-3 mb-4">
-                {!added ? (
+                {product.price === null || product.price === undefined ? (
+                  <a href="https://wa.me/233244854206?text=Hello%20List%20J!%20I'd%20like%20to%20enquire%20about%20the%20price%20for%20a%20basket%20of%20vegetables."
+                    target="_blank" rel="noopener noreferrer"
+                    className="flex-1 h-11 rounded-xl font-black text-sm bg-lime-100 hover:bg-lime-200 text-lime-800 transition-all active:scale-95 flex items-center justify-center gap-2">
+                    💬 WhatsApp to Request Price
+                  </a>
+                ) : !added ? (
                   <>
                     <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden">
                       <button
@@ -677,14 +688,6 @@ const ProductDetail = ({ product, qty, onAdd, onRemove, onBack, onViewProduct, c
                   </button>
                 )}
               </div>
-
-              {/* Current cart qty */}
-              {qty > 0 && (
-                <p className="text-gray-400 text-xs mb-4">
-                  Already in cart: <span className="font-bold text-gray-700">{qty} × {product.unit}</span>
-                  <button onClick={onRemove} className="ml-2 text-red-400 hover:text-red-600 hover:underline">remove one</button>
-                </p>
-              )}
 
               {/* Product meta */}
               <div className="border-t border-gray-100 pt-5 space-y-2.5">
@@ -731,7 +734,8 @@ const ProductDetail = ({ product, qty, onAdd, onRemove, onBack, onViewProduct, c
 // ─── PRODUCT CARD ─────────────────────────────────────────────────────────────
 const ProductCard = ({ product, qty, onAdd, onRemove, onView }) => {
   const [added, setAdded] = useState(false)
-  const pct = disc(product.price, product.oldPrice)
+  const hasPrice = product.price !== null && product.price !== undefined
+  const pct = hasPrice ? disc(product.price, product.oldPrice) : 0
 
   const handleAdd = (e) => {
     e.stopPropagation()
@@ -756,9 +760,12 @@ const ProductCard = ({ product, qty, onAdd, onRemove, onView }) => {
           ? <img src={product.img} alt={product.name} className="w-full h-full object-contain p-2.5 group-hover:scale-105 transition-transform duration-300" />
           : <span className="text-5xl group-hover:scale-110 transition-transform duration-200 select-none">{product.emoji}</span>
         }
-        <span className="absolute top-2 left-2 bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full leading-none">-{pct}%</span>
+        {/* Only show discount badge if product has a price */}
+        {hasPrice && (
+          <span className="absolute top-2 left-2 bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full leading-none">-{pct}%</span>
+        )}
         {product.tag && (
-          <span className="absolute bottom-2 right-2 bg-white border border-gray-200 text-gray-600 text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-none">{product.tag}</span>
+          <span className={`absolute bottom-2 right-2 bg-white border text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-none ${product.tag === 'Seasonal' ? 'border-lime-300 text-lime-700' : 'border-gray-200 text-gray-600'}`}>{product.tag}</span>
         )}
         {qty > 0 && (
           <span className="absolute top-2 right-2 bg-amber-400 text-gray-900 text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center shadow">{qty}</span>
@@ -769,12 +776,25 @@ const ProductCard = ({ product, qty, onAdd, onRemove, onView }) => {
       <div className="p-3 flex flex-col flex-1">
         <p className="text-gray-800 text-xs font-semibold line-clamp-2 leading-snug mb-1">{product.name}</p>
         <p className="text-gray-500 text-[11px] font-medium uppercase tracking-wide mb-auto">{product.unit}</p>
-        <div className="flex items-baseline gap-1.5 mt-2">
-          <span className="text-gray-900 font-black text-sm">{fmt(product.price)}</span>
-          <span className="text-gray-300 text-[10px] line-through">{fmt(product.oldPrice)}</span>
-        </div>
 
-        {qty === 0 ? (
+        {hasPrice ? (
+          <div className="flex items-baseline gap-1.5 mt-2">
+            <span className="text-gray-900 font-black text-sm">{fmt(product.price)}</span>
+            <span className="text-gray-300 text-[10px] line-through">{fmt(product.oldPrice)}</span>
+          </div>
+        ) : (
+          <p className="text-lime-700 font-black text-xs mt-2">Price on Request</p>
+        )}
+
+        {/* WhatsApp CTA for price-on-request items, Add to cart for priced items */}
+        {!hasPrice ? (
+          <a href="https://wa.me/233244854206?text=Hello%20List%20J!%20I'd%20like%20to%20enquire%20about%20the%20price%20for%20a%20basket%20of%20vegetables."
+            target="_blank" rel="noopener noreferrer"
+            onClick={e => e.stopPropagation()}
+            className="mt-2 w-full py-1.5 rounded-lg text-xs font-bold bg-lime-100 hover:bg-lime-200 text-lime-800 text-center transition-all active:scale-95 block">
+            💬 Request Price
+          </a>
+        ) : qty === 0 ? (
           <button onClick={handleAdd}
             className={`mt-2 w-full py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95 ${added ? 'bg-gray-800 text-white' : 'bg-amber-400 hover:bg-amber-500 text-gray-900'}`}>
             {added ? '✓ Added' : '+ Add'}
@@ -840,8 +860,8 @@ const FEATURED_IDS = [
   101, 109, 112, 113, 114, 115,
   // Oil, Canned, Spaghetti
   201, 202, 401, 402, 403, 301,
-  // Canned & Frozen
-  404, 405, 601, 602,
+  // Canned, Frozen & Vegetables
+  404, 405, 601, 602, 1001, 1002,
 ]
 
 const FeaturedGrid = ({ cart, onAdd, onRemove, onShop, onView }) => {
@@ -1360,6 +1380,20 @@ const ShopSection = ({ cart, onAdd, onRemove, onCartOpen, cartTotal, cartCount, 
             </button>
           ))}
         </div>
+
+        {/* Vegetables seasonal notice */}
+        {activeCat === 'fresh' && (
+          <div className="flex items-start gap-3 bg-lime-50 border border-lime-200 rounded-xl px-4 py-3 mb-5">
+            <span className="text-xl flex-shrink-0 mt-0.5">🌿</span>
+            <p className="text-lime-800 text-xs leading-relaxed">
+              <span className="font-black">Seasonal availability.</span> Fresh vegetables depend on harvest seasons and may not always be in stock. Prices may also vary with market conditions.{' '}
+              <a href="https://wa.me/233244854206?text=Hello%20List%20J!%20I'd%20like%20to%20check%20on%20vegetable%20availability."
+                className="underline font-bold hover:text-lime-900 transition-colors" target="_blank" rel="noopener noreferrer">
+                WhatsApp us to confirm availability →
+              </a>
+            </p>
+          </div>
+        )}
 
         {/* Rice custom request notice — shown when rice dept is selected */}
         {activeCat === 'rice' && (
