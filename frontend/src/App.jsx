@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import {
   auth as authApi,
   profile as profileApi,
+  products,
   applications as applicationsApi,
   conversations as convsApi,
   adminApplications,
@@ -419,9 +420,8 @@ const ClientAuthPage = ({ onClose, onLogin }) => {
         phone_number: loginForm.phone_number,
         password:     loginForm.password,
       })
-      // Fetch full profile so we have all fields
-      const profileData = await profileApi.get()
-      const user = profileData.user || data.user
+      // User object comes back directly in the login response — no second call needed
+      const user = data.user || data
       localStorage.setItem('lj_current_user', JSON.stringify(user))
       onLogin(user)
       onClose()
@@ -475,9 +475,8 @@ const ClientAuthPage = ({ onClose, onLogin }) => {
     setOtpErr(''); setOtpLoad(true)
     try {
       const data = await authApi.verifyOtp({ phone_number: otpPhone, otp })
-      // Account activated — fetch full profile
-      const profileData = await profileApi.get()
-      const user = profileData.user || data.user
+      // User object comes back directly in the verify-otp response — no second call needed
+      const user = data.user || data
       localStorage.setItem('lj_current_user', JSON.stringify(user))
       onLogin(user)
       onClose()
@@ -1517,8 +1516,11 @@ const FEATURED_IDS = [
   404, 405, 601, 602, 1001, 1002,
 ]
 
-const FeaturedGrid = ({ cart, onAdd, onRemove, onShop, onView }) => {
-  const featured = FEATURED_IDS.map(id => PRODUCTS.find(p => p.id === id)).filter(Boolean)
+const FeaturedGrid = ({ cart, onAdd, onRemove, onShop, onView, products: featured = [] }) => {
+  // Use passed products, fall back to hardcoded FEATURED_IDS if empty
+  const items = featured.length > 0
+    ? featured
+    : FEATURED_IDS.map(id => PRODUCTS.find(p => p.id === id)).filter(Boolean)
   return (
     <section className="bg-white py-7 px-4 border-b border-gray-100">
       <div className="max-w-7xl mx-auto">
@@ -1537,7 +1539,7 @@ const FeaturedGrid = ({ cart, onAdd, onRemove, onShop, onView }) => {
         </div>
         <p className="text-gray-400 text-xs mb-5">A mix of our most popular items across all departments</p>
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
-          {featured.map(p => (
+          {items.map(p => (
             <ProductCard key={p.id} product={p}
               qty={cart[p.id] || 0}
               onAdd={() => onAdd(p.id)}
@@ -1930,11 +1932,20 @@ const buildPool = () => {
 }
 const SHOWCASE_POOL = buildPool()
 
-const ShopSection = ({ cart, onAdd, onRemove, onCartOpen, cartTotal, cartCount, onView, defaultCat, onApply }) => {
+const ShopSection = ({ cart, onAdd, onRemove, onCartOpen, cartTotal, cartCount, onView, defaultCat, onApply, products: allProducts = PRODUCTS, productsLoading = false }) => {
   const [offset, setOffset]       = useState(0)
   const [visible, setVisible]     = useState(true)
   const [activeCat, setActiveCat] = useState(defaultCat || 'all')
   const pct = Math.min(100, Math.round((cartTotal / MIN_ORDER) * 100))
+
+  // Build showcase pool from live products — 3 per category
+  const showcasePool = (() => {
+    const pool = []
+    CATEGORIES.forEach(cat => {
+      allProducts.filter(p => p.cat === cat.id).slice(0, 3).forEach(p => pool.push(p))
+    })
+    return pool
+  })()
 
   // Sync when parent changes department via navbar
   useEffect(() => {
@@ -1943,8 +1954,8 @@ const ShopSection = ({ cart, onAdd, onRemove, onCartOpen, cartTotal, cartCount, 
 
   // Filter pool by active category
   const pool = activeCat === 'all'
-    ? SHOWCASE_POOL
-    : PRODUCTS.filter(p => p.cat === activeCat)
+    ? showcasePool
+    : allProducts.filter(p => p.cat === activeCat)
 
   const total = pool.length
   // Clamp offset when pool shrinks
@@ -1952,7 +1963,7 @@ const ShopSection = ({ cart, onAdd, onRemove, onCartOpen, cartTotal, cartCount, 
 
   // Auto-rotate — ONLY when showing "All" categories
   useEffect(() => {
-    if (activeCat !== 'all') return      // ← static when a department is selected
+    if (activeCat !== 'all') return
     if (total <= SHOWCASE_SIZE) return
     const id = setInterval(() => {
       setVisible(false)
@@ -2085,7 +2096,12 @@ const ShopSection = ({ cart, onAdd, onRemove, onCartOpen, cartTotal, cartCount, 
         )}
 
         {/* Rotating 3-column grid — hidden for provisions & cleaning (packages only) */}
-        {activeCat === 'provisions' || activeCat === 'cleaning' ? null : shown.length === 0 ? (
+        {activeCat === 'provisions' || activeCat === 'cleaning' ? null : productsLoading ? (
+          <div className="py-14 flex flex-col items-center gap-3">
+            <div className="w-8 h-8 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
+            <p className="text-gray-400 text-sm">Loading products...</p>
+          </div>
+        ) : shown.length === 0 ? (
           <div className="text-center py-14 px-6">
             <span className="text-5xl block mb-4">🥦</span>
             <h3 className="text-gray-700 font-black text-base mb-2">
@@ -2201,10 +2217,11 @@ const ShopSection = ({ cart, onAdd, onRemove, onCartOpen, cartTotal, cartCount, 
 }
 
 // ─── FULL CART PAGE (GH Basket style) ────────────────────────────────────────
-const CartPage = ({ cart, onAdd, onRemove, onClear, onBack, onCheckout, cartCount, onCartOpen, onDeptClick, onShop }) => {
+const CartPage = ({ cart, onAdd, onRemove, onClear, onBack, onCheckout, cartCount, onCartOpen, onDeptClick, onShop, allProducts = PRODUCTS }) => {
+  const findP = (id) => allProducts.find(pr => pr.id === id || pr.id === parseInt(id))
   const cartItems = Object.entries(cart).filter(([, q]) => q > 0)
   const subtotal  = cartItems.reduce((s, [id, q]) => {
-    const p = PRODUCTS.find(pr => pr.id === parseInt(id)); return s + (p ? p.price * q : 0)
+    const p = findP(id); return s + (p?.price ? p.price * q : 0)
   }, 0)
   const pct       = Math.min(100, Math.round((subtotal / MIN_ORDER) * 100))
   const remaining = Math.max(0, MIN_ORDER - subtotal)
@@ -2272,7 +2289,7 @@ const CartPage = ({ cart, onAdd, onRemove, onClear, onBack, onCheckout, cartCoun
 
                 {/* Cart rows */}
                 {cartItems.map(([id, qty], rowIdx) => {
-                  const p = PRODUCTS.find(pr => pr.id === parseInt(id))
+                  const p = findP(id)
                   if (!p) return null
                   return (
                     <div key={id}
@@ -2435,7 +2452,8 @@ const CartPage = ({ cart, onAdd, onRemove, onClear, onBack, onCheckout, cartCoun
 }
 
 // ─── CART DRAWER (quick slide-in) ─────────────────────────────────────────────
-const CartDrawer = ({ open, onClose, cart, onAdd, onRemove, onClear, onCheckout, total }) => {
+const CartDrawer = ({ open, onClose, cart, onAdd, onRemove, onClear, onCheckout, total, allProducts = PRODUCTS }) => {
+  const findP = (id) => allProducts.find(pr => pr.id === id || pr.id === parseInt(id))
   const pct = Math.min(100, Math.round((total / MIN_ORDER) * 100))
   const remaining = Math.max(0, MIN_ORDER - total)
   const cartItems = Object.entries(cart).filter(([, qty]) => qty > 0)
@@ -2486,7 +2504,7 @@ const CartDrawer = ({ open, onClose, cart, onAdd, onRemove, onClear, onCheckout,
               <p className="text-gray-400 text-sm mt-4">Your cart is empty</p>
             </div>
           ) : cartItems.map(([id, qty]) => {
-            const p = PRODUCTS.find(pr => pr.id === parseInt(id))
+            const p = findP(id)
             if (!p) return null
             return (
               <div key={id} className="flex items-center gap-3 bg-gray-50 border border-gray-100 rounded-xl p-3">
@@ -2543,7 +2561,7 @@ const Field = ({ label, name, type = 'text', placeholder, value, onChange, requi
   </div>
 )
 
-const ApplySection = ({ prefilledPackage, cartTotal, cartItems }) => {
+const ApplySection = ({ prefilledPackage, cartTotal, cartItems, allProducts = PRODUCTS }) => {
   const hasCustomCart = cartItems.length > 0 && cartTotal >= MIN_ORDER
   // A "dept package" is any prefilled value that is NOT in the standard PACKAGE_OPTIONS list
   // (e.g. "Ma Wo Ho Nte (GHC270)" or "Maakye")
@@ -2567,7 +2585,7 @@ const ApplySection = ({ prefilledPackage, cartTotal, cartItems }) => {
   const onChange = e => setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
 
   const cartSummary = cartItems.map(([id, qty]) => {
-    const p = PRODUCTS.find(pr => pr.id === parseInt(id))
+    const p = allProducts.find(pr => pr.id === id || pr.id === parseInt(id))
     return p ? `${p.name} ×${qty}` : ''
   }).filter(Boolean).join(', ')
 
@@ -2683,45 +2701,53 @@ const ApplySection = ({ prefilledPackage, cartTotal, cartItems }) => {
   )
 }
 
-// ─── CLIENT MESSAGING WIDGET ─────────────────────────────────────────────────
-const ClientMessaging = () => {
-  const [open, setOpen]         = useState(false)
-  const [step, setStep]         = useState('start')
-  const [form, setForm]         = useState({ name: '', phone: '' })
-  const [input, setInput]       = useState('')
-  const [convId, setConvId]     = useState(null)
-  const [messages, setMessages] = useState([])
-  const [unread, setUnread]     = useState(0)
-  const msgEnd  = useRef(null)
+// ─── CLIENT MESSAGING WIDGET (API wired) ─────────────────────────────────────
+const ClientMessaging = ({ user, onSignInRequest }) => {
+  const [open, setOpen]           = useState(false)
+  const [messages, setMessages]   = useState([])
+  const [conv, setConv]           = useState(null)
+  const [input, setInput]         = useState('')
+  const [sending, setSending]     = useState(false)
+  const [loading, setLoading]     = useState(false)
+  const [unread, setUnread]       = useState(0)
+  const msgEnd   = useRef(null)
   const panelRef = useRef(null)
 
-  // Load existing conversation
+  const isLoggedIn = !!user
+
+  // Load existing conversation when user is logged in
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem('lj_client_conv')
-      if (saved) {
-        const c = JSON.parse(saved)
-        setConvId(c.id); setForm({ name: c.clientName, phone: c.clientPhone })
-        setMessages(c.messages || []); setStep('chat')
-        setUnread((c.messages || []).filter(m => m.from === 'admin' && !m.read).length)
+    if (!isLoggedIn) return
+    convsApi.list({ limit: 1 }).then(data => {
+      const existing = (data.conversations || [])[0]
+      if (existing) {
+        setConv(existing)
+        const unreadCount = existing.unread_count || 0
+        setUnread(unreadCount)
       }
-    } catch {}
-  }, [])
+    }).catch(() => {})
+  }, [isLoggedIn])
 
-  // Scroll to bottom
+  // Load messages when panel opens
   useEffect(() => {
-    if (open) setTimeout(() => msgEnd.current?.scrollIntoView({ behavior: 'smooth' }), 100)
-  }, [messages, open])
+    if (!open || !conv || !isLoggedIn) return
+    setLoading(true)
+    convsApi.messages(conv.id, { limit: 50 }).then(data => {
+      setMessages(data.messages || [])
+      setUnread(0)
+      setTimeout(() => msgEnd.current?.scrollIntoView({ behavior: 'smooth' }), 150)
+    }).catch(() => {}).finally(() => setLoading(false))
+  }, [open, conv])
 
-  // Mark read on open
+  // Poll for new messages while open
   useEffect(() => {
-    if (open && step === 'chat' && messages.some(m => m.from === 'admin' && !m.read)) {
-      const updated = messages.map(m => ({ ...m, read: true }))
-      setMessages(updated); setUnread(0)
-      const saved = JSON.parse(localStorage.getItem('lj_client_conv') || '{}')
-      localStorage.setItem('lj_client_conv', JSON.stringify({ ...saved, messages: updated }))
-    }
-  }, [open])
+    if (!open || !conv || !isLoggedIn) return
+    const stop = pollMessages(conv.id, (msgs) => {
+      setMessages(msgs)
+      setTimeout(() => msgEnd.current?.scrollIntoView({ behavior: 'smooth' }), 100)
+    }, 8000)
+    return stop
+  }, [open, conv])
 
   // Close on outside click
   useEffect(() => {
@@ -2737,180 +2763,39 @@ const ClientMessaging = () => {
     }
   }, [open])
 
-  const startConversation = () => {
-    if (!form.name.trim() || !form.phone.trim()) return
-    const newConv = {
-      id: Date.now(), clientName: form.name.trim(), clientPhone: form.phone.trim(),
-      package: '', lastUpdated: new Date().toISOString(), unread: 0,
-      messages: [{ from: 'admin', text: `Hello ${form.name.split(' ')[0]}! Welcome to List "J" Grocery Shop. How can we help you today?`, time: new Date().toISOString(), read: false }]
+  // Scroll to bottom on new messages
+  useEffect(() => {
+    if (open && messages.length > 0) {
+      setTimeout(() => msgEnd.current?.scrollIntoView({ behavior: 'smooth' }), 100)
     }
-    localStorage.setItem('lj_client_conv', JSON.stringify(newConv))
+  }, [messages, open])
+
+  const sendMessage = async () => {
+    if (!input.trim() || sending) return
+    const text = input.trim()
+    setInput(''); setSending(true)
     try {
-      const adminConvs = JSON.parse(localStorage.getItem('lj_conversations') || '[]')
-      localStorage.setItem('lj_conversations', JSON.stringify([newConv, ...adminConvs]))
-    } catch {}
-    setConvId(newConv.id); setMessages(newConv.messages); setStep('chat')
+      if (!conv) {
+        // Start a brand new conversation
+        const data = await convsApi.start(text)
+        const newConv = data.conversation || data
+        setConv(newConv)
+        const msgData = await convsApi.messages(newConv.id, { limit: 50 })
+        setMessages(msgData.messages || [])
+      } else {
+        await convsApi.send(conv.id, text)
+        const msgData = await convsApi.messages(conv.id, { limit: 50 })
+        setMessages(msgData.messages || [])
+      }
+      setTimeout(() => msgEnd.current?.scrollIntoView({ behavior: 'smooth' }), 100)
+    } catch { } finally { setSending(false) }
   }
 
-  const sendMessage = () => {
-    if (!input.trim()) return
-    const newMsg = { from: 'client', text: input.trim(), time: new Date().toISOString() }
-    const updated = [...messages, newMsg]
-    setMessages(updated); setInput('')
-    const saved = JSON.parse(localStorage.getItem('lj_client_conv') || '{}')
-    const updatedConv = { ...saved, messages: updated, lastUpdated: new Date().toISOString() }
-    localStorage.setItem('lj_client_conv', JSON.stringify(updatedConv))
-    try {
-      const adminConvs = JSON.parse(localStorage.getItem('lj_conversations') || '[]')
-      const idx = adminConvs.findIndex(c => c.id === convId)
-      if (idx >= 0) { adminConvs[idx] = { ...adminConvs[idx], messages: updated, lastUpdated: new Date().toISOString(), unread: (adminConvs[idx].unread || 0) + 1 }; localStorage.setItem('lj_conversations', JSON.stringify(adminConvs)) }
-    } catch {}
-  }
-
-  return (
-    <div ref={panelRef} className="fixed bottom-6 left-6 z-50 flex flex-col items-start gap-2">
-
-      {/* Chat panel */}
-      <div className={`w-[340px] bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden transition-all duration-300 origin-bottom-left ${open ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-95 pointer-events-none'}`}>
-
-        {/* Header */}
-        <div className="bg-gray-900 px-5 py-4 flex items-center gap-3">
-          <LogoMark size={32} />
-          <div className="flex-1">
-            <p className="text-white font-black text-sm">List "J" Support</p>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
-              <p className="text-gray-400 text-xs">We usually reply within a few hours</p>
-            </div>
-          </div>
-          <button onClick={() => setOpen(false)} className="text-gray-500 hover:text-white transition-colors">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
-            </svg>
-          </button>
-        </div>
-
-        {/* Start */}
-        {step === 'start' && (
-          <div className="px-5 py-6 text-center">
-            <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-3">
-              <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-              </svg>
-            </div>
-            <p className="text-gray-900 font-black text-sm mb-1">Chat with us</p>
-            <p className="text-gray-400 text-xs mb-5 leading-relaxed">Ask about your order, application status, or any questions. We'll respond here.</p>
-            <button onClick={() => setStep('form')}
-              className="w-full bg-gray-900 hover:bg-gray-800 text-white font-black text-sm py-3 rounded-xl transition-all active:scale-95 mb-2.5">
-              Start a Conversation
-            </button>
-            <div className="flex items-center gap-2 my-3">
-              <div className="flex-1 h-px bg-gray-100" />
-              <span className="text-gray-300 text-xs">or</span>
-              <div className="flex-1 h-px bg-gray-100" />
-            </div>
-            <a href="https://wa.me/233244854206?text=Hello%20List%20J!%20I%27m%20interested%20in%20your%20grocery%20plan."
-              target="_blank" rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 w-full border border-gray-200 hover:border-gray-300 text-gray-600 hover:text-gray-800 font-semibold text-sm py-2.5 rounded-xl transition-all">
-              <svg viewBox="0 0 32 32" className="w-4 h-4 fill-green-500">
-                <path d="M16.001 2C8.268 2 2 8.268 2 16.001c0 2.49.653 4.83 1.794 6.85L2 30l7.335-1.763A13.942 13.942 0 0 0 16.001 30C23.732 30 30 23.732 30 16.001 30 8.268 23.732 2 16.001 2zm6.29 20.888c-.344-.172-2.036-1.004-2.352-1.118-.317-.115-.547-.172-.778.172-.23.344-.892 1.118-1.094 1.349-.201.23-.402.258-.747.086-.344-.172-1.452-.535-2.766-1.706-1.022-.912-1.713-2.038-1.913-2.382-.201-.344-.021-.53.151-.701.155-.154.344-.402.516-.603.172-.2.23-.344.344-.574.115-.23.058-.43-.029-.603-.086-.172-.778-1.878-1.066-2.571-.281-.675-.566-.584-.778-.595l-.663-.011c-.23 0-.603.086-.919.43-.316.344-1.208 1.18-1.208 2.878s1.237 3.337 1.409 3.567c.172.23 2.435 3.717 5.9 5.213.824.356 1.468.568 1.97.728.827.263 1.58.226 2.175.137.663-.099 2.036-.832 2.323-1.635.287-.804.287-1.492.201-1.635-.086-.143-.316-.23-.66-.402z"/>
-              </svg>
-              WhatsApp instead
-            </a>
-          </div>
-        )}
-
-        {/* Form */}
-        {step === 'form' && (
-          <div className="px-5 py-5">
-            <p className="text-gray-700 font-black text-sm mb-4">Before we start, tell us who you are.</p>
-            <div className="space-y-3 mb-4">
-              <div>
-                <label className="block text-gray-500 text-[10px] uppercase tracking-wider font-bold mb-1">Your Name</label>
-                <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g. Kwame Asante"
-                  className="w-full bg-gray-50 border border-gray-200 focus:border-amber-400 focus:bg-white text-gray-800 placeholder-gray-400 rounded-xl px-4 py-2.5 text-sm outline-none transition-all" />
-              </div>
-              <div>
-                <label className="block text-gray-500 text-[10px] uppercase tracking-wider font-bold mb-1">Phone Number</label>
-                <input value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="0244000000" type="tel"
-                  className="w-full bg-gray-50 border border-gray-200 focus:border-amber-400 focus:bg-white text-gray-800 placeholder-gray-400 rounded-xl px-4 py-2.5 text-sm outline-none transition-all" />
-              </div>
-            </div>
-            <button onClick={startConversation} disabled={!form.name.trim() || !form.phone.trim()}
-              className="w-full bg-gray-900 hover:bg-gray-800 disabled:bg-gray-200 disabled:text-gray-400 text-white font-black text-sm py-3 rounded-xl transition-all active:scale-95">
-              Continue
-            </button>
-            <button onClick={() => setStep('start')} className="w-full mt-2 text-xs text-gray-400 hover:text-gray-600 py-2 transition-colors">Back</button>
-          </div>
-        )}
-
-        {/* Chat */}
-        {step === 'chat' && (
-          <>
-            <div className="h-64 overflow-y-auto px-5 py-4 space-y-3 bg-gray-50">
-              {messages.map((msg, i) => {
-                const isAdmin = msg.from === 'admin'
-                const time = new Date(msg.time).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
-                return (
-                  <div key={i} className={`flex ${isAdmin ? 'justify-start' : 'justify-end'}`}>
-                    <div className={`max-w-[80%] flex flex-col gap-1 ${isAdmin ? 'items-start' : 'items-end'}`}>
-                      {isAdmin && <p className="text-gray-400 text-[10px] px-1">List "J"</p>}
-                      <div className={`px-3.5 py-2.5 rounded-2xl text-xs leading-relaxed ${isAdmin ? 'bg-white border border-gray-200 text-gray-800 rounded-tl-sm' : 'bg-gray-900 text-white rounded-tr-sm'}`}>
-                        {msg.text}
-                      </div>
-                      <p className="text-gray-300 text-[10px] px-1">{time}</p>
-                    </div>
-                  </div>
-                )
-              })}
-              <div ref={msgEnd} />
-            </div>
-            <div className="px-4 py-3 border-t border-gray-100 bg-white">
-              <div className="flex gap-2 items-end mb-2">
-                <textarea value={input} onChange={e => setInput(e.target.value)}
-                  onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() } }}
-                  placeholder="Type a message... (Enter to send)"
-                  rows={1}
-                  className="flex-1 bg-gray-50 border border-gray-200 focus:border-amber-400 focus:bg-white text-gray-800 placeholder-gray-400 rounded-xl px-3.5 py-2.5 text-xs outline-none transition-all resize-none" />
-                <button onClick={sendMessage} disabled={!input.trim()}
-                  className="w-9 h-9 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-200 text-white disabled:text-gray-400 rounded-xl flex items-center justify-center transition-all flex-shrink-0 active:scale-95">
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
-                  </svg>
-                </button>
-              </div>
-              <a href="https://wa.me/233244854206" target="_blank" rel="noopener noreferrer"
-                className="flex items-center justify-center gap-1.5 text-[10px] text-gray-400 hover:text-gray-600 transition-colors font-medium">
-                <svg viewBox="0 0 32 32" className="w-3 h-3 fill-green-400">
-                  <path d="M16.001 2C8.268 2 2 8.268 2 16.001c0 2.49.653 4.83 1.794 6.85L2 30l7.335-1.763A13.942 13.942 0 0 0 16.001 30C23.732 30 30 23.732 30 16.001 30 8.268 23.732 2 16.001 2zm6.29 20.888c-.344-.172-2.036-1.004-2.352-1.118-.317-.115-.547-.172-.778.172-.23.344-.892 1.118-1.094 1.349-.201.23-.402.258-.747.086-.344-.172-1.452-.535-2.766-1.706-1.022-.912-1.713-2.038-1.913-2.382-.201-.344-.021-.53.151-.701.155-.154.344-.402.516-.603.172-.2.23-.344.344-.574.115-.23.058-.43-.029-.603-.086-.172-.778-1.878-1.066-2.571-.281-.675-.566-.584-.778-.595l-.663-.011c-.23 0-.603.086-.919.43-.316.344-1.208 1.18-1.208 2.878s1.237 3.337 1.409 3.567c.172.23 2.435 3.717 5.9 5.213.824.356 1.468.568 1.97.728.827.263 1.58.226 2.175.137.663-.099 2.036-.832 2.323-1.635.287-.804.287-1.492.201-1.635-.086-.143-.316-.23-.66-.402z"/>
-                </svg>
-                Prefer WhatsApp? Chat on 0244854206
-              </a>
-            </div>
-          </>
-        )}
-      </div>
-
-      {/* Toggle button */}
-      <button
-        onClick={() => { setOpen(o => !o); setUnread(0) }}
-        className="w-14 h-14 bg-gray-900 hover:bg-gray-800 rounded-full flex items-center justify-center shadow-xl hover:scale-110 active:scale-95 transition-all relative self-start">
-        {open ? (
-          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
-          </svg>
-        ) : (
-          <>
-            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-            </svg>
-            {unread > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-amber-400 text-gray-900 text-[10px] font-black rounded-full flex items-center justify-center">{unread}</span>
-            )}
-          </>
-        )}
-      </button>
-    </div>
+  const WaLink = ({ className, children }) => (
+    <a href="https://wa.me/233244854206?text=Hello%20List%20J!%20I%27m%20interested%20in%20your%20grocery%20plan."
+      target="_blank" rel="noopener noreferrer" className={className}>
+      {children}
+    </a>
   )
 }
 
@@ -3056,6 +2941,659 @@ const AdminLogin = ({ onSuccess, onBack }) => {
           </button>
         </div>
       </div>
+    </div>
+  )
+}
+
+// ─── ADMIN PRODUCTS PANEL ─────────────────────────────────────────────────────
+// The exact same departments as the storefront, plus package management for
+// Provisions and Detergents which are sold as packages, not individual items.
+
+// Storefront departments — must match exactly what the API category field uses
+const ADMIN_DEPARTMENTS = [
+  'Rice & Grains',
+  'Cooking Oil',
+  'Canned Fish & Tin Tomatoes',
+  'Provisions',
+  'Frozen Foods',
+  'Detergents',
+  'Vegetables',
+]
+
+const AdminProductsPanel = ({ Icon, fmt }) => {
+  const [apiProducts,   setApiProducts]   = useState([])
+  const [loading,       setLoading]       = useState(true)
+  const [filterCat,     setFilterCat]     = useState('all')
+  const [searchQ,       setSearchQ]       = useState(''  )
+  const [activeSection, setActiveSection] = useState('products') // 'products' | 'provisions' | 'detergents'
+
+  // ── Add Product ─────────────────────────────────────────────────────────────
+  const [showAdd,   setShowAdd]   = useState(false)
+  const [addForm,   setAddForm]   = useState({ name: '', category: '', price: '', unit: '', active: true })
+  const [addImages, setAddImages] = useState([])
+  const [addLoad,   setAddLoad]   = useState(false)
+  const [addErr,    setAddErr]    = useState('')
+
+  // ── New department ───────────────────────────────────────────────────────────
+  const [showAddDept,  setShowAddDept]  = useState(false)
+  const [newDeptName,  setNewDeptName]  = useState('')
+  const [extraDepts,   setExtraDepts]   = useState([])
+
+  // ── Edit ────────────────────────────────────────────────────────────────────
+  const [editing,   setEditing]   = useState(null)
+  const [editForm,  setEditForm]  = useState({})
+  const [editLoad,  setEditLoad]  = useState(false)
+
+  // ── Image upload ─────────────────────────────────────────────────────────────
+  const [imgTarget, setImgTarget] = useState(null) // product id
+  const [imgFiles,  setImgFiles]  = useState([])
+  const [imgLoad,   setImgLoad]   = useState(false)
+
+  // ── Delete ───────────────────────────────────────────────────────────────────
+  const [deleting,  setDeleting]  = useState(null) // product id being deleted
+
+  // ── Packages (Provisions + Detergents) ──────────────────────────────────────
+  const [editingPkg, setEditingPkg]   = useState(null) // { type: 'provision'|'detergent', idx }
+  const [pkgForm,    setPkgForm]      = useState({})
+  const [provisions, setProvisions]   = useState(PROVISIONS_PACKAGES.map(p => ({ ...p })))
+  const [detergents, setDetergents]   = useState(DETERGENT_PACKAGES.map(p => ({ ...p })))
+  const [showAddPkg, setShowAddPkg]   = useState(null) // 'provision'|'detergent'
+  const [newPkgForm, setNewPkgForm]   = useState({ name: '', price: '', items: '' })
+
+  const allDepts = [...ADMIN_DEPARTMENTS, ...extraDepts]
+
+  const loadAll = async () => {
+    setLoading(true)
+    try {
+      const data = await products.list({ limit: 100 })
+      setApiProducts(data.products || [])
+    } catch { } finally { setLoading(false) }
+  }
+
+  useEffect(() => { loadAll() }, [])
+
+  const filtered = apiProducts.filter(p => {
+    const matchCat    = filterCat === 'all' || p.category === filterCat
+    const matchSearch = !searchQ || p.name.toLowerCase().includes(searchQ.toLowerCase())
+    return matchCat && matchSearch
+  })
+
+  // ── Handlers ─────────────────────────────────────────────────────────────────
+  const handleAdd = async () => {
+    if (!addForm.name || !addForm.category || !addForm.unit) {
+      setAddErr('Name, department and unit are required.'); return
+    }
+    setAddLoad(true); setAddErr('')
+    try {
+      const created = await adminProducts.create({
+        name: addForm.name, category: addForm.category,
+        price: addForm.price ? Number(addForm.price) : 0,
+        unit: addForm.unit, active: addForm.active,
+      })
+      const np = created.product || created
+      if (addImages.length > 0 && np.id) await adminProducts.uploadImages(np.id, addImages)
+      setShowAdd(false)
+      setAddForm({ name: '', category: '', price: '', unit: '', active: true })
+      setAddImages([])
+      await loadAll()
+    } catch (err) { setAddErr(err.message || 'Failed to create product.') }
+    finally { setAddLoad(false) }
+  }
+
+  const startEdit = (p) => {
+    setEditing(p.id)
+    setEditForm({ name: p.name, category: p.category, price: p.price ?? '', unit: p.unit, active: p.active !== false })
+  }
+
+  const saveEdit = async () => {
+    setEditLoad(true)
+    try {
+      await adminProducts.update(editing, {
+        name: editForm.name, category: editForm.category,
+        price: editForm.price !== '' ? Number(editForm.price) : 0,
+        unit: editForm.unit, active: editForm.active,
+      })
+      setEditing(null); await loadAll()
+    } catch { } finally { setEditLoad(false) }
+  }
+
+  const [togglingId,  setTogglingId]  = useState(null)
+  const [toggleErr,   setToggleErr]   = useState('')
+
+  const toggleActive = async (p) => {
+    setTogglingId(p.id)
+    setToggleErr('')
+    // Optimistic update — change UI immediately
+    setApiProducts(prev => prev.map(pr => pr.id === p.id ? { ...pr, active: !pr.active } : pr))
+    try {
+      await adminProducts.update(p.id, { active: !p.active })
+      // Reload to confirm server state
+      await loadAll()
+    } catch (err) {
+      // Revert optimistic update on failure
+      setApiProducts(prev => prev.map(pr => pr.id === p.id ? { ...pr, active: p.active } : pr))
+      setToggleErr(`Could not update "${p.name}": ${err.message || 'Server error'}`)
+    } finally {
+      setTogglingId(null)
+    }
+  }
+
+  const handleDelete = async (p) => {
+    if (!window.confirm(`Delete "${p.name}"? This cannot be undone.`)) return
+    setDeleting(p.id)
+    try {
+      await adminProducts.delete(p.id)
+      await loadAll()
+    } catch {
+      // If DELETE endpoint not yet implemented, fall back to hiding
+      await adminProducts.update(p.id, { active: false })
+      await loadAll()
+    } finally { setDeleting(null) }
+  }
+
+  const handleImgUpload = async () => {
+    if (!imgFiles.length || !imgTarget) return
+    setImgLoad(true)
+    try {
+      await adminProducts.uploadImages(imgTarget, imgFiles)
+      setImgTarget(null); setImgFiles([]); await loadAll()
+    } catch { } finally { setImgLoad(false) }
+  }
+
+  const deleteImg = async (productId, imageId) => {
+    if (!window.confirm('Delete this image?')) return
+    try { await adminProducts.deleteImage(productId, imageId); await loadAll() } catch { }
+  }
+
+  // ── Field helper ─────────────────────────────────────────────────────────────
+  const F = ({ label, value, onChange, type = 'text', placeholder, required, half }) => (
+    <div className={half ? '' : ''}>
+      <label className="block text-gray-600 text-[10px] uppercase tracking-wider font-bold mb-1">
+        {label}{required && <span className="text-red-400 ml-0.5">*</span>}
+      </label>
+      <input type={type} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
+        className="w-full bg-white border border-gray-200 focus:border-amber-400 text-gray-800 placeholder-gray-400 rounded-xl px-4 py-2.5 text-sm outline-none transition-all" />
+    </div>
+  )
+
+  const statusBtns = (activeVal, setActive) => (
+    <div className="flex gap-2">
+      {[{ v: true, l: 'Active' }, { v: false, l: 'Hidden' }].map(opt => (
+        <button key={String(opt.v)} onClick={() => setActive(opt.v)}
+          className={`flex-1 py-2 rounded-xl text-xs font-bold border transition-all ${activeVal === opt.v ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-500 border-gray-200 hover:border-gray-400'}`}>
+          {opt.l}
+        </button>
+      ))}
+    </div>
+  )
+
+  return (
+    <div className="space-y-5">
+
+      {/* Section tabs — Products | Provisions Packages | Detergent Packages */}
+      <div className="flex items-end justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-gray-900 font-black text-2xl mb-3">Products</h1>
+          <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit">
+            {[
+              { id: 'products',   label: 'All Products' },
+              { id: 'provisions', label: 'Provisions Packages' },
+              { id: 'detergents', label: 'Detergent Packages' },
+            ].map(s => (
+              <button key={s.id} onClick={() => setActiveSection(s.id)}
+                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${activeSection === s.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+                {s.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        {activeSection === 'products' && (
+          <div className="flex gap-2">
+            <button onClick={() => { setShowAddDept(v => !v); setShowAdd(false) }}
+              className="border border-gray-200 hover:border-gray-400 text-gray-600 font-bold text-xs px-4 py-2.5 rounded-xl transition-colors">
+              + New Department
+            </button>
+            <button onClick={() => { setShowAdd(v => !v); setShowAddDept(false) }}
+              className="bg-amber-400 hover:bg-amber-500 text-gray-900 font-black text-xs px-4 py-2.5 rounded-xl transition-colors">
+              + Add Product
+            </button>
+          </div>
+        )}
+        {(activeSection === 'provisions' || activeSection === 'detergents') && (
+          <button onClick={() => setShowAddPkg(activeSection === 'provisions' ? 'provision' : 'detergent')}
+            className="bg-amber-400 hover:bg-amber-500 text-gray-900 font-black text-xs px-4 py-2.5 rounded-xl transition-colors">
+            + Add Package
+          </button>
+        )}
+      </div>
+
+      {/* ── PRODUCTS SECTION ─────────────────────────────────────────────── */}
+      {activeSection === 'products' && (
+        <>
+          {/* New department form */}
+          {showAddDept && (
+            <div className="bg-white rounded-2xl border border-gray-200 p-6">
+              <h2 className="text-gray-900 font-black text-sm mb-1">New Department</h2>
+              <p className="text-gray-400 text-xs mb-4">
+                The department will appear on the storefront automatically once you add at least one active product to it.
+              </p>
+              <div className="flex gap-3">
+                <input value={newDeptName} onChange={e => setNewDeptName(e.target.value)}
+                  placeholder="e.g. Beverages"
+                  className="flex-1 bg-gray-50 border border-gray-200 focus:border-amber-400 text-gray-800 placeholder-gray-400 rounded-xl px-4 py-2.5 text-sm outline-none transition-all" />
+                <button onClick={() => {
+                  if (!newDeptName.trim()) return
+                  if (!allDepts.includes(newDeptName.trim())) setExtraDepts(prev => [...prev, newDeptName.trim()])
+                  setAddForm(f => ({ ...f, category: newDeptName.trim() }))
+                  setNewDeptName(''); setShowAddDept(false); setShowAdd(true)
+                }} className="bg-gray-900 hover:bg-gray-800 text-white font-black text-xs px-5 py-2.5 rounded-xl transition-colors">
+                  Create
+                </button>
+                <button onClick={() => setShowAddDept(false)}
+                  className="border border-gray-200 text-gray-500 font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-gray-50">
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Add product form */}
+          {showAdd && (
+            <div className="bg-white rounded-2xl border border-amber-200 overflow-hidden">
+              <div className="px-6 py-4 border-b border-amber-100 bg-amber-50 flex items-center justify-between">
+                <div>
+                  <h2 className="text-gray-900 font-black text-sm">Add New Product</h2>
+                  <p className="text-gray-500 text-xs mt-0.5">Goes live on the storefront immediately after saving.</p>
+                </div>
+                <button onClick={() => { setShowAdd(false); setAddErr(''); setAddImages([]) }}
+                  className="text-gray-400 hover:text-gray-700 text-xl leading-none">×</button>
+              </div>
+              <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="lg:col-span-2">
+                  <F label="Product Name" value={addForm.name} onChange={v => setAddForm(f => ({ ...f, name: v }))}
+                    placeholder="e.g. Royal Aroma Rice 25kg (5*5)" required />
+                </div>
+                <div>
+                  <label className="block text-gray-600 text-[10px] uppercase tracking-wider font-bold mb-1">
+                    Department <span className="text-red-400">*</span>
+                  </label>
+                  <select value={addForm.category} onChange={e => setAddForm(f => ({ ...f, category: e.target.value }))}
+                    className="w-full bg-white border border-gray-200 focus:border-amber-400 text-gray-800 rounded-xl px-4 py-2.5 text-sm outline-none transition-all">
+                    <option value="">— Select —</option>
+                    {allDepts.map(d => <option key={d} value={d}>{d}</option>)}
+                  </select>
+                  <button onClick={() => { setShowAddDept(true); setShowAdd(false) }}
+                    className="text-amber-600 text-xs font-semibold mt-1 hover:underline">+ New department</button>
+                </div>
+                <F label="Price (GH₵)" value={addForm.price} onChange={v => setAddForm(f => ({ ...f, price: v }))}
+                  type="number" placeholder="e.g. 400" />
+                <F label="Unit" value={addForm.unit} onChange={v => setAddForm(f => ({ ...f, unit: v }))}
+                  placeholder="e.g. bag, bottle, full box" required />
+                <div>
+                  <label className="block text-gray-600 text-[10px] uppercase tracking-wider font-bold mb-1">Status</label>
+                  {statusBtns(addForm.active, v => setAddForm(f => ({ ...f, active: v })))}
+                </div>
+                <div className="sm:col-span-2 lg:col-span-3">
+                  <label className="block text-gray-600 text-[10px] uppercase tracking-wider font-bold mb-1">Images</label>
+                  <div className="flex items-center gap-3">
+                    <input type="file" multiple accept="image/*" onChange={e => setAddImages(Array.from(e.target.files))}
+                      className="flex-1 text-xs text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200" />
+                    {addImages.length > 0 && <span className="text-xs text-gray-500">{addImages.length} file{addImages.length > 1 ? 's' : ''} selected</span>}
+                  </div>
+                </div>
+                <div className="sm:col-span-2 lg:col-span-3">
+                  {addErr && <p className="text-red-600 text-xs bg-red-50 border border-red-200 rounded-xl px-4 py-2.5 mb-3 font-medium">{addErr}</p>}
+                  <div className="flex gap-2">
+                    <button onClick={handleAdd} disabled={addLoad}
+                      className="bg-amber-400 hover:bg-amber-500 text-gray-900 font-black text-xs px-6 py-2.5 rounded-xl transition-colors disabled:opacity-60">
+                      {addLoad ? 'Saving...' : 'Save Product'}
+                    </button>
+                    <button onClick={() => { setShowAdd(false); setAddErr(''); setAddImages([]) }}
+                      className="border border-gray-200 text-gray-500 font-bold text-xs px-5 py-2.5 rounded-xl hover:bg-gray-50">
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Filters */}
+          <div className="flex flex-wrap gap-3">
+            <div className="relative flex-1 min-w-[200px]">
+              <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>
+              <input value={searchQ} onChange={e => setSearchQ(e.target.value)} placeholder="Search products..."
+                className="w-full bg-white border border-gray-200 focus:border-amber-400 text-gray-800 placeholder-gray-400 rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none transition-all" />
+            </div>
+            <div className="flex gap-1.5 flex-wrap">
+              <button onClick={() => setFilterCat('all')}
+                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all ${filterCat === 'all' ? 'bg-gray-900 text-white' : 'bg-white border border-gray-200 text-gray-500 hover:border-gray-400'}`}>
+                All
+              </button>
+              {allDepts.map(d => (
+                <button key={d} onClick={() => setFilterCat(d)}
+                  className={`px-3 py-2 rounded-xl text-xs font-bold transition-all ${filterCat === d ? 'bg-gray-900 text-white' : 'bg-white border border-gray-200 text-gray-500 hover:border-gray-400'}`}>
+                  {d}
+                </button>
+              ))}
+            </div>
+            <button onClick={loadAll} className="border border-gray-200 hover:border-gray-400 text-gray-500 font-bold text-xs px-4 py-2.5 rounded-xl">
+              Refresh
+            </button>
+          </div>
+
+          {/* Toggle error banner */}
+          {toggleErr && (
+            <div className="bg-red-50 border border-red-200 text-red-700 text-xs px-4 py-3 rounded-xl font-medium flex items-center justify-between">
+              <span>{toggleErr}</span>
+              <button onClick={() => setToggleErr('')} className="text-red-400 hover:text-red-600 text-lg leading-none ml-3">×</button>
+            </div>
+          )}
+
+          {/* Product list */}
+          {loading ? (
+            <div className="bg-white rounded-2xl border border-gray-200 py-16 flex items-center justify-center">
+              <div className="w-7 h-7 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : filtered.length === 0 ? (
+            <div className="bg-white rounded-2xl border border-gray-200 py-16 text-center">
+              <p className="text-gray-500 text-sm font-semibold">No products found</p>
+              <p className="text-gray-400 text-xs mt-1">Try a different filter or add a new product above.</p>
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+              <div className="hidden md:grid grid-cols-12 gap-3 px-5 py-3 bg-gray-50 border-b border-gray-100 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                <div className="col-span-1" />
+                <div className="col-span-3">Product</div>
+                <div className="col-span-2">Department</div>
+                <div className="col-span-1 text-right">Price</div>
+                <div className="col-span-1">Unit</div>
+                <div className="col-span-1 text-center">Status</div>
+                <div className="col-span-3 text-right">Actions</div>
+              </div>
+              {filtered.map((p, rowIdx) => (
+                <div key={p.id} className={`border-b border-gray-100 last:border-0 ${rowIdx % 2 === 0 ? 'bg-white' : 'bg-gray-50/40'}`}>
+
+                  {/* Edit form */}
+                  {editing === p.id ? (
+                    <div className="p-5 border-l-4 border-amber-400 bg-amber-50">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-4">
+                        <div className="col-span-2 sm:col-span-3 lg:col-span-4">
+                          <label className="block text-gray-600 text-[10px] uppercase tracking-wider font-bold mb-1">Product Name</label>
+                          <input value={editForm.name} onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))}
+                            className="w-full bg-white border border-gray-300 focus:border-amber-400 text-gray-800 rounded-xl px-4 py-2.5 text-sm outline-none" />
+                        </div>
+                        <div>
+                          <label className="block text-gray-600 text-[10px] uppercase tracking-wider font-bold mb-1">Department</label>
+                          <select value={editForm.category} onChange={e => setEditForm(f => ({ ...f, category: e.target.value }))}
+                            className="w-full bg-white border border-gray-300 focus:border-amber-400 text-gray-800 rounded-xl px-4 py-2.5 text-sm outline-none">
+                            {allDepts.map(d => <option key={d} value={d}>{d}</option>)}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-gray-600 text-[10px] uppercase tracking-wider font-bold mb-1">Price (GH₵)</label>
+                          <input type="number" value={editForm.price} onChange={e => setEditForm(f => ({ ...f, price: e.target.value }))}
+                            className="w-full bg-white border border-gray-300 focus:border-amber-400 text-gray-800 rounded-xl px-4 py-2.5 text-sm outline-none" />
+                        </div>
+                        <div>
+                          <label className="block text-gray-600 text-[10px] uppercase tracking-wider font-bold mb-1">Unit</label>
+                          <input value={editForm.unit} onChange={e => setEditForm(f => ({ ...f, unit: e.target.value }))}
+                            className="w-full bg-white border border-gray-300 focus:border-amber-400 text-gray-800 rounded-xl px-4 py-2.5 text-sm outline-none" />
+                        </div>
+                        <div>
+                          <label className="block text-gray-600 text-[10px] uppercase tracking-wider font-bold mb-1">Status</label>
+                          {statusBtns(editForm.active, v => setEditForm(f => ({ ...f, active: v })))}
+                        </div>
+                      </div>
+
+                      {/* Images */}
+                      <div className="mb-4">
+                        <label className="block text-gray-600 text-[10px] uppercase tracking-wider font-bold mb-2">Images</label>
+                        {p.images?.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mb-2">
+                            {p.images.map(img => (
+                              <div key={img.id} className="relative group">
+                                <img src={img.image_url} alt="" className="w-14 h-14 object-cover rounded-lg border border-gray-200" />
+                                <button onClick={() => deleteImg(p.id, img.id)}
+                                  className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs font-black hidden group-hover:flex items-center justify-center">×</button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {imgTarget === p.id ? (
+                          <div className="flex items-center gap-2">
+                            <input type="file" multiple accept="image/*" onChange={e => setImgFiles(Array.from(e.target.files))}
+                              className="text-xs text-gray-600 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200" />
+                            <button onClick={handleImgUpload} disabled={!imgFiles.length || imgLoad}
+                              className="bg-gray-900 text-white font-black text-xs px-3 py-1.5 rounded-lg disabled:opacity-60">
+                              {imgLoad ? 'Uploading...' : 'Upload'}
+                            </button>
+                            <button onClick={() => { setImgTarget(null); setImgFiles([]) }} className="text-gray-400 text-xs hover:text-gray-600">Cancel</button>
+                          </div>
+                        ) : (
+                          <button onClick={() => setImgTarget(p.id)} className="text-xs text-amber-600 font-semibold hover:underline">+ Upload images</button>
+                        )}
+                      </div>
+
+                      <div className="flex gap-2">
+                        <button onClick={saveEdit} disabled={editLoad}
+                          className="bg-gray-900 hover:bg-gray-800 text-white font-black text-xs px-5 py-2.5 rounded-xl disabled:opacity-60">
+                          {editLoad ? 'Saving...' : 'Save Changes'}
+                        </button>
+                        <button onClick={() => { setEditing(null); setImgTarget(null); setImgFiles([]) }}
+                          className="border border-gray-300 text-gray-500 font-bold text-xs px-5 py-2.5 rounded-xl hover:bg-white">
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    /* Product row */
+                    <div className="grid md:grid-cols-12 gap-3 items-center px-5 py-3.5">
+                      <div className="col-span-1">
+                        <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden border border-gray-200 flex-shrink-0">
+                          {p.image_url
+                            ? <img src={p.image_url} alt={p.name} className="w-full h-full object-contain p-1" />
+                            : <svg className="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                              </svg>
+                          }
+                        </div>
+                      </div>
+                      <div className="col-span-3 min-w-0">
+                        <p className="text-gray-900 text-sm font-semibold truncate">{p.name}</p>
+                        {p.images?.length > 0 && <p className="text-gray-300 text-[10px]">{p.images.length} image{p.images.length > 1 ? 's' : ''}</p>}
+                      </div>
+                      <div className="col-span-2">
+                        <span className="text-[10px] bg-gray-100 text-gray-600 px-2 py-1 rounded-full font-semibold">{p.category}</span>
+                      </div>
+                      <div className="col-span-1 text-right">
+                        <p className="text-gray-900 font-black text-sm">{p.price > 0 ? fmt(p.price) : <span className="text-lime-700 text-xs font-semibold">On Request</span>}</p>
+                      </div>
+                      <div className="col-span-1">
+                        <p className="text-gray-400 text-xs">{p.unit}</p>
+                      </div>
+                      <div className="col-span-1 flex justify-center">
+                        <span className={`text-[10px] font-black px-2 py-1 rounded-full uppercase ${p.active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                          {p.active ? 'Live' : 'Hidden'}
+                        </span>
+                      </div>
+                      <div className="col-span-3 flex items-center justify-end gap-1.5">
+                        <button onClick={() => toggleActive(p)} disabled={togglingId === p.id}
+                          className={`text-xs font-bold px-2.5 py-1.5 rounded-lg border transition-all disabled:opacity-60 ${p.active ? 'border-gray-200 text-gray-500 hover:border-red-300 hover:text-red-500 hover:bg-red-50' : 'border-green-200 text-green-600 bg-green-50 hover:bg-green-100'}`}>
+                          {togglingId === p.id ? '...' : p.active ? 'Hide' : 'Show'}
+                        </button>
+                        <button onClick={() => startEdit(p)}
+                          className="text-xs font-bold text-amber-600 hover:text-amber-800 px-2.5 py-1.5 rounded-lg hover:bg-amber-50 border border-transparent hover:border-amber-200 transition-all">
+                          Edit
+                        </button>
+                        <button onClick={() => handleDelete(p)} disabled={deleting === p.id}
+                          className="text-xs font-bold text-red-500 hover:text-red-700 px-2.5 py-1.5 rounded-lg hover:bg-red-50 border border-transparent hover:border-red-200 transition-all disabled:opacity-50">
+                          {deleting === p.id ? '...' : 'Delete'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* ── PROVISIONS PACKAGES SECTION ──────────────────────────────────── */}
+      {activeSection === 'provisions' && (
+        <div className="space-y-4">
+          <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-xs text-amber-800">
+            Provisions packages are defined in the codebase. Changes here update the in-memory list for this session. To make permanent changes, update <code className="bg-amber-100 px-1 rounded font-mono">PROVISIONS_PACKAGES</code> in App.jsx.
+          </div>
+
+          {/* Add package form */}
+          {showAddPkg === 'provision' && (
+            <div className="bg-white rounded-2xl border border-amber-200 p-6">
+              <h2 className="text-gray-900 font-black text-sm mb-4">Add Provisions Package</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <F label="Package Name" value={newPkgForm.name} onChange={v => setNewPkgForm(f => ({ ...f, name: v }))} placeholder="e.g. Abusua Anopa" required />
+                <F label="Price (GH₵)" value={newPkgForm.price} onChange={v => setNewPkgForm(f => ({ ...f, price: v }))} type="number" placeholder="e.g. 350" />
+                <div className="sm:col-span-2">
+                  <label className="block text-gray-600 text-[10px] uppercase tracking-wider font-bold mb-1">Items (separate each with ·)</label>
+                  <textarea value={newPkgForm.items} onChange={e => setNewPkgForm(f => ({ ...f, items: e.target.value }))}
+                    placeholder="e.g. 1 Milo tin · ¼ Carton of Milk · Sugar (½ olonka)"
+                    rows={3}
+                    className="w-full bg-white border border-gray-200 focus:border-amber-400 text-gray-800 placeholder-gray-400 rounded-xl px-4 py-2.5 text-sm outline-none transition-all resize-none" />
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={() => {
+                  if (!newPkgForm.name.trim()) return
+                  setProvisions(prev => [...prev, { id: Date.now().toString(), name: newPkgForm.name, price: Number(newPkgForm.price) || 0, items: newPkgForm.items }])
+                  setNewPkgForm({ name: '', price: '', items: '' }); setShowAddPkg(null)
+                }} className="bg-amber-400 hover:bg-amber-500 text-gray-900 font-black text-xs px-5 py-2.5 rounded-xl">Save Package</button>
+                <button onClick={() => setShowAddPkg(null)} className="border border-gray-200 text-gray-500 font-bold text-xs px-5 py-2.5 rounded-xl hover:bg-gray-50">Cancel</button>
+              </div>
+            </div>
+          )}
+
+          {provisions.map((pkg, idx) => (
+            <div key={pkg.id} className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+              {editingPkg?.type === 'provision' && editingPkg?.idx === idx ? (
+                <div className="p-5 border-l-4 border-amber-400 bg-amber-50">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <F label="Package Name" value={pkgForm.name} onChange={v => setPkgForm(f => ({ ...f, name: v }))} required />
+                    <F label="Price (GH₵)" value={pkgForm.price} onChange={v => setPkgForm(f => ({ ...f, price: v }))} type="number" />
+                    <div className="sm:col-span-2">
+                      <label className="block text-gray-600 text-[10px] uppercase tracking-wider font-bold mb-1">Items</label>
+                      <textarea value={pkgForm.items} onChange={e => setPkgForm(f => ({ ...f, items: e.target.value }))}
+                        rows={3} className="w-full bg-white border border-gray-300 focus:border-amber-400 text-gray-800 rounded-xl px-4 py-2.5 text-sm outline-none resize-none" />
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button onClick={() => {
+                      setProvisions(prev => prev.map((p, i) => i === idx ? { ...p, ...pkgForm, price: Number(pkgForm.price) || p.price } : p))
+                      setEditingPkg(null)
+                    }} className="bg-gray-900 text-white font-black text-xs px-5 py-2.5 rounded-xl">Save</button>
+                    <button onClick={() => setEditingPkg(null)} className="border border-gray-300 text-gray-500 font-bold text-xs px-5 py-2.5 rounded-xl hover:bg-white">Cancel</button>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-5 flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-3 mb-2">
+                      <p className="text-gray-900 font-black text-base">{pkg.name}</p>
+                      <span className="text-amber-600 font-black text-sm">{pkg.price ? fmt(pkg.price) : 'On Request'}</span>
+                      {pkg.price > 0 && <span className="text-gray-400 text-xs">≈ {fmt(Math.ceil(pkg.price/3))}/mo</span>}
+                    </div>
+                    <p className="text-gray-500 text-xs leading-relaxed">{pkg.items}</p>
+                  </div>
+                  <div className="flex gap-1.5 flex-shrink-0">
+                    <button onClick={() => { setEditingPkg({ type: 'provision', idx }); setPkgForm({ name: pkg.name, price: pkg.price, items: pkg.items }) }}
+                      className="text-xs font-bold text-amber-600 hover:text-amber-800 px-2.5 py-1.5 rounded-lg hover:bg-amber-50 border border-transparent hover:border-amber-200">Edit</button>
+                    <button onClick={() => { if (window.confirm(`Delete "${pkg.name}"?`)) setProvisions(prev => prev.filter((_, i) => i !== idx)) }}
+                      className="text-xs font-bold text-red-500 hover:text-red-700 px-2.5 py-1.5 rounded-lg hover:bg-red-50 border border-transparent hover:border-red-200">Delete</button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── DETERGENT PACKAGES SECTION ───────────────────────────────────── */}
+      {activeSection === 'detergents' && (
+        <div className="space-y-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 text-xs text-blue-800">
+            Detergent packages are defined in the codebase. Changes here update the in-memory list for this session. To make permanent changes, update <code className="bg-blue-100 px-1 rounded font-mono">DETERGENT_PACKAGES</code> in App.jsx.
+          </div>
+
+          {showAddPkg === 'detergent' && (
+            <div className="bg-white rounded-2xl border border-blue-200 p-6">
+              <h2 className="text-gray-900 font-black text-sm mb-4">Add Detergent Package</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <F label="Package Name" value={newPkgForm.name} onChange={v => setNewPkgForm(f => ({ ...f, name: v }))} placeholder="e.g. Soo Clean" required />
+                <F label="Price (GH₵)" value={newPkgForm.price} onChange={v => setNewPkgForm(f => ({ ...f, price: v }))} type="number" placeholder="e.g. 490" />
+                <div className="sm:col-span-2">
+                  <label className="block text-gray-600 text-[10px] uppercase tracking-wider font-bold mb-1">Items (separate each with ·)</label>
+                  <textarea value={newPkgForm.items} onChange={e => setNewPkgForm(f => ({ ...f, items: e.target.value }))}
+                    placeholder="e.g. Madar 400g (½ Box) · Geisha Soap (¼) · 1 Parazone"
+                    rows={3}
+                    className="w-full bg-white border border-gray-200 focus:border-blue-400 text-gray-800 placeholder-gray-400 rounded-xl px-4 py-2.5 text-sm outline-none transition-all resize-none" />
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={() => {
+                  if (!newPkgForm.name.trim()) return
+                  setDetergents(prev => [...prev, { id: Date.now().toString(), name: newPkgForm.name, price: Number(newPkgForm.price) || 0, items: newPkgForm.items }])
+                  setNewPkgForm({ name: '', price: '', items: '' }); setShowAddPkg(null)
+                }} className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs px-5 py-2.5 rounded-xl">Save Package</button>
+                <button onClick={() => setShowAddPkg(null)} className="border border-gray-200 text-gray-500 font-bold text-xs px-5 py-2.5 rounded-xl hover:bg-gray-50">Cancel</button>
+              </div>
+            </div>
+          )}
+
+          {detergents.map((pkg, idx) => (
+            <div key={pkg.id} className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+              {editingPkg?.type === 'detergent' && editingPkg?.idx === idx ? (
+                <div className="p-5 border-l-4 border-blue-500 bg-blue-50">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <F label="Package Name" value={pkgForm.name} onChange={v => setPkgForm(f => ({ ...f, name: v }))} required />
+                    <F label="Price (GH₵)" value={pkgForm.price} onChange={v => setPkgForm(f => ({ ...f, price: v }))} type="number" />
+                    <div className="sm:col-span-2">
+                      <label className="block text-gray-600 text-[10px] uppercase tracking-wider font-bold mb-1">Items</label>
+                      <textarea value={pkgForm.items} onChange={e => setPkgForm(f => ({ ...f, items: e.target.value }))}
+                        rows={3} className="w-full bg-white border border-gray-300 focus:border-blue-400 text-gray-800 rounded-xl px-4 py-2.5 text-sm outline-none resize-none" />
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button onClick={() => {
+                      setDetergents(prev => prev.map((p, i) => i === idx ? { ...p, ...pkgForm, price: Number(pkgForm.price) || p.price } : p))
+                      setEditingPkg(null)
+                    }} className="bg-gray-900 text-white font-black text-xs px-5 py-2.5 rounded-xl">Save</button>
+                    <button onClick={() => setEditingPkg(null)} className="border border-gray-300 text-gray-500 font-bold text-xs px-5 py-2.5 rounded-xl hover:bg-white">Cancel</button>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-5 flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-3 mb-2">
+                      <p className="text-gray-900 font-black text-base">{pkg.name}</p>
+                      <span className="text-blue-600 font-black text-sm">{pkg.price ? fmt(pkg.price) : 'On Request'}</span>
+                      {pkg.price > 0 && <span className="text-gray-400 text-xs">≈ {fmt(Math.ceil(pkg.price/3))}/mo</span>}
+                    </div>
+                    <p className="text-gray-500 text-xs leading-relaxed">{pkg.items}</p>
+                  </div>
+                  <div className="flex gap-1.5 flex-shrink-0">
+                    <button onClick={() => { setEditingPkg({ type: 'detergent', idx }); setPkgForm({ name: pkg.name, price: pkg.price, items: pkg.items }) }}
+                      className="text-xs font-bold text-amber-600 hover:text-amber-800 px-2.5 py-1.5 rounded-lg hover:bg-amber-50 border border-transparent hover:border-amber-200">Edit</button>
+                    <button onClick={() => { if (window.confirm(`Delete "${pkg.name}"?`)) setDetergents(prev => prev.filter((_, i) => i !== idx)) }}
+                      className="text-xs font-bold text-red-500 hover:text-red-700 px-2.5 py-1.5 rounded-lg hover:bg-red-50 border border-transparent hover:border-red-200">Delete</button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -3451,87 +3989,11 @@ const AdminDashboard = ({ onExit }) => {
         )}
 
         {/* ── PRODUCTS ────────────────────────────────────────────── */}
-        {tab === 'products' && (
-          <div className="space-y-5">
-            <div className="flex items-center justify-between">
-              <h1 className="text-gray-900 font-black text-2xl">Products</h1>
-              <p className="text-gray-400 text-xs">{products.length} items</p>
-            </div>
-            <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-xs text-amber-800">
-              Price edits here update the live backend via the API. Products with a server ID save immediately; local-only products (from the hardcoded list) update in this session only until the database is seeded.
-            </div>
-            <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-              <div className="hidden md:grid grid-cols-12 gap-4 px-5 py-3 bg-gray-50 border-b border-gray-100 text-[11px] font-bold text-gray-500 uppercase tracking-wider">
-                <div className="col-span-1" />
-                <div className="col-span-4">Product</div>
-                <div className="col-span-2">Category</div>
-                <div className="col-span-2 text-right">Price</div>
-                <div className="col-span-2 text-right">Unit</div>
-                <div className="col-span-1" />
-              </div>
-              {products.map((p, rowIdx) => {
-                const cat = CATEGORIES.find(c => c.id === p.cat)
-                const isEditing = editingProduct === p.id
-                return (
-                  <div key={p.id} className={`border-b border-gray-100 last:border-0 ${rowIdx % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
-                    {isEditing ? (
-                      <div className="p-5 bg-amber-50 border-l-2 border-amber-400">
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-                          {[
-                            { key: 'name',  label: 'Product Name', span: 'col-span-2 sm:col-span-4' },
-                            { key: 'price', label: 'Price (GH₵)',  span: '' },
-                            { key: 'unit',  label: 'Unit',         span: '' },
-                          ].map(f => (
-                            <div key={f.key} className={f.span}>
-                              <label className="block text-gray-500 text-[10px] uppercase tracking-wider mb-1">{f.label}</label>
-                              <input value={editForm[f.key] ?? ''} onChange={e => setEditForm(prev => ({ ...prev, [f.key]: e.target.value }))}
-                                className="w-full bg-white border border-gray-300 focus:border-amber-400 text-gray-800 rounded-lg px-3 py-2 text-sm outline-none" />
-                            </div>
-                          ))}
-                        </div>
-                        <div className="flex gap-2">
-                          <button onClick={() => saveEdit(p)} disabled={saveLoad}
-                            className="bg-gray-900 hover:bg-gray-800 text-white font-black text-xs px-5 py-2.5 rounded-xl transition-colors disabled:opacity-60">
-                            {saveLoad ? 'Saving...' : 'Save'}
-                          </button>
-                          <button onClick={() => setEditingProduct(null)} className="bg-white border border-gray-300 text-gray-500 font-bold text-xs px-5 py-2.5 rounded-xl transition-colors hover:bg-gray-50">Cancel</button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="grid md:grid-cols-12 gap-4 items-center px-5 py-3.5">
-                        <div className="col-span-1">
-                          <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
-                            {p.img ? <img src={p.img} alt={p.name} className="w-full h-full object-contain p-1" /> : <span className="text-lg">{p.emoji}</span>}
-                          </div>
-                        </div>
-                        <div className="col-span-4">
-                          <p className="text-gray-900 text-sm font-semibold">{p.name}</p>
-                          <p className="text-gray-400 text-xs">{p.unit}</p>
-                        </div>
-                        <div className="col-span-2">
-                          <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full font-medium">{cat?.label}</span>
-                        </div>
-                        <div className="col-span-2 text-right">
-                          <p className="text-gray-900 font-black text-sm">{p.price !== null && p.price !== undefined ? fmt(p.price) : 'On Request'}</p>
-                        </div>
-                        <div className="col-span-2 text-right">
-                          <p className="text-gray-400 text-xs line-through">{p.oldPrice ? fmt(p.oldPrice) : '—'}</p>
-                        </div>
-                        <div className="col-span-1 flex justify-end">
-                          <button onClick={() => startEdit(p)}
-                            className="flex items-center gap-1 text-xs font-bold text-amber-600 hover:text-amber-800 px-2 py-1.5 rounded-lg hover:bg-amber-50 transition-all">
-                            <Icon name="edit" cls="w-3.5 h-3.5" />
-                            Edit
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        )}
+        {tab === 'products' && (() => {
+          return (
+            <AdminProductsPanel Icon={Icon} fmt={fmt} />
+          )
+        })()}
 
         {/* ── MESSAGES ────────────────────────────────────────────── */}
         {tab === 'messages' && (
@@ -3848,6 +4310,58 @@ export default function App() {
   const [user, setUser]         = useState(() => { try { return JSON.parse(localStorage.getItem('lj_current_user')) } catch { return null } })
   const [showAuth, setShowAuth] = useState(false)
   const [showAccount, setShowAccount] = useState(false)
+
+  // ── Live products from API ─────────────────────────────────────────────────
+  // Maps API product shape → shape the UI expects.
+  // Falls back to hardcoded PRODUCTS while loading or if API returns empty.
+  const [liveProducts,     setLiveProducts]     = useState(PRODUCTS)
+  const [productsLoading,  setProductsLoading]  = useState(true)
+
+  // Category string from API → internal cat id used by the UI
+  const CAT_MAP = {
+    'Rice & Grains':              'rice',
+    'Cooking Oil':                'oil',
+    'Canned Fish & Tin Tomatoes': 'canned',
+    'Provisions':                 'provisions',
+    'Frozen Foods':               'frozen',
+    'Detergents':                 'cleaning',
+    'Vegetables':                 'fresh',
+  }
+
+  useEffect(() => {
+    products.list({ limit: 100 }).then(data => {
+      const fetched = (data.products || [])
+      if (fetched.length === 0) return // keep hardcoded fallback
+      const mapped = fetched.map(p => ({
+        id:       p.id,          // UUID from API
+        _numId:   null,          // no numeric id from API
+        name:     p.name,
+        cat:      CAT_MAP[p.category] || 'rice',
+        price:    p.price === 0 ? null : p.price,  // 0 = price on request
+        oldPrice: null,          // API doesn't provide oldPrice
+        unit:     p.unit,
+        img:      p.image_url || (p.images?.[0]?.image_url) || null,
+        tag:      CAT_MAP[p.category] === 'fresh' ? 'Seasonal' : 'In Stock',
+        _apiId:   p.id,
+        active:   p.active,
+      }))
+      setLiveProducts(mapped)
+    }).catch(() => {
+      // silently keep hardcoded fallback on error
+    }).finally(() => setProductsLoading(false))
+  }, [])
+
+  // Derived: featured products — first 18 from live list across all categories
+  const featuredProducts = (() => {
+    const seen = new Set()
+    const result = []
+    for (const cat of ['rice','oil','canned','frozen','fresh','provisions','cleaning']) {
+      const catItems = liveProducts.filter(p => p.cat === cat).slice(0, 3)
+      catItems.forEach(p => { if (!seen.has(p.id)) { seen.add(p.id); result.push(p) } })
+      if (result.length >= 18) break
+    }
+    return result.slice(0, 18)
+  })()
   const [cart, setCart]                       = useState({})
   const [cartOpen, setCartOpen]               = useState(false)
   const [cartPageOpen, setCartPageOpen]       = useState(false)
@@ -3870,9 +4384,12 @@ export default function App() {
   }
   const clearCart = () => setCart({})
 
+  // Helper — find product by id from live products (handles both UUID strings and legacy numeric ids)
+  const findProduct = (id) => liveProducts.find(p => p.id === id || p.id === parseInt(id))
+
   const cartTotal = Object.entries(cart).reduce((s, [id, q]) => {
-    const p = PRODUCTS.find(pr => pr.id === parseInt(id))
-    return s + (p ? p.price * q : 0)
+    const p = findProduct(id)
+    return s + (p?.price ? p.price * q : 0)
   }, 0)
   const cartCount = Object.values(cart).reduce((a, b) => a + b, 0)
   const cartItems = Object.entries(cart).filter(([, q]) => q > 0)
@@ -3974,6 +4491,7 @@ export default function App() {
         onCheckout={() => { closeCart(); setTimeout(toApply, 100) }}
         cartCount={cartCount}
         onCartOpen={goToCart}
+        allProducts={liveProducts}
         onDeptClick={(catId) => { closeCart(); setShopCat(catId); setTimeout(() => document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' }), 150) }}
       />
     )
@@ -4028,7 +4546,7 @@ export default function App() {
 
       {/* Live search results */}
       {searchQuery && (() => {
-        const results = PRODUCTS.filter(p =>
+        const results = liveProducts.filter(p =>
           p.name.toLowerCase().includes(searchQuery) ||
           CATEGORIES.find(c => c.id === p.cat)?.label.toLowerCase().includes(searchQuery)
         )
@@ -4084,7 +4602,8 @@ export default function App() {
 
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)}
         cart={cart} onAdd={addToCart} onRemove={removeFromCart}
-        onClear={clearCart} onCheckout={toApply} total={cartTotal} />
+        onClear={clearCart} onCheckout={toApply} total={cartTotal}
+        allProducts={liveProducts} />
 
       <Hero onShop={() => toShop()} onApply={toApply} />
       <TrustBar />
@@ -4094,17 +4613,19 @@ export default function App() {
       <FixedPackages onApplyWithPackage={applyWithPkg} onViewPackage={viewPackage} />
 
       {/* 3 rows of mixed featured products — GH Basket style */}
-      <FeaturedGrid cart={cart} onAdd={addToCart} onRemove={removeFromCart} onShop={() => toShop()} onView={viewProduct} />
+      <FeaturedGrid cart={cart} onAdd={addToCart} onRemove={removeFromCart} onShop={() => toShop()} onView={viewProduct} products={featuredProducts} />
 
       <PromoStrip onApply={toApply} onShop={() => toShop()} />
       <ShopSection cart={cart} onAdd={addToCart} onRemove={removeFromCart}
         onCartOpen={goToCart}
         cartTotal={cartTotal} cartCount={cartCount}
         onView={viewProduct} defaultCat={shopCat}
+        products={liveProducts}
+        productsLoading={productsLoading}
         onApply={(pkgName) => { setPrefilled(pkgName); setTimeout(() => document.getElementById('apply')?.scrollIntoView({ behavior: 'smooth' }), 100) }} />
-      <ApplySection prefilledPackage={prefilled} cartTotal={cartTotal} cartItems={cartItems} />
+      <ApplySection prefilledPackage={prefilled} cartTotal={cartTotal} cartItems={cartItems} allProducts={liveProducts} />
       <Footer />
-      <ClientMessaging />
+      <ClientMessaging user={user} onSignInRequest={() => setShowAuth(true)} />
       <WhatsAppFloat />
     </div>
   )

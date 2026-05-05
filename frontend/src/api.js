@@ -307,6 +307,14 @@ export const adminProducts = {
       method: 'DELETE',
     })
   },
+
+  /**
+   * Permanently delete a product.
+   * @param {string} id — product UUID
+   */
+  delete(id) {
+    return request(`/api/v1/admin/products/${id}`, { method: 'DELETE' })
+  },
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
