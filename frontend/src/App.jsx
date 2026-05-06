@@ -2561,40 +2561,85 @@ const Field = ({ label, name, type = 'text', placeholder, value, onChange, requi
   </div>
 )
 
-const ApplySection = ({ prefilledPackage, cartTotal, cartItems, allProducts = PRODUCTS }) => {
+// Maps the display string used in PACKAGE_OPTIONS → the clean name the API expects
+const resolvePackageName = (displayStr) => {
+  if (!displayStr) return ''
+  // Strip the price in parentheses e.g. "MEDAASE MEDO (GHC769)" → "Medaase Medo"
+  const nameOnly = displayStr.replace(/\s*\(GHC[\d,]+\).*$/i, '').trim()
+  // Title case
+  return nameOnly.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
+}
+
+const ApplySection = ({ prefilledPackage, cartTotal, cartItems, allProducts = PRODUCTS, user, onSignInRequest }) => {
   const hasCustomCart = cartItems.length > 0 && cartTotal >= MIN_ORDER
-  // A "dept package" is any prefilled value that is NOT in the standard PACKAGE_OPTIONS list
-  // (e.g. "Ma Wo Ho Nte (GHC270)" or "Maakye")
   const isDeptPackage = prefilledPackage && !PACKAGE_OPTIONS.includes(prefilledPackage)
   const isMainPackage = prefilledPackage && PACKAGE_OPTIONS.includes(prefilledPackage)
+  const isLoggedIn    = !!user
 
   const [form, setForm] = useState({
-    fullName:'', institution:'', phone:'', email:'',
-    staffNumber:'', mandateNumber:'', otpPin:'', ghanaCardNumber:'',
-    package: isMainPackage ? prefilledPackage : ''
+    fullName:       user?.display_name || user?.name || '',
+    institution:    user?.institution || '',
+    phone:          user?.phone_number || user?.phone || '',
+    staffNumber:    user?.staff_number || '',
+    ghanaCardNumber: user?.ghana_card_number || '',
   })
-  const [submitted, setSubmitted] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
-
-  useEffect(() => {
-    if (prefilledPackage && PACKAGE_OPTIONS.includes(prefilledPackage)) {
-      setForm(f => ({ ...f, package: prefilledPackage }))
-    }
-  }, [prefilledPackage])
-
-  const onChange = e => setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
+  const onChange = e => setForm(p => ({ ...p, [e.target.name]: e.target.value }))
+  const [mandateNumber, setMandateNumber] = useState('')
+  const [submitted,     setSubmitted]     = useState(false)
+  const [submitting,    setSubmitting]    = useState(false)
+  const [error,         setError]         = useState('')
+  const [submittedData, setSubmittedData] = useState(null)
 
   const cartSummary = cartItems.map(([id, qty]) => {
     const p = allProducts.find(pr => pr.id === id || pr.id === parseInt(id))
     return p ? `${p.name} ×${qty}` : ''
   }).filter(Boolean).join(', ')
 
-  const onSubmit = async e => {
-    e.preventDefault(); setSubmitting(true)
-    window.open('https://docs.google.com/forms/d/e/1FAIpQLSdnxE_Diy4XQSVR5T52pQKc6FkzNwurabT2qo_cturDZO-WMg/viewform', '_blank')
-    setTimeout(() => { setSubmitting(false); setSubmitted(true) }, 800)
+  const onSubmit = async (e) => {
+    e.preventDefault()
+    if (!mandateNumber.trim()) { setError('Mandate number is required.'); return }
+    if (!form.fullName.trim() || !form.staffNumber.trim() || !form.ghanaCardNumber.trim()) {
+      setError('Please fill in all required fields.'); return
+    }
+    setSubmitting(true); setError('')
+
+    try {
+      let payload = {
+        mandate_number:    mandateNumber.trim(),
+        staff_number:      form.staffNumber.trim(),
+        institution:       form.institution.trim(),
+        ghana_card_number: form.ghanaCardNumber.trim(),
+      }
+
+      if (hasCustomCart) {
+        payload.package_type = 'custom'
+        payload.cart_items = cartItems.map(([id, qty]) => ({
+          product_id: id,
+          quantity: qty,
+        }))
+      } else {
+        payload.package_type = 'fixed'
+        if (isMainPackage) {
+          payload.package_name = resolvePackageName(prefilledPackage)
+        } else if (isDeptPackage) {
+          payload.package_name = resolvePackageName(prefilledPackage)
+        } else {
+          const sel = e.target.elements.package?.value
+          payload.package_name = resolvePackageName(sel)
+        }
+      }
+
+      const data = await applicationsApi.submit(payload)
+      setSubmittedData(data.application || data)
+      setSubmitted(true)
+    } catch (err) {
+      setError(err.message || 'Submission failed. Please check your details and try again.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
+  // Success screen
   if (submitted) {
     return (
       <section id="apply" className="bg-white py-16 px-4 border-b border-gray-100">
@@ -2605,12 +2650,20 @@ const ApplySection = ({ prefilledPackage, cartTotal, cartItems, allProducts = PR
             </svg>
           </div>
           <h3 className="text-gray-900 font-black text-xl mb-2">Application Submitted!</h3>
-          <p className="text-gray-400 text-sm max-w-sm mx-auto mb-6">Complete the form that opened, then WhatsApp us to confirm.</p>
-          <a href="https://wa.me/233244854206"
-            className="inline-flex items-center gap-2 bg-gray-800 hover:bg-gray-900 text-white font-bold px-6 py-3 rounded-xl transition-colors text-sm">
-            💬 Follow up on WhatsApp
-          </a>
-          <button onClick={() => setSubmitted(false)} className="block mx-auto mt-4 text-gray-300 text-xs hover:text-gray-500">Submit another</button>
+          <p className="text-gray-400 text-sm max-w-sm mx-auto mb-2">
+            Your application has been received and is pending review.
+          </p>
+          {submittedData?.id && (
+            <p className="text-gray-300 text-xs mb-6 font-mono">Ref: {submittedData.id}</p>
+          )}
+          <div className="flex flex-col sm:flex-row gap-3 justify-center mb-6">
+            <a href="https://wa.me/233244854206?text=Hello%20List%20J!%20I%20just%20submitted%20an%20application%20and%20would%20like%20to%20confirm."
+              className="inline-flex items-center justify-center gap-2 bg-gray-800 hover:bg-gray-900 text-white font-bold px-6 py-3 rounded-xl transition-colors text-sm">
+              Follow up on WhatsApp
+            </a>
+          </div>
+          <button onClick={() => { setSubmitted(false); setMandateNumber('') }}
+            className="text-gray-300 text-xs hover:text-gray-500">Submit another application</button>
         </div>
       </section>
     )
@@ -2624,19 +2677,50 @@ const ApplySection = ({ prefilledPackage, cartTotal, cartItems, allProducts = PR
 
         <div className="bg-gray-50 border border-gray-200 rounded-2xl p-8">
 
+          {/* Not logged in — prompt to sign in */}
+          {!isLoggedIn && (
+            <div className="mb-6 bg-amber-50 border border-amber-200 rounded-xl p-5 flex items-start gap-4">
+              <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg className="w-5 h-5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+              </div>
+              <div className="flex-1">
+                <p className="text-amber-800 font-black text-sm mb-1">Sign in to apply faster</p>
+                <p className="text-amber-700 text-xs leading-relaxed mb-3">
+                  If you have an account your name, staff number, institution and Ghana Card are filled in automatically. You only need to provide your mandate number.
+                </p>
+                <button onClick={onSignInRequest}
+                  className="bg-gray-900 hover:bg-gray-800 text-white font-black text-xs px-4 py-2 rounded-lg transition-colors">
+                  Sign In / Register
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Logged in — small note that details were pre-filled */}
+          {isLoggedIn && (
+            <div className="mb-4 flex items-center gap-2 bg-green-50 border border-green-200 rounded-xl px-4 py-2.5">
+              <svg className="w-4 h-4 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <p className="text-green-700 text-xs font-semibold">Details pre-filled from your profile — update them below if needed.</p>
+            </div>
+          )}
+
           {/* Custom cart summary */}
           {hasCustomCart && (
             <div className="mb-6 bg-white border border-gray-200 rounded-xl p-4 flex items-start justify-between gap-3">
               <div className="flex-1 min-w-0">
-                <p className="text-gray-700 font-black text-sm mb-1">🛒 Your Custom Package</p>
+                <p className="text-gray-700 font-black text-sm mb-1">Your Custom Package</p>
                 <p className="text-gray-400 text-xs leading-relaxed line-clamp-2">{cartSummary}</p>
                 <p className="text-gray-900 font-black text-lg mt-2">{fmt(cartTotal)} <span className="text-gray-400 text-xs font-normal">≈ {fmt(Math.ceil(cartTotal/3))}/mo</span></p>
               </div>
-              <span className="text-gray-600 text-xs font-bold bg-gray-100 border border-gray-200 px-2 py-1 rounded-lg flex-shrink-0">✓ Ready</span>
+              <span className="text-gray-600 text-xs font-bold bg-gray-100 border border-gray-200 px-2 py-1 rounded-lg flex-shrink-0">Ready</span>
             </div>
           )}
 
-          {/* Dept package (provisions / detergents) selected banner */}
+          {/* Dept package selected banner */}
           {isDeptPackage && !hasCustomCart && (
             <div className="mb-6 bg-white border border-amber-200 rounded-xl p-4 flex items-start justify-between gap-3">
               <div className="flex-1 min-w-0">
@@ -2644,56 +2728,91 @@ const ApplySection = ({ prefilledPackage, cartTotal, cartItems, allProducts = PR
                 <p className="text-gray-900 font-black text-base">{prefilledPackage}</p>
                 <p className="text-gray-400 text-xs mt-1">Our team will confirm the full details with you after submission.</p>
               </div>
-              <span className="text-amber-700 text-xs font-bold bg-amber-100 border border-amber-200 px-2 py-1 rounded-lg flex-shrink-0">✓ Selected</span>
+              <span className="text-amber-700 text-xs font-bold bg-amber-100 border border-amber-200 px-2 py-1 rounded-lg flex-shrink-0">Selected</span>
             </div>
           )}
 
-          <form onSubmit={onSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <Field label="Full Name (as on Ghana Card)" name="fullName" value={form.fullName} onChange={onChange} placeholder="e.g. Kwame Asante" required />
-            <Field label="Institution / Profession" name="institution" value={form.institution} onChange={onChange} placeholder="e.g. Ghana Health Service" required />
-            <Field label="Phone Number" name="phone" type="tel" value={form.phone} onChange={onChange} placeholder="0244000000" required />
-            <Field label="Email Address" name="email" type="email" value={form.email} onChange={onChange} placeholder="kwame@email.com" required />
-            <Field label="Staff Number / ID" name="staffNumber" value={form.staffNumber} onChange={onChange} placeholder="Your staff ID" required />
-            <Field label="Mandate Number" name="mandateNumber" value={form.mandateNumber} onChange={onChange} placeholder="Your mandate number" required />
-            <Field label="OTP PIN (for Mandate)" name="otpPin" value={form.otpPin} onChange={onChange} placeholder="OTP received" required />
-            <Field label="Ghana Card Number" name="ghanaCardNumber" value={form.ghanaCardNumber} onChange={onChange} placeholder="GHA-000000000-0" required note="Send Ghana Card photo via WhatsApp to 0244854206" />
+          <form onSubmit={onSubmit} className="space-y-5">
 
-            {/* Package selector — show dropdown when no cart, no dept package, no main package pre-selected */}
-            {!hasCustomCart && !isDeptPackage && (
-              <div className="md:col-span-2 flex flex-col gap-1.5">
+            {/* Personal details — always shown, pre-filled if logged in */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <Field label="Full Name (as on Ghana Card)" name="fullName"
+                value={form.fullName} onChange={onChange}
+                placeholder="e.g. Kwame Asante" required />
+              <Field label="Institution / Profession" name="institution"
+                value={form.institution} onChange={onChange}
+                placeholder="e.g. Ghana Health Service" required />
+              <Field label="Phone Number" name="phone" type="tel"
+                value={form.phone} onChange={onChange}
+                placeholder="0244000000" required />
+              <Field label="Staff Number / ID" name="staffNumber"
+                value={form.staffNumber} onChange={onChange}
+                placeholder="Your staff ID" required />
+              <Field label="Ghana Card Number" name="ghanaCardNumber"
+                value={form.ghanaCardNumber} onChange={onChange}
+                placeholder="GHA-000000000-0" required
+                note="Send Ghana Card photo via WhatsApp to 0244854206" />
+            </div>
+
+            {/* Mandate number — always required */}
+            <div>
+              <label className="text-gray-600 text-xs font-bold uppercase tracking-wider block mb-1.5">
+                Mandate Number <span className="text-red-400">*</span>
+              </label>
+              <input type="text" value={mandateNumber} onChange={e => setMandateNumber(e.target.value)}
+                placeholder="Your mandate number"
+                className="w-full bg-white border border-gray-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-100 text-gray-800 placeholder-gray-300 rounded-xl px-4 py-3 text-sm outline-none transition-all" />
+            </div>
+
+            {/* Package selector — only when no cart and no prefilled package */}
+            {!hasCustomCart && !isDeptPackage && !isMainPackage && (
+              <div className="flex flex-col gap-1.5">
                 <label className="text-gray-600 text-xs font-bold uppercase tracking-wider">
                   Package <span className="text-red-400">*</span>
                 </label>
-                {isMainPackage ? (
-                  /* Main fixed package pre-selected — show locked display */
-                  <div className="bg-white border border-amber-200 rounded-xl px-4 py-3 flex items-center justify-between">
-                    <span className="text-gray-800 text-sm font-semibold">{prefilledPackage}</span>
-                    <span className="text-amber-700 text-xs font-bold bg-amber-100 px-2 py-0.5 rounded-full">Pre-selected</span>
-                  </div>
-                ) : (
-                  /* No package selected yet — show full dropdown */
-                  <select name="package" value={form.package} onChange={onChange} required
-                    className="bg-white border border-gray-200 focus:border-amber-400 text-gray-800 rounded-xl px-4 py-3 text-sm outline-none transition-all">
-                    <option value="" disabled>— Select a package —</option>
-                    {PACKAGE_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                  </select>
-                )}
+                <select name="package" required
+                  className="bg-white border border-gray-200 focus:border-amber-400 text-gray-800 rounded-xl px-4 py-3 text-sm outline-none transition-all">
+                  <option value="" disabled>— Select a package —</option>
+                  {PACKAGE_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                </select>
               </div>
             )}
 
-            <div className="md:col-span-2 bg-white border border-gray-200 rounded-xl p-4">
-              <p className="text-gray-400 text-xs leading-relaxed">By submitting you confirm all details are accurate. LIST "J" Grocery Shop verifies your employment and mandate number before processing your request.</p>
-            </div>
+            {/* Fixed package pre-selected display */}
+            {isMainPackage && !hasCustomCart && (
+              <div className="flex flex-col gap-1.5">
+                <label className="text-gray-600 text-xs font-bold uppercase tracking-wider">Package</label>
+                <div className="bg-white border border-amber-200 rounded-xl px-4 py-3 flex items-center justify-between">
+                  <span className="text-gray-800 text-sm font-semibold">{prefilledPackage}</span>
+                  <span className="text-amber-700 text-xs font-bold bg-amber-100 px-2 py-0.5 rounded-full">Pre-selected</span>
+                </div>
+              </div>
+            )}
 
-            <div className="md:col-span-2">
-              <button type="submit" disabled={submitting}
-                className="w-full bg-gray-800 hover:bg-gray-900 text-white font-black text-sm py-4 rounded-2xl active:scale-95 transition-all shadow-sm disabled:opacity-50">
-                {submitting ? 'Opening Form...' : 'Submit Application →'}
-              </button>
-              <p className="text-center text-gray-300 text-xs mt-3">
-                Complete the Google Form that opens, then WhatsApp <a href="https://wa.me/233244854206" className="text-amber-500 hover:underline">0244854206</a>
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 text-xs px-4 py-3 rounded-xl font-medium">
+                {error}
+              </div>
+            )}
+
+            <div className="bg-white border border-gray-200 rounded-xl p-4">
+              <p className="text-gray-400 text-xs leading-relaxed">
+                By submitting you confirm all details are accurate. List "J" Grocery Shop verifies your employment and mandate number before processing your order.
               </p>
             </div>
+
+            <button type="submit" disabled={submitting}
+              className="w-full bg-gray-800 hover:bg-gray-900 text-white font-black text-sm py-4 rounded-2xl active:scale-95 transition-all shadow-sm disabled:opacity-50">
+              {submitting ? 'Submitting...' : 'Submit Application →'}
+            </button>
+
+            {!isLoggedIn && (
+              <p className="text-center text-gray-400 text-xs">
+                <button type="button" onClick={onSignInRequest} className="text-amber-600 font-semibold hover:underline">
+                  Sign in
+                </button> to auto-fill your details from your profile.
+              </p>
+            )}
           </form>
         </div>
       </div>
@@ -2960,6 +3079,28 @@ const ADMIN_DEPARTMENTS = [
   'Vegetables',
 ]
 
+// Defined OUTSIDE AdminProductsPanel so React never remounts it on state change
+const AdminField = ({ label, value, onChange, type = 'text', placeholder, required }) => (
+  <div>
+    <label className="block text-gray-600 text-[10px] uppercase tracking-wider font-bold mb-1">
+      {label}{required && <span className="text-red-400 ml-0.5">*</span>}
+    </label>
+    <input type={type} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
+      className="w-full bg-white border border-gray-200 focus:border-amber-400 text-gray-800 placeholder-gray-400 rounded-xl px-4 py-2.5 text-sm outline-none transition-all" />
+  </div>
+)
+
+const AdminStatusBtns = ({ activeVal, setActive }) => (
+  <div className="flex gap-2">
+    {[{ v: true, l: 'Active' }, { v: false, l: 'Hidden' }].map(opt => (
+      <button key={String(opt.v)} onClick={() => setActive(opt.v)}
+        className={`flex-1 py-2 rounded-xl text-xs font-bold border transition-all ${activeVal === opt.v ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-500 border-gray-200 hover:border-gray-400'}`}>
+        {opt.l}
+      </button>
+    ))}
+  </div>
+)
+
 const AdminProductsPanel = ({ Icon, fmt }) => {
   const [apiProducts,   setApiProducts]   = useState([])
   const [loading,       setLoading]       = useState(true)
@@ -3078,54 +3219,19 @@ const AdminProductsPanel = ({ Icon, fmt }) => {
     }
   }
 
+  // "Delete" = hide via active:false since no DELETE endpoint exists
   const handleDelete = async (p) => {
-    if (!window.confirm(`Delete "${p.name}"? This cannot be undone.`)) return
+    if (!window.confirm(`Hide "${p.name}" from the storefront? You can show it again later with the Show button.`)) return
     setDeleting(p.id)
     try {
-      await adminProducts.delete(p.id)
-      await loadAll()
-    } catch {
-      // If DELETE endpoint not yet implemented, fall back to hiding
       await adminProducts.update(p.id, { active: false })
-      await loadAll()
+      setApiProducts(prev => prev.map(pr => pr.id === p.id ? { ...pr, active: false } : pr))
+    } catch (err) {
+      setToggleErr(`Could not hide "${p.name}": ${err.message || 'Server error'}`)
     } finally { setDeleting(null) }
   }
 
-  const handleImgUpload = async () => {
-    if (!imgFiles.length || !imgTarget) return
-    setImgLoad(true)
-    try {
-      await adminProducts.uploadImages(imgTarget, imgFiles)
-      setImgTarget(null); setImgFiles([]); await loadAll()
-    } catch { } finally { setImgLoad(false) }
-  }
 
-  const deleteImg = async (productId, imageId) => {
-    if (!window.confirm('Delete this image?')) return
-    try { await adminProducts.deleteImage(productId, imageId); await loadAll() } catch { }
-  }
-
-  // ── Field helper ─────────────────────────────────────────────────────────────
-  const F = ({ label, value, onChange, type = 'text', placeholder, required, half }) => (
-    <div className={half ? '' : ''}>
-      <label className="block text-gray-600 text-[10px] uppercase tracking-wider font-bold mb-1">
-        {label}{required && <span className="text-red-400 ml-0.5">*</span>}
-      </label>
-      <input type={type} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
-        className="w-full bg-white border border-gray-200 focus:border-amber-400 text-gray-800 placeholder-gray-400 rounded-xl px-4 py-2.5 text-sm outline-none transition-all" />
-    </div>
-  )
-
-  const statusBtns = (activeVal, setActive) => (
-    <div className="flex gap-2">
-      {[{ v: true, l: 'Active' }, { v: false, l: 'Hidden' }].map(opt => (
-        <button key={String(opt.v)} onClick={() => setActive(opt.v)}
-          className={`flex-1 py-2 rounded-xl text-xs font-bold border transition-all ${activeVal === opt.v ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-500 border-gray-200 hover:border-gray-400'}`}>
-          {opt.l}
-        </button>
-      ))}
-    </div>
-  )
 
   return (
     <div className="space-y-5">
@@ -3210,7 +3316,7 @@ const AdminProductsPanel = ({ Icon, fmt }) => {
               </div>
               <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div className="lg:col-span-2">
-                  <F label="Product Name" value={addForm.name} onChange={v => setAddForm(f => ({ ...f, name: v }))}
+                  <AdminField label="Product Name" value={addForm.name} onChange={v => setAddForm(f => ({ ...f, name: v }))}
                     placeholder="e.g. Royal Aroma Rice 25kg (5*5)" required />
                 </div>
                 <div>
@@ -3225,13 +3331,13 @@ const AdminProductsPanel = ({ Icon, fmt }) => {
                   <button onClick={() => { setShowAddDept(true); setShowAdd(false) }}
                     className="text-amber-600 text-xs font-semibold mt-1 hover:underline">+ New department</button>
                 </div>
-                <F label="Price (GH₵)" value={addForm.price} onChange={v => setAddForm(f => ({ ...f, price: v }))}
+                <AdminField label="Price (GH₵)" value={addForm.price} onChange={v => setAddForm(f => ({ ...f, price: v }))}
                   type="number" placeholder="e.g. 400" />
-                <F label="Unit" value={addForm.unit} onChange={v => setAddForm(f => ({ ...f, unit: v }))}
+                <AdminField label="Unit" value={addForm.unit} onChange={v => setAddForm(f => ({ ...f, unit: v }))}
                   placeholder="e.g. bag, bottle, full box" required />
                 <div>
                   <label className="block text-gray-600 text-[10px] uppercase tracking-wider font-bold mb-1">Status</label>
-                  {statusBtns(addForm.active, v => setAddForm(f => ({ ...f, active: v })))}
+                  <AdminStatusBtns activeVal={addForm.active} setActive={v => setAddForm(f => ({ ...f, active: v }))} />
                 </div>
                 <div className="sm:col-span-2 lg:col-span-3">
                   <label className="block text-gray-600 text-[10px] uppercase tracking-wider font-bold mb-1">Images</label>
@@ -3292,6 +3398,7 @@ const AdminProductsPanel = ({ Icon, fmt }) => {
             </div>
           )}
 
+
           {/* Product list */}
           {loading ? (
             <div className="bg-white rounded-2xl border border-gray-200 py-16 flex items-center justify-center">
@@ -3344,7 +3451,7 @@ const AdminProductsPanel = ({ Icon, fmt }) => {
                         </div>
                         <div>
                           <label className="block text-gray-600 text-[10px] uppercase tracking-wider font-bold mb-1">Status</label>
-                          {statusBtns(editForm.active, v => setEditForm(f => ({ ...f, active: v })))}
+                          <AdminStatusBtns activeVal={editForm.active} setActive={v => setEditForm(f => ({ ...f, active: v }))} />
                         </div>
                       </div>
 
@@ -3429,7 +3536,8 @@ const AdminProductsPanel = ({ Icon, fmt }) => {
                           Edit
                         </button>
                         <button onClick={() => handleDelete(p)} disabled={deleting === p.id}
-                          className="text-xs font-bold text-red-500 hover:text-red-700 px-2.5 py-1.5 rounded-lg hover:bg-red-50 border border-transparent hover:border-red-200 transition-all disabled:opacity-50">
+                          className="text-xs font-bold text-red-500 hover:text-red-700 px-2.5 py-1.5 rounded-lg hover:bg-red-50 border border-transparent hover:border-red-200 transition-all disabled:opacity-50"
+                          title="Hides product from storefront">
                           {deleting === p.id ? '...' : 'Delete'}
                         </button>
                       </div>
@@ -3454,8 +3562,8 @@ const AdminProductsPanel = ({ Icon, fmt }) => {
             <div className="bg-white rounded-2xl border border-amber-200 p-6">
               <h2 className="text-gray-900 font-black text-sm mb-4">Add Provisions Package</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                <F label="Package Name" value={newPkgForm.name} onChange={v => setNewPkgForm(f => ({ ...f, name: v }))} placeholder="e.g. Abusua Anopa" required />
-                <F label="Price (GH₵)" value={newPkgForm.price} onChange={v => setNewPkgForm(f => ({ ...f, price: v }))} type="number" placeholder="e.g. 350" />
+                <AdminField label="Package Name" value={newPkgForm.name} onChange={v => setNewPkgForm(f => ({ ...f, name: v }))} placeholder="e.g. Abusua Anopa" required />
+                <AdminField label="Price (GH₵)" value={newPkgForm.price} onChange={v => setNewPkgForm(f => ({ ...f, price: v }))} type="number" placeholder="e.g. 350" />
                 <div className="sm:col-span-2">
                   <label className="block text-gray-600 text-[10px] uppercase tracking-wider font-bold mb-1">Items (separate each with ·)</label>
                   <textarea value={newPkgForm.items} onChange={e => setNewPkgForm(f => ({ ...f, items: e.target.value }))}
@@ -3480,8 +3588,8 @@ const AdminProductsPanel = ({ Icon, fmt }) => {
               {editingPkg?.type === 'provision' && editingPkg?.idx === idx ? (
                 <div className="p-5 border-l-4 border-amber-400 bg-amber-50">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                    <F label="Package Name" value={pkgForm.name} onChange={v => setPkgForm(f => ({ ...f, name: v }))} required />
-                    <F label="Price (GH₵)" value={pkgForm.price} onChange={v => setPkgForm(f => ({ ...f, price: v }))} type="number" />
+                    <AdminField label="Package Name" value={pkgForm.name} onChange={v => setPkgForm(f => ({ ...f, name: v }))} required />
+                    <AdminField label="Price (GH₵)" value={pkgForm.price} onChange={v => setPkgForm(f => ({ ...f, price: v }))} type="number" />
                     <div className="sm:col-span-2">
                       <label className="block text-gray-600 text-[10px] uppercase tracking-wider font-bold mb-1">Items</label>
                       <textarea value={pkgForm.items} onChange={e => setPkgForm(f => ({ ...f, items: e.target.value }))}
@@ -3530,8 +3638,8 @@ const AdminProductsPanel = ({ Icon, fmt }) => {
             <div className="bg-white rounded-2xl border border-blue-200 p-6">
               <h2 className="text-gray-900 font-black text-sm mb-4">Add Detergent Package</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                <F label="Package Name" value={newPkgForm.name} onChange={v => setNewPkgForm(f => ({ ...f, name: v }))} placeholder="e.g. Soo Clean" required />
-                <F label="Price (GH₵)" value={newPkgForm.price} onChange={v => setNewPkgForm(f => ({ ...f, price: v }))} type="number" placeholder="e.g. 490" />
+                <AdminField label="Package Name" value={newPkgForm.name} onChange={v => setNewPkgForm(f => ({ ...f, name: v }))} placeholder="e.g. Soo Clean" required />
+                <AdminField label="Price (GH₵)" value={newPkgForm.price} onChange={v => setNewPkgForm(f => ({ ...f, price: v }))} type="number" placeholder="e.g. 490" />
                 <div className="sm:col-span-2">
                   <label className="block text-gray-600 text-[10px] uppercase tracking-wider font-bold mb-1">Items (separate each with ·)</label>
                   <textarea value={newPkgForm.items} onChange={e => setNewPkgForm(f => ({ ...f, items: e.target.value }))}
@@ -3556,8 +3664,8 @@ const AdminProductsPanel = ({ Icon, fmt }) => {
               {editingPkg?.type === 'detergent' && editingPkg?.idx === idx ? (
                 <div className="p-5 border-l-4 border-blue-500 bg-blue-50">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                    <F label="Package Name" value={pkgForm.name} onChange={v => setPkgForm(f => ({ ...f, name: v }))} required />
-                    <F label="Price (GH₵)" value={pkgForm.price} onChange={v => setPkgForm(f => ({ ...f, price: v }))} type="number" />
+                    <AdminField label="Package Name" value={pkgForm.name} onChange={v => setPkgForm(f => ({ ...f, name: v }))} required />
+                    <AdminField label="Price (GH₵)" value={pkgForm.price} onChange={v => setPkgForm(f => ({ ...f, price: v }))} type="number" />
                     <div className="sm:col-span-2">
                       <label className="block text-gray-600 text-[10px] uppercase tracking-wider font-bold mb-1">Items</label>
                       <textarea value={pkgForm.items} onChange={e => setPkgForm(f => ({ ...f, items: e.target.value }))}
@@ -4623,7 +4731,7 @@ export default function App() {
         products={liveProducts}
         productsLoading={productsLoading}
         onApply={(pkgName) => { setPrefilled(pkgName); setTimeout(() => document.getElementById('apply')?.scrollIntoView({ behavior: 'smooth' }), 100) }} />
-      <ApplySection prefilledPackage={prefilled} cartTotal={cartTotal} cartItems={cartItems} allProducts={liveProducts} />
+      <ApplySection prefilledPackage={prefilled} cartTotal={cartTotal} cartItems={cartItems} allProducts={liveProducts} user={user} onSignInRequest={() => setShowAuth(true)} />
       <Footer />
       <ClientMessaging user={user} onSignInRequest={() => setShowAuth(true)} />
       <WhatsAppFloat />
