@@ -7,6 +7,9 @@ export interface SelectOption {
   value: string;
   label: string;
   description?: string;
+  disabled?: boolean;
+  badge?: string;
+  tooltip?: string;
 }
 
 interface SelectDropdownProps {
@@ -43,6 +46,7 @@ export const SelectDropdown = ({
   }, []);
 
   const selected = options.find((option) => option.value === value);
+  const selectedBadge = selected?.badge;
 
   return (
     <div ref={ref} className="relative">
@@ -57,6 +61,11 @@ export const SelectDropdown = ({
       >
         <span className={cn(!selected && "text-surface-muted")}>
           {selected?.label ?? placeholder}
+          {selectedBadge ? (
+            <span className="ml-2 rounded-full border border-yellow-500/30 px-2 py-0.5 text-[10px] font-medium uppercase tracking-normal text-yellow-300">
+              {selectedBadge}
+            </span>
+          ) : null}
         </span>
         <ChevronDown
           size={14}
@@ -76,29 +85,51 @@ export const SelectDropdown = ({
               menuClassName,
             )}
           >
-            {options.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                onClick={() => {
-                  onChange(option.value);
-                  setOpen(false);
-                }}
-                className={cn(
-                  "w-full text-left rounded-lg px-3 py-2 text-sm transition-colors",
-                  value === option.value
-                    ? "bg-white/10 text-white"
-                    : "text-surface-muted hover:bg-surface-overlay hover:text-white",
-                )}
-              >
-                <span className="block">{option.label}</span>
-                {option.description && (
-                  <span className="mt-0.5 block text-xs text-surface-muted">
-                    {option.description}
+            {options.map((option) => {
+              const isSelected = value === option.value;
+              const optionClassName = option.disabled
+                ? "cursor-not-allowed text-surface-muted opacity-60"
+                : isSelected
+                  ? "bg-white/10 text-white"
+                  : "text-surface-muted hover:bg-surface-overlay hover:text-white";
+
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  aria-disabled={option.disabled}
+                  title={option.disabled ? option.tooltip : undefined}
+                  onClick={() => {
+                    if (option.disabled) return;
+                    onChange(option.value);
+                    setOpen(false);
+                  }}
+                  className={cn(
+                    "group relative w-full text-left rounded-lg px-3 py-2 text-sm transition-colors",
+                    optionClassName,
+                  )}
+                >
+                  <span className="flex min-w-0 items-center gap-2">
+                    <span className="truncate">{option.label}</span>
+                    {option.badge ? (
+                      <span className="shrink-0 rounded-full border border-yellow-500/30 px-2 py-0.5 text-[10px] font-medium uppercase tracking-normal text-yellow-300">
+                        {option.badge}
+                      </span>
+                    ) : null}
                   </span>
-                )}
-              </button>
-            ))}
+                  {option.description && (
+                    <span className="mt-0.5 block text-xs text-surface-muted">
+                      {option.description}
+                    </span>
+                  )}
+                  {option.disabled && option.tooltip ? (
+                    <span className="pointer-events-none absolute right-2 top-full z-30 mt-1 hidden max-w-60 rounded-lg border border-surface-border bg-black px-3 py-2 text-xs leading-5 text-white shadow-xl group-hover:block">
+                      {option.tooltip}
+                    </span>
+                  ) : null}
+                </button>
+              );
+            })}
           </motion.div>
         )}
       </AnimatePresence>

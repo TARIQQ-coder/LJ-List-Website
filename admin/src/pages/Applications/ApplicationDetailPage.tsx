@@ -6,7 +6,7 @@ import { PageHeader } from "../../components/shared/PageHeader";
 import { StatusBadge } from "../../components/shared/StatusBadge";
 import { SelectDropdown } from "../../components/shared/SelectDropdown";
 import {
-  fetchApplications,
+  fetchApplicationById,
   updateApplicationStatus,
 } from "../../api/endpoints/applications";
 import { getApiErrorMessage } from "../../lib/apiError";
@@ -26,14 +26,34 @@ export const ApplicationDetailPage = () => {
 
   useEffect(() => {
     if (!id) return;
-    setError("");
-    fetchApplications(1)
-      .then((res) => {
-        const found = res.applications.find((a) => a.id === id);
-        setApplication(found || null);
-        if (found) setNewStatus(found.status);
-      })
-      .finally(() => setLoading(false));
+    let cancelled = false;
+
+    const loadApplication = async () => {
+      await Promise.resolve();
+      if (cancelled) return;
+
+      setError("");
+      setLoading(true);
+
+      try {
+        const found = await fetchApplicationById(id);
+        if (cancelled) return;
+        setApplication(found);
+        setNewStatus(found.status);
+      } catch (error) {
+        if (cancelled) return;
+        setApplication(null);
+        setError(getApiErrorMessage(error, "Failed to load application"));
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    loadApplication();
+
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
 
   const handleStatusUpdate = async () => {
@@ -93,10 +113,9 @@ export const ApplicationDetailPage = () => {
         animate={{ opacity: 1, y: 0 }}
         className="grid grid-cols-1 lg:grid-cols-3 gap-6"
       >
-        {/* Main details */}
         <div className="lg:col-span-2 space-y-6">
           {error && <p className="text-sm text-red-500">{error}</p>}
-          {/* Status update */}
+
           <div className="bg-surface-raised border border-surface-border rounded-xl p-6">
             <h3 className="text-sm font-medium text-white mb-4">Status</h3>
             <div className="flex items-center gap-3">
@@ -113,7 +132,7 @@ export const ApplicationDetailPage = () => {
               <button
                 onClick={handleStatusUpdate}
                 disabled={!statusChanged || updating}
-                className="bg-white text-black px-4 py-2 rounded-lg font-medium cursor-pointer hover:bg-gray-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer text-sm"
+                className="bg-white text-black px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer text-sm"
               >
                 {updating ? (
                   <Loader2 size={14} className="animate-spin" />
@@ -123,7 +142,6 @@ export const ApplicationDetailPage = () => {
             </div>
           </div>
 
-          {/* Cart items */}
           <div className="bg-surface-raised border border-surface-border rounded-xl p-6">
             <h3 className="text-sm font-medium text-white mb-4">Cart Items</h3>
             <table className="w-full">
@@ -144,7 +162,7 @@ export const ApplicationDetailPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {application.cart_items.map((item) => (
+                {application?.cart_items?.map((item) => (
                   <tr
                     key={item.product_id}
                     className="border-b border-surface-border last:border-0"
@@ -171,7 +189,6 @@ export const ApplicationDetailPage = () => {
           </div>
         </div>
 
-        {/* Sidebar info */}
         <div className="space-y-4">
           <div className="bg-surface-raised border border-surface-border rounded-xl p-6">
             <h3 className="text-sm font-medium text-white mb-4">Customer</h3>

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { products as productsApi } from '../../api'
 import { normalizeApiProduct } from '../../utils/catalog'
+import { ProductSkeleton } from '../loading/LoadingSkeletons'
 import { ProductDetail } from './ProductDetail'
 
 const productPromises = new Map<string, Promise<any>>()
@@ -56,11 +57,7 @@ export const ProductRoutePage = ({
   const product = apiProduct || cachedProduct
 
   if (loading && !product) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
-      </div>
-    )
+    return <ProductSkeleton />
   }
 
   if (!product) return <Navigate to="/" replace />

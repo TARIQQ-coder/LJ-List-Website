@@ -1,5 +1,7 @@
 import axios from "axios";
 import { useAuthStore } from "../store/auth";
+import { useApiBannerStore } from "../store/apiBanner";
+import { getApiErrorPayload } from "../lib/apiError";
 
 const client = axios.create({
   baseURL: "/api/v1",
@@ -15,6 +17,55 @@ let failedQueue: Array<{
   reject: (reason?: unknown) => void;
 }> = [];
 
+const API_BANNER_DURATION_MS = 5000;
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
+const getResponseMessage = (data: unknown) => {
+  if (!isRecord(data)) return "";
+  return typeof data.message === "string" ? data.message.trim() : "";
+};
+
+const getSuccessMessage = (method: string, data: unknown) => {
+  const responseMessage = getResponseMessage(data);
+  if (responseMessage) return responseMessage;
+
+  return isMutationMethod(method)
+    ? "Request completed successfully"
+    : "";
+};
+
+const isMutationMethod = (method: string) =>
+  ["post", "patch", "put", "delete"].includes(method);
+
+const notifySuccess = (method: string, url: string, data: unknown) => {
+  if (!isMutationMethod(method)) return;
+  if (url.includes("/auth/refresh")) return;
+
+  const message = getSuccessMessage(method, data);
+  if (!message) return;
+
+  useApiBannerStore.getState().show({
+    variant: "success",
+    message,
+    details: [],
+    durationMs: API_BANNER_DURATION_MS,
+  });
+};
+
+const notifyError = (error: unknown, method: string) => {
+  if (!isMutationMethod(method)) return;
+
+  const apiError = getApiErrorPayload(error, "Request failed");
+  useApiBannerStore.getState().show({
+    variant: "error",
+    message: apiError.message,
+    details: apiError.details,
+    durationMs: API_BANNER_DURATION_MS,
+  });
+};
+
 const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue.forEach((prom) => {
     if (error) {
@@ -27,7 +78,12 @@ const processQueue = (error: unknown, token: string | null = null) => {
 };
 
 client.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    const method = String(response.config.method || "get").toLowerCase();
+    const url = String(response.config.url || "");
+    notifySuccess(method, url, response.data);
+    return response;
+  },
   async (error) => {
     const originalRequest = error.config;
     const requestUrl = String(originalRequest?.url || "");
@@ -66,6 +122,8 @@ client.interceptors.response.use(
       }
     }
 
+    const method = String(originalRequest?.method || "get").toLowerCase();
+    notifyError(error, method);
     return Promise.reject(error);
   },
 );

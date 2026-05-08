@@ -16,6 +16,15 @@ export const fetchApplications = async (
   return response.data.data;
 };
 
+export const fetchApplicationById = async (
+  id: string,
+): Promise<Application> => {
+  const response = await client.get(`/admin/applications/${id}`);
+  return (response.data.data?.application ??
+    response.data.data ??
+    response.data) as Application;
+};
+
 export const updateApplicationStatus = async (
   id: string,
   status: Application["status"],

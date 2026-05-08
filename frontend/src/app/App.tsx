@@ -15,6 +15,7 @@ import { WhatsAppFloat } from '../layout/WhatsAppFloat'
 import { Footer } from '../layout/Footer'
 import { AuthLoginPage, AuthOtpVerifyPage, AuthRegisterPage } from '../features/auth/ClientAuthPage'
 import { ClientAccountPage } from '../features/account/ClientAccountPage'
+import { ApplicationDetailPage } from '../features/account/ApplicationDetailPage'
 import { ProductRoutePage } from '../features/catalog/ProductRoutePage'
 import { FeaturedGrid } from '../features/catalog/FeaturedGrid'
 import { ShopSection } from '../features/catalog/ShopSection'
@@ -283,6 +284,8 @@ export default function App() {
       <Route path="/auth/otp-verify" element={<AuthOtpVerifyPage onSuccess={refreshUserFromApi} />} />
       <Route path="/profile" element={<ClientAccountPage user={user} loading={profileLoading} section="overview" onLogout={logoutUser} onApply={toApply} onUserChange={refreshUserFromApi} />} />
       <Route path="/profile/applications" element={<ClientAccountPage user={user} loading={profileLoading} section="applications" onLogout={logoutUser} onApply={toApply} onUserChange={refreshUserFromApi} />} />
+      <Route path="/profile/application/:applicationId" element={<ApplicationDetailPage user={user} loading={profileLoading} />} />
+      <Route path="/profile/applications/:applicationId" element={<ApplicationDetailPage user={user} loading={profileLoading} />} />
       <Route path="/profile/messages" element={<ClientAccountPage user={user} loading={profileLoading} section="messages" onLogout={logoutUser} onApply={toApply} onUserChange={refreshUserFromApi} />} />
       <Route path="/products/:productId" element={
         <ProductRoutePage

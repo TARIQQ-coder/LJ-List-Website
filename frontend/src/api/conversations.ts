@@ -19,13 +19,17 @@ export const conversations = {
   },
 }
 
-export function pollMessages(conversationId, onNewMessages, intervalMs = 10000) {
+export function pollMessages(conversationId, onNewMessages, intervalMs = 60000) {
   let lastCount = 0
   let timer = null
   let stopped = false
 
   const poll = async () => {
     if (stopped) return
+    if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+      if (!stopped) timer = setTimeout(poll, intervalMs)
+      return
+    }
     try {
       const data = await conversations.messages(conversationId, { limit: 50 })
       const msgs = data.messages || []
@@ -39,10 +43,24 @@ export function pollMessages(conversationId, onNewMessages, intervalMs = 10000) 
     if (!stopped) timer = setTimeout(poll, intervalMs)
   }
 
+  const handleVisibility = () => {
+    if (!stopped && typeof document !== 'undefined' && document.visibilityState === 'visible') {
+      if (timer) clearTimeout(timer)
+      timer = setTimeout(poll, 0)
+    }
+  }
+
+  if (typeof document !== 'undefined') {
+    document.addEventListener('visibilitychange', handleVisibility)
+  }
+
   poll()
 
   return function stop() {
     stopped = true
     if (timer) clearTimeout(timer)
+    if (typeof document !== 'undefined') {
+      document.removeEventListener('visibilitychange', handleVisibility)
+    }
   }
 }

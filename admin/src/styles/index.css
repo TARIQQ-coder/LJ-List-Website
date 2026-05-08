@@ -44,3 +44,7 @@ textarea:focus {
     outline: none;
     border-color: white;
 }
+
+button {
+    cursor: pointer;
+}

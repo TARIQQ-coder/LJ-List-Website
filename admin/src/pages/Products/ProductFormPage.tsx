@@ -12,6 +12,7 @@ import {
 } from "../../api/endpoints/products";
 import { fetchCategories } from "../../api/endpoints/categories";
 import { getApiErrorMessage } from "../../lib/apiError";
+import { toCategoryOption } from "../../lib/categoryOptions";
 import type { SelectOption } from "../../components/shared/SelectDropdown";
 
 export const ProductFormPage = () => {
@@ -44,16 +45,7 @@ export const ProductFormPage = () => {
 
         if (cancelled) return;
 
-        setCategories(
-          categoryRes.map((category) => ({
-            value: category.id,
-            label: category.name,
-            description:
-              category.sort_order !== undefined
-                ? `Sort order: ${category.sort_order}`
-                : undefined,
-          })),
-        );
+        setCategories(categoryRes.map(toCategoryOption));
 
         if (productRes && id) {
           const found = productRes.products.find((p) => p.id === id);
@@ -171,7 +163,7 @@ export const ProductFormPage = () => {
           />
           {categories.length > 0 ? (
             <p className="mt-2 text-xs text-surface-muted">
-              Categories are loaded from existing backend products.
+              Inactive categories must be activated before they can be added to a product.
             </p>
           ) : (
             <button

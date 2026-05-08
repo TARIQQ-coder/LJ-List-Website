@@ -2,15 +2,13 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { applications as applicationsApi, auth as authApi, conversations as convsApi, pollMessages, profile as profileApi } from '../../api'
 import { LogoMark } from '../../layout/LogoMark'
+import { ApplicationsSkeleton, MessagesSkeleton, ProfileSkeleton } from '../loading/LoadingSkeletons'
 import { fmt } from '../../utils/format'
 
 export const ClientAccountPage = ({ user, loading = false, section = 'overview', onLogout, onApply, onUserChange }: any) => {
   const navigate = useNavigate()
   const [orders, setOrders] = useState<any[]>([])
   const [ordersLoad, setOrdersLoad] = useState(false)
-  const [selectedOrder, setSelectedOrder] = useState<any>(null)
-  const [orderDetailLoad, setOrderDetailLoad] = useState(false)
-
   const [conv, setConv] = useState<any>(null)
   const [messages, setMessages] = useState<any[]>([])
   const [msgInput, setMsgInput] = useState('')
@@ -78,7 +76,7 @@ export const ClientAccountPage = ({ user, loading = false, section = 'overview',
     const stop = pollMessages(conv.id, (msgs) => {
       setMessages(msgs)
       setTimeout(() => msgEnd.current?.scrollIntoView({ behavior: 'smooth' }), 100)
-    }, 8000)
+    }, 60000)
     return stop
   }, [section, conv])
 
@@ -97,16 +95,6 @@ export const ClientAccountPage = ({ user, loading = false, section = 'overview',
     }
     onLogout?.()
     navigate('/', { replace: true })
-  }
-
-  const loadOrderDetail = async (id: string) => {
-    setOrderDetailLoad(true)
-    try {
-      const detail = await applicationsApi.get(id)
-      setSelectedOrder(detail)
-    } finally {
-      setOrderDetailLoad(false)
-    }
   }
 
   const saveProfile = async (e: any) => {
@@ -157,11 +145,7 @@ export const ClientAccountPage = ({ user, loading = false, section = 'overview',
   const unreadCount = messages.filter(m => m.sender_id !== user?.id && !m.read_at).length
 
   if (loading && !user) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-        <div className="w-8 h-8 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
-      </div>
-    )
+    return <ProfileSkeleton />
   }
 
   if (!user) {
@@ -293,10 +277,7 @@ export const ClientAccountPage = ({ user, loading = false, section = 'overview',
         {section === 'applications' && (
           <div className="space-y-4">
             {ordersLoad ? (
-              <div className="bg-white rounded-2xl border border-gray-200 p-16 text-center">
-                <div className="w-8 h-8 border-2 border-amber-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-                <p className="text-gray-400 text-sm">Loading your applications...</p>
-              </div>
+              <ApplicationsSkeleton />
             ) : orders.length === 0 ? (
               <div className="bg-white rounded-2xl border border-gray-200 p-16 text-center">
                 <p className="text-gray-700 font-black text-base mb-2">No applications yet</p>
@@ -322,107 +303,78 @@ export const ClientAccountPage = ({ user, loading = false, section = 'overview',
                     <span>Monthly: <span className="font-black text-gray-900">{fmt(o.monthly_amount)}/mo</span></span>
                     <span>Type: <span className="font-black text-gray-900 capitalize">{o.package_type}</span></span>
                   </div>
-                  <button onClick={() => loadOrderDetail(o.id)} className="mt-4 text-xs font-bold text-amber-700 hover:text-amber-800 border border-amber-200 hover:border-amber-300 rounded-lg px-3 py-2 transition-colors">
-                    {orderDetailLoad ? 'Loading details...' : 'View Details'}
+                  <button
+                    onClick={() => navigate(`/profile/application/${o.id}`)}
+                    className="mt-4 text-xs font-bold text-amber-700 hover:text-amber-800 border border-amber-200 hover:border-amber-300 rounded-lg px-3 py-2 transition-colors"
+                  >
+                    View Details
                   </button>
                 </div>
               ))
-            )}
-
-            {selectedOrder && (
-              <div className="bg-gray-900 text-white rounded-2xl p-5">
-                <div className="flex items-start justify-between gap-4 mb-4">
-                  <div>
-                    <p className="font-black text-sm">Application Details</p>
-                    <p className="text-gray-400 text-xs mt-1">{selectedOrder.id}</p>
-                  </div>
-                  <button onClick={() => setSelectedOrder(null)} className="text-gray-400 hover:text-white text-lg leading-none">×</button>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                  <p><span className="text-gray-400">Status:</span> <span className="font-bold capitalize">{selectedOrder.status}</span></p>
-                  <p><span className="text-gray-400">Package:</span> <span className="font-bold">{selectedOrder.package_name || selectedOrder.package_type}</span></p>
-                  <p><span className="text-gray-400">Mandate:</span> <span className="font-bold">{selectedOrder.mandate_number || '—'}</span></p>
-                  <p><span className="text-gray-400">Staff No:</span> <span className="font-bold">{selectedOrder.staff_number || '—'}</span></p>
-                  <p><span className="text-gray-400">Institution:</span> <span className="font-bold">{selectedOrder.institution || '—'}</span></p>
-                  <p><span className="text-gray-400">Ghana Card:</span> <span className="font-bold">{selectedOrder.ghana_card_number || '—'}</span></p>
-                  <p><span className="text-gray-400">Total:</span> <span className="font-bold">{fmt(selectedOrder.total_amount)}</span></p>
-                  <p><span className="text-gray-400">Monthly:</span> <span className="font-bold">{fmt(selectedOrder.monthly_amount)}/mo</span></p>
-                </div>
-                {selectedOrder.cart_items?.length > 0 && (
-                  <div className="mt-4 border-t border-gray-700 pt-4 space-y-2">
-                    {selectedOrder.cart_items.map((item: any) => (
-                      <div key={item.product_id} className="flex justify-between gap-3 text-xs">
-                        <span className="text-gray-300">{item.name} × {item.quantity}</span>
-                        <span className="font-bold">{fmt(item.subtotal)}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
             )}
           </div>
         )}
 
         {section === 'messages' && (
-          <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-            <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-3">
-              <div className="w-9 h-9 bg-gray-900 rounded-full flex items-center justify-center flex-shrink-0">
-                <LogoMark size={22} />
-              </div>
-              <div className="flex-1">
-                <p className="text-gray-900 font-black text-sm">List "J" Support</p>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  <span className="w-1.5 h-1.5 bg-green-400 rounded-full" />
-                  <p className="text-gray-400 text-xs">We reply within a few hours</p>
+          convLoading ? (
+            <MessagesSkeleton />
+          ) : (
+            <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+              <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-3">
+                <div className="w-9 h-9 bg-gray-900 rounded-full flex items-center justify-center flex-shrink-0">
+                  <LogoMark size={22} />
+                </div>
+                <div className="flex-1">
+                  <p className="text-gray-900 font-black text-sm">List "J" Support</p>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <span className="w-1.5 h-1.5 bg-green-400 rounded-full" />
+                    <p className="text-gray-400 text-xs">We reply within a few hours</p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="h-80 overflow-y-auto px-5 py-5 space-y-3 bg-gray-50">
-              {convLoading ? (
-                <div className="h-full flex items-center justify-center">
-                  <div className="w-6 h-6 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
-                </div>
-              ) : messages.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center text-center">
-                  <p className="text-gray-500 text-sm font-semibold mb-1">No messages yet</p>
-                  <p className="text-gray-400 text-xs">Send us a message about your application.</p>
-                </div>
-              ) : (
-                messages.map((msg) => {
-                  const isSupport = msg.sender_id !== user.id
-                  const time = new Date(msg.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
-                  const date = new Date(msg.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
-                  return (
-                    <div key={msg.id} className={`flex ${isSupport ? 'justify-start' : 'justify-end'}`}>
-                      <div className={`max-w-[72%] flex flex-col gap-1 ${isSupport ? 'items-start' : 'items-end'}`}>
-                        {isSupport && <p className="text-gray-400 text-[10px] px-1">List "J" Support</p>}
-                        <div className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${isSupport ? 'bg-white border border-gray-200 text-gray-800 rounded-tl-sm' : 'bg-gray-900 text-white rounded-tr-sm'}`}>
-                          {msg.content}
+              <div className="h-80 overflow-y-auto px-5 py-5 space-y-3 bg-gray-50">
+                {messages.length === 0 ? (
+                  <div className="h-full flex flex-col items-center justify-center text-center">
+                    <p className="text-gray-500 text-sm font-semibold mb-1">No messages yet</p>
+                    <p className="text-gray-400 text-xs">Send us a message about your application.</p>
+                  </div>
+                ) : (
+                  messages.map((msg) => {
+                    const isSupport = msg.sender_id !== user.id
+                    const time = new Date(msg.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+                    const date = new Date(msg.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+                    return (
+                      <div key={msg.id} className={`flex ${isSupport ? 'justify-start' : 'justify-end'}`}>
+                        <div className={`max-w-[72%] flex flex-col gap-1 ${isSupport ? 'items-start' : 'items-end'}`}>
+                          {isSupport && <p className="text-gray-400 text-[10px] px-1">List "J" Support</p>}
+                          <div className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${isSupport ? 'bg-white border border-gray-200 text-gray-800 rounded-tl-sm' : 'bg-gray-900 text-white rounded-tr-sm'}`}>
+                            {msg.content}
+                          </div>
+                          <p className="text-gray-300 text-[10px] px-1">{date} · {time}</p>
                         </div>
-                        <p className="text-gray-300 text-[10px] px-1">{date} · {time}</p>
                       </div>
-                    </div>
-                  )
-                })
-              )}
-              <div ref={msgEnd} />
-            </div>
+                    )
+                  })
+                )}
+                <div ref={msgEnd} />
+              </div>
 
-            <div className="px-5 py-4 border-t border-gray-100 flex gap-3 items-end">
-              <textarea
-                value={msgInput}
-                onChange={e => setMsgInput(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg() } }}
-                placeholder="Type your message... (Enter to send)"
-                rows={2}
-                className="flex-1 bg-gray-50 border border-gray-200 focus:border-amber-400 focus:bg-white text-gray-800 placeholder-gray-400 rounded-xl px-4 py-3 text-sm outline-none transition-all resize-none"
-              />
-              <button onClick={sendMsg} disabled={!msgInput.trim() || msgLoading} className="w-11 h-11 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-200 text-white disabled:text-gray-400 rounded-xl flex items-center justify-center transition-all flex-shrink-0 active:scale-95">
-                {msgLoading ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : '→'}
-              </button>
+              <div className="px-5 py-4 border-t border-gray-100 flex gap-3 items-end">
+                <textarea
+                  value={msgInput}
+                  onChange={e => setMsgInput(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg() } }}
+                  placeholder="Type your message... (Enter to send)"
+                  rows={2}
+                  className="flex-1 bg-gray-50 border border-gray-200 focus:border-amber-400 focus:bg-white text-gray-800 placeholder-gray-400 rounded-xl px-4 py-3 text-sm outline-none transition-all resize-none"
+                />
+                <button onClick={sendMsg} disabled={!msgInput.trim() || msgLoading} className="w-11 h-11 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-200 text-white disabled:text-gray-400 rounded-xl flex items-center justify-center transition-all flex-shrink-0 active:scale-95">
+                  {msgLoading ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : '→'}
+                </button>
+              </div>
             </div>
-          </div>
+          )
         )}
       </div>
     </div>

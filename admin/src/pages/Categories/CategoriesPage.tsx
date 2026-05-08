@@ -38,7 +38,9 @@ export const CategoriesPage = () => {
   const sortedCategories = useMemo(
     () =>
       [...categories].sort(
-        (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.name.localeCompare(b.name),
+        (a, b) =>
+          (a.sort_order ?? 0) - (b.sort_order ?? 0) ||
+          a.name.localeCompare(b.name),
       ),
     [categories],
   );
@@ -150,7 +152,9 @@ export const CategoriesPage = () => {
       setDeleteId(null);
       await loadCategories();
     } catch (err) {
-      setError(getApiErrorMessage(err, "Failed to deactivate category"));
+      setError(
+        getApiErrorMessage(err, "Failed to delete or deactivate category"),
+      );
     } finally {
       setSaving(false);
     }
@@ -163,8 +167,8 @@ export const CategoriesPage = () => {
         description="Manage UUID-backed product categories."
         action={
           <div className="flex gap-2">
-              <button
-                onClick={() => navigate("/products")}
+            <button
+              onClick={() => navigate("/products")}
               className="bg-surface-raised text-white border border-surface-border px-4 py-2 rounded-lg font-medium cursor-pointer hover:bg-surface-overlay transition-colors flex items-center gap-2"
             >
               <ArrowLeft size={16} />
@@ -211,9 +215,7 @@ export const CategoriesPage = () => {
                 <th className="text-left text-xs text-surface-muted font-medium px-6 py-3">
                   Name
                 </th>
-                <th className="text-left text-xs text-surface-muted font-medium px-6 py-3">
-                  Sort
-                </th>
+
                 <th className="text-left text-xs text-surface-muted font-medium px-6 py-3">
                   Status
                 </th>
@@ -232,9 +234,6 @@ export const CategoriesPage = () => {
                 >
                   <td className="px-6 py-3 text-sm text-white">
                     {category.name}
-                  </td>
-                  <td className="px-6 py-3 text-sm text-surface-muted font-mono">
-                    {category.sort_order ?? "—"}
                   </td>
                   <td className="px-6 py-3 text-sm">
                     <span
@@ -296,7 +295,9 @@ export const CategoriesPage = () => {
             <input
               type="text"
               value={form.name}
-              onChange={(e) => setForm((current) => ({ ...current, name: e.target.value }))}
+              onChange={(e) =>
+                setForm((current) => ({ ...current, name: e.target.value }))
+              }
               className="w-full"
               placeholder="Rice, Spaghetti & Grains"
             />
@@ -311,7 +312,10 @@ export const CategoriesPage = () => {
                 type="number"
                 value={form.sort_order}
                 onChange={(e) =>
-                  setForm((current) => ({ ...current, sort_order: e.target.value }))
+                  setForm((current) => ({
+                    ...current,
+                    sort_order: e.target.value,
+                  }))
                 }
                 className="w-full"
                 min="0"
@@ -322,7 +326,10 @@ export const CategoriesPage = () => {
               <button
                 type="button"
                 onClick={() =>
-                  setForm((current) => ({ ...current, active: !current.active }))
+                  setForm((current) => ({
+                    ...current,
+                    active: !current.active,
+                  }))
                 }
                 className={`w-full rounded-xl border px-4 py-3 text-left transition-colors ${
                   form.active
@@ -340,9 +347,9 @@ export const CategoriesPage = () => {
       <Modal
         open={!!deleteId}
         onClose={() => setDeleteId(null)}
-        title="Deactivate Category"
-        description="This will deactivate the category. Products that already use it will keep their current category name."
-        confirmLabel="Deactivate"
+        title="Delete or Deactivate Category"
+        description="If this category has products attached, it will be set to inactive instead of being deleted. Existing products will keep their category, but inactive categories cannot be selected for new products until they are activated again."
+        confirmLabel="Delete or Deactivate"
         onConfirm={handleDelete}
         variant="danger"
         loading={saving}

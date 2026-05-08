@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { DeptPackageSection } from '../packages/DeptPackageSection'
 import { ProductCard } from './ProductCard'
+import { Pulse } from '../loading/LoadingSkeletons'
 import { fmt } from '../../utils/format'
 
 export const SHOWCASE_SIZE = 9   // 3 columns × 3 rows visible at once
@@ -175,9 +176,18 @@ export const ShopSection = ({ cart, onAdd, onRemove, onCartOpen, cartTotal, cart
 
         {/* Rotating 3-column grid — hidden for provisions & cleaning (packages only) */}
         {activeCat === 'provisions' || activeCat === 'cleaning' ? null : productsLoading ? (
-          <div className="py-14 flex flex-col items-center gap-3">
-            <div className="w-8 h-8 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
-            <p className="text-gray-400 text-sm">Loading products...</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="rounded-2xl border border-gray-200 bg-white p-3 space-y-3">
+                <Pulse className="h-36 w-full rounded-xl" />
+                <Pulse className="h-4 w-4/5" />
+                <Pulse className="h-4 w-1/2" />
+                <div className="flex gap-2">
+                  <Pulse className="h-9 flex-1" />
+                  <Pulse className="h-9 w-9" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : shown.length === 0 ? (
           <div className="text-center py-14 px-6">
@@ -293,4 +303,3 @@ export const ShopSection = ({ cart, onAdd, onRemove, onCartOpen, cartTotal, cart
     </section>
   )
 }
-

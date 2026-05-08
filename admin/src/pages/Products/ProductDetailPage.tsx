@@ -22,6 +22,7 @@ import {
 } from "../../api/endpoints/products";
 import { fetchCategories } from "../../api/endpoints/categories";
 import { getApiErrorMessage } from "../../lib/apiError";
+import { toCategoryOption } from "../../lib/categoryOptions";
 import { formatCurrency, formatDateTime } from "../../lib/utils";
 import type { Product } from "../../types";
 import type { SelectOption } from "../../components/shared/SelectDropdown";
@@ -71,16 +72,7 @@ export const ProductDetailPage = () => {
 
         if (cancelled) return;
 
-        setCategories(
-          categoryRes.map((category) => ({
-            value: category.id,
-            label: category.name,
-            description:
-              category.sort_order !== undefined
-                ? `Sort order: ${category.sort_order}`
-                : undefined,
-          })),
-        );
+        setCategories(categoryRes.map(toCategoryOption));
 
         setProduct(productRes);
         if (productRes) {
