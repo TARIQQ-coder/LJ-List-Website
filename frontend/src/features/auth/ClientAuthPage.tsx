@@ -61,7 +61,7 @@ export const AuthLoginPage = ({ onSuccess }: any) => {
     try {
       const data = await authApi.login(form)
       await onSuccess?.(data.user || null)
-      navigate('/profile', { replace: true })
+      navigate('/', { replace: true })
     } catch (err: any) {
       if (err?.code === 'FORBIDDEN' || err?.status === 403) {
         navigate(`/auth/otp-verify?phone=${encodeURIComponent(form.phone_number)}`, { replace: true })
@@ -194,7 +194,7 @@ export const AuthOtpVerifyPage = ({ onSuccess }: any) => {
     try {
       const data = await authApi.verifyOtp({ phone_number: phone, otp })
       await onSuccess?.(data.user || null)
-      navigate('/profile', { replace: true })
+      navigate('/', { replace: true })
     } catch (err: any) {
       setError(err?.errors?.otp?.[0] || err?.message || 'Invalid or expired code.')
     } finally {
