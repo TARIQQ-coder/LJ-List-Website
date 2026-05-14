@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Image, Package as PackageIcon } from "lucide-react";
 import { Modal } from "../shared/Modal";
 import { SelectDropdown } from "../shared/SelectDropdown";
@@ -29,37 +29,84 @@ export const PackageItemModal = ({
   products,
   initialItem,
 }: PackageItemModalProps) => {
-  const [productId, setProductId] = useState("");
-  const [label, setLabel] = useState("");
-  const [qty, setQty] = useState(1);
-  const [emoji, setEmoji] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
+  const formKey = initialItem
+    ? [
+        initialItem.product_id,
+        initialItem.label,
+        initialItem.qty,
+        initialItem.emoji,
+        initialItem.image_url,
+      ].join("|")
+    : "new";
 
-  useEffect(() => {
-    if (!open) return;
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={initialItem ? "Edit Item" : "Add Item"}
+      description="Pick a product, preview its image, then fine-tune the package item details."
+      panelClassName="max-w-5xl xl:max-w-6xl"
+    >
+      {open ? (
+        <PackageItemModalForm
+          key={formKey}
+          initialItem={initialItem}
+          onClose={onClose}
+          onSave={onSave}
+          products={products}
+        />
+      ) : null}
+    </Modal>
+  );
+};
 
-    const item = initialItem ?? emptyItem();
-    setProductId(item.product_id ?? "");
-    setLabel(item.label ?? "");
-    setQty(item.qty ?? 1);
-    setEmoji(item.emoji ?? "");
-    setImageUrl(item.image_url ?? item.product?.image_url ?? "");
-  }, [initialItem, open]);
+interface PackageItemModalFormProps {
+  initialItem?: PackageItem | null;
+  onClose: () => void;
+  onSave: (item: PackageItem) => void;
+  products: Product[];
+}
+
+const PackageItemModalForm = ({
+  initialItem,
+  onClose,
+  onSave,
+  products,
+}: PackageItemModalFormProps) => {
+  const item = initialItem ?? emptyItem();
+  const [productId, setProductId] = useState(item.product_id ?? "");
+  const [label, setLabel] = useState(item.label ?? "");
+  const [qty, setQty] = useState(item.qty ?? 1);
+  const [emoji, setEmoji] = useState(item.emoji ?? "");
+  const [imageUrl, setImageUrl] = useState(
+    item.image_url ?? item.product?.image_url ?? "",
+  );
 
   const selectedProduct = useMemo(
     () => products.find((product) => product.id === productId),
     [productId, products],
   );
 
-  useEffect(() => {
-    if (!selectedProduct) return;
-
-    setLabel((current) => current || selectedProduct.name);
-    setImageUrl((current) => current || selectedProduct.image_url || "");
-  }, [selectedProduct]);
-
   const previewImage = imageUrl || selectedProduct?.image_url || "";
   const previewTitle = label || selectedProduct?.name || "Preview";
+  const productSummary = selectedProduct
+    ? [
+        selectedProduct.category,
+        selectedProduct.unit ? `Unit: ${selectedProduct.unit}` : "",
+        formatCurrency(selectedProduct.price),
+      ]
+        .filter(Boolean)
+        .join(" · ")
+    : "Manual item";
+
+  const handleProductChange = (nextProductId: string) => {
+    setProductId(nextProductId);
+    const nextProduct = products.find((product) => product.id === nextProductId);
+    if (!nextProduct) return;
+
+    setLabel((current) => current || nextProduct.name);
+    setImageUrl((current) => current || nextProduct.image_url || "");
+  };
 
   const handleSave = () => {
     onSave({
@@ -82,15 +129,7 @@ export const PackageItemModal = ({
   };
 
   return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      title={initialItem ? "Edit Item" : "Add Item"}
-      description="Pick a product, preview its image, then fine-tune the package item details."
-      onConfirm={handleSave}
-      confirmLabel={initialItem ? "Update Item" : "Add Item"}
-      panelClassName="max-w-5xl xl:max-w-6xl"
-    >
+    <>
       <div className="grid gap-5 lg:grid-cols-[1.05fr_0.95fr]">
         <div className="space-y-4">
           <div>
@@ -99,7 +138,7 @@ export const PackageItemModal = ({
             </label>
             <SelectDropdown
               value={productId}
-              onChange={setProductId}
+              onChange={handleProductChange}
               options={products.map((product) => ({
                 value: product.id,
                 label: product.name,
@@ -152,18 +191,6 @@ export const PackageItemModal = ({
                 placeholder="🌾"
               />
             </div>
-            <div>
-              <label className="block text-sm text-surface-muted mb-2">
-                Image URL
-              </label>
-              <input
-                type="text"
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-                className="w-full"
-                placeholder="https://..."
-              />
-            </div>
           </div>
         </div>
 
@@ -195,7 +222,7 @@ export const PackageItemModal = ({
                     {previewTitle}
                   </h4>
                   <p className="text-xs text-surface-muted">
-                    {selectedProduct?.unit ? `Unit: ${selectedProduct.unit}` : "Manual item"}
+                    {productSummary}
                   </p>
                 </div>
                 {emoji && (
@@ -204,26 +231,34 @@ export const PackageItemModal = ({
               </div>
               <dl className="grid grid-cols-2 gap-3 text-xs">
                 <div>
-                  <dt className="text-surface-muted">Product ID</dt>
-                  <dd className="text-white break-all">
-                    {productId || "Not selected"}
+                  <dt className="text-surface-muted">Product</dt>
+                  <dd className="text-white">
+                    {selectedProduct?.name || "Not selected"}
                   </dd>
                 </div>
                 <div>
                   <dt className="text-surface-muted">Quantity</dt>
                   <dd className="text-white">{qty}</dd>
                 </div>
-                <div className="col-span-2">
-                  <dt className="text-surface-muted">Image</dt>
-                  <dd className="text-white break-all">
-                    {previewImage || "No image set"}
-                  </dd>
-                </div>
               </dl>
             </div>
           </div>
         </div>
       </div>
-    </Modal>
+      <div className="flex justify-end gap-3 mt-6">
+        <button
+          onClick={onClose}
+          className="bg-surface-raised text-white border border-surface-border px-4 py-2 rounded-lg font-medium cursor-pointer hover:bg-surface-overlay transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleSave}
+          className="bg-white text-black px-4 py-2 rounded-lg font-medium cursor-pointer hover:bg-gray-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          {initialItem ? "Update Item" : "Add Item"}
+        </button>
+      </div>
+    </>
   );
 };

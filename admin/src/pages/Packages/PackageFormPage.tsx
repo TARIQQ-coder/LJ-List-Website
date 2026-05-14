@@ -5,6 +5,7 @@ import { ArrowLeft, Plus, Trash2, Loader2, Pencil } from "lucide-react";
 import { PageHeader } from "../../components/shared/PageHeader";
 import { FormSkeleton } from "../../components/shared/LoadingSkeleton";
 import { SelectDropdown } from "../../components/shared/SelectDropdown";
+import { Modal } from "../../components/shared/Modal";
 import { PackageItemModal } from "../../components/packages/PackageItemModal";
 import { PACKAGE_TYPE_OPTIONS } from "../../lib/catalog";
 import {
@@ -16,6 +17,7 @@ import {
 } from "../../api/endpoints/packages";
 import { fetchProducts } from "../../api/endpoints/products";
 import { getApiErrorMessage } from "../../lib/apiError";
+import { formatCurrency } from "../../lib/utils";
 import type { Product } from "../../types";
 
 const emptyFixedItem = (): PackageItem => ({
@@ -26,11 +28,15 @@ const emptyFixedItem = (): PackageItem => ({
   image_url: "",
 });
 
+const isPackageType = (value: string | null): value is PackageType =>
+  value === "fixed" || value === "provisions" || value === "detergents";
+
 export const PackageFormPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const typeParam = searchParams.get("type") as PackageType;
+  const packageTypeParam = searchParams.get("pkg") ?? searchParams.get("type");
+  const initialType = isPackageType(packageTypeParam) ? packageTypeParam : "fixed";
   const isEditing = Boolean(id);
 
   const [loading, setLoading] = useState(isEditing);
@@ -44,11 +50,12 @@ export const PackageFormPage = () => {
   const [tagline, setTagline] = useState("");
   const [riceOptions, setRiceOptions] = useState("");
   const [popular, setPopular] = useState(false);
-  const [type, setType] = useState<PackageType>(typeParam || "fixed");
+  const [type, setType] = useState<PackageType>(initialType);
   const [items, setItems] = useState<PackageItem[]>([emptyFixedItem()]);
   const [simpleItems, setSimpleItems] = useState("");
   const [itemModalOpen, setItemModalOpen] = useState(false);
   const [editingItemIndex, setEditingItemIndex] = useState<number | null>(null);
+  const [removeItemIndex, setRemoveItemIndex] = useState<number | null>(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
@@ -122,9 +129,42 @@ export const PackageFormPage = () => {
     setItemModalOpen(true);
   };
 
-  const removeItem = (index: number) => {
+  const requestRemoveItem = (index: number) => {
     if (items.length === 1) return;
-    setItems(items.filter((_, i) => i !== index));
+    setRemoveItemIndex(index);
+  };
+
+  const confirmRemoveItem = () => {
+    if (removeItemIndex === null || items.length === 1) return;
+    const nextItems = items.filter((_, i) => i !== removeItemIndex);
+    setItems(nextItems.length > 0 ? nextItems : [emptyFixedItem()]);
+    setRemoveItemIndex(null);
+    setMessage("");
+    setError("");
+  };
+
+  const getItemDisplay = (item: PackageItem) => {
+    const product = products.find((candidate) => candidate.id === item.product_id);
+    const productName = product?.name || item.product?.name || "";
+    const previewImage = item.image_url || item.product?.image_url || product?.image_url;
+    const meta = product
+      ? [
+          product.category,
+          product.unit ? `Unit: ${product.unit}` : "",
+          formatCurrency(product.price),
+        ]
+          .filter(Boolean)
+          .join(" · ")
+      : item.qty
+        ? `Qty: ${item.qty}`
+        : "";
+
+    return {
+      title: item.label || productName || "Untitled item",
+      productName,
+      previewImage,
+      meta,
+    };
   };
 
   const editItem = (index: number) => {
@@ -172,7 +212,6 @@ export const PackageFormPage = () => {
           name,
           price: price.trim(),
           monthly: monthly.trim(),
-          active: true,
           popular,
           tag: tag.trim() || undefined,
           tagline: tagline.trim() || undefined,
@@ -191,10 +230,8 @@ export const PackageFormPage = () => {
           id: packageId.trim(),
           name,
           price: parseInt(price, 10),
-          active: true,
           items: simpleItems.trim(),
-        }
-      ;
+        };
 
     setSaving(true);
     try {
@@ -420,7 +457,7 @@ export const PackageFormPage = () => {
 
             <div className="grid gap-3 md:grid-cols-2">
               {items.map((item, index) => {
-                const previewImage = item.image_url || item.product?.image_url;
+                const display = getItemDisplay(item);
                 return (
                   <div
                     key={`${item.product_id ?? "manual"}-${index}`}
@@ -429,10 +466,10 @@ export const PackageFormPage = () => {
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <h4 className="text-sm font-medium text-white truncate">
-                          {item.label || "Untitled item"}
+                          {display.title}
                         </h4>
-                        <p className="text-xs text-surface-muted break-all">
-                          {item.product_id || "No product selected"}
+                        <p className="text-xs text-surface-muted">
+                          {display.productName || display.meta || "Manual item"}
                         </p>
                       </div>
                       {item.emoji ? (
@@ -443,10 +480,10 @@ export const PackageFormPage = () => {
                     </div>
 
                     <div className="aspect-video rounded-lg overflow-hidden border border-surface-border bg-black/20">
-                      {previewImage ? (
+                      {display.previewImage ? (
                         <img
-                          src={previewImage}
-                          alt={item.label}
+                          src={display.previewImage}
+                          alt={display.title}
                           className="w-full h-full object-cover"
                         />
                       ) : (
@@ -461,10 +498,7 @@ export const PackageFormPage = () => {
                         Qty: <span className="text-white">{item.qty}</span>
                       </div>
                       <div>
-                        Image:{" "}
-                        <span className="text-white break-all">
-                          {previewImage || "None"}
-                        </span>
+                        <span className="text-white">{display.meta || "Item"}</span>
                       </div>
                     </div>
 
@@ -479,7 +513,7 @@ export const PackageFormPage = () => {
                       </button>
                       <button
                         type="button"
-                        onClick={() => removeItem(index)}
+                        onClick={() => requestRemoveItem(index)}
                         disabled={items.length === 1}
                         className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg border border-surface-border text-surface-muted hover:text-red-400 hover:border-red-400 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                       >
@@ -504,6 +538,29 @@ export const PackageFormPage = () => {
           products={products}
           initialItem={editingItemIndex === null ? null : items[editingItemIndex]}
         />
+
+        <Modal
+          open={removeItemIndex !== null}
+          onClose={() => setRemoveItemIndex(null)}
+          title="Remove Package Item"
+          description="This will remove the item from this fixed package when you save the package. If applications already use this package, the save will be rejected."
+          confirmLabel="Remove Item"
+          onConfirm={confirmRemoveItem}
+          variant="danger"
+        >
+          {removeItemIndex !== null && items[removeItemIndex] ? (
+            <div className="rounded-xl border border-surface-border bg-surface-overlay/40 p-4">
+              <p className="text-sm font-medium text-white">
+                {getItemDisplay(items[removeItemIndex]).title}
+              </p>
+              <p className="mt-1 text-xs text-surface-muted">
+                {getItemDisplay(items[removeItemIndex]).productName ||
+                  getItemDisplay(items[removeItemIndex]).meta ||
+                  "Manual item"}
+              </p>
+            </div>
+          ) : null}
+        </Modal>
 
         {error && <p className="text-sm text-red-500">{error}</p>}
         {message && <p className="text-sm text-surface-muted">{message}</p>}

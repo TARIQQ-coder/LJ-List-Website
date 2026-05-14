@@ -5,6 +5,7 @@ import {
   ArrowLeft,
   Loader2,
   Pencil,
+  RotateCcw,
   Trash2,
 } from "lucide-react";
 import { PageHeader } from "../../components/shared/PageHeader";
@@ -15,6 +16,7 @@ import {
   fetchPackageById,
   updatePackage,
   deletePackage,
+  reactivatePackage,
   type Package,
   type PackageType,
   type PackageItem,
@@ -46,8 +48,11 @@ export const PackageDetailPage = () => {
   const [saving, setSaving] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [reactivateOpen, setReactivateOpen] = useState(false);
+  const [reactivating, setReactivating] = useState(false);
   const [itemModalOpen, setItemModalOpen] = useState(false);
   const [editingItemIndex, setEditingItemIndex] = useState<number | null>(null);
+  const [removeItemIndex, setRemoveItemIndex] = useState<number | null>(null);
 
   const [form, setForm] = useState({
     packageId: "",
@@ -58,7 +63,6 @@ export const PackageDetailPage = () => {
     tagline: "",
     rice_options: "",
     popular: false,
-    active: true,
     type: "fixed" as PackageType,
     items: [emptyFixedItem()],
     simpleItems: "",
@@ -88,7 +92,6 @@ export const PackageDetailPage = () => {
             tagline: found.type === "fixed" ? found.tagline ?? "" : "",
             rice_options: found.type === "fixed" ? found.rice_options ?? "" : "",
             popular: found.type === "fixed" ? Boolean(found.popular) : false,
-            active: found.active !== false,
             type: found.type,
             items:
               found.type === "fixed"
@@ -138,7 +141,6 @@ export const PackageDetailPage = () => {
               name: form.name,
               price: form.price.trim(),
               monthly: form.monthly.trim(),
-              active: form.active,
               popular: form.popular,
               tag: form.tag.trim() || undefined,
               tagline: form.tagline.trim() || undefined,
@@ -157,7 +159,6 @@ export const PackageDetailPage = () => {
               id: form.packageId.trim(),
               name: form.name,
               price: Number.parseInt(form.price, 10),
-              active: form.active,
               items: form.simpleItems.trim(),
             };
 
@@ -177,12 +178,27 @@ export const PackageDetailPage = () => {
     setError("");
     try {
       await deletePackage(pkg.type, id);
-      navigate("/packages");
+      setPkg((current) => (current ? { ...current, active: false } : current));
     } catch (err) {
       setError(getApiErrorMessage(err, "Failed to deactivate package"));
     } finally {
       setDeleting(false);
       setDeleteOpen(false);
+    }
+  };
+
+  const handleReactivate = async () => {
+    if (!id || !pkg) return;
+    setReactivating(true);
+    setError("");
+    try {
+      const updated = await reactivatePackage(pkg.type, id);
+      setPkg(updated);
+      setReactivateOpen(false);
+    } catch (err) {
+      setError(getApiErrorMessage(err, "Failed to reactivate package"));
+    } finally {
+      setReactivating(false);
     }
   };
 
@@ -198,6 +214,52 @@ export const PackageDetailPage = () => {
         index === editingItemIndex ? item : existing,
       ),
     }));
+  };
+
+  const requestRemoveItem = (index: number) => {
+    if (form.items.length === 1) return;
+    setRemoveItemIndex(index);
+  };
+
+  const confirmRemoveItem = () => {
+    if (removeItemIndex === null || form.items.length === 1) return;
+
+    setForm((current) => {
+      const nextItems = current.items.filter(
+        (_, index) => index !== removeItemIndex,
+      );
+
+      return {
+        ...current,
+        items: nextItems.length > 0 ? nextItems : [emptyFixedItem()],
+      };
+    });
+    setRemoveItemIndex(null);
+    setError("");
+  };
+
+  const getItemDisplay = (item: PackageItem) => {
+    const product = products.find((candidate) => candidate.id === item.product_id);
+    const productName = product?.name || item.product?.name || "";
+    const previewImage = item.image_url || item.product?.image_url || product?.image_url;
+    const meta = product
+      ? [
+          product.category,
+          product.unit ? `Unit: ${product.unit}` : "",
+          formatCurrency(product.price),
+        ]
+          .filter(Boolean)
+          .join(" · ")
+      : item.qty
+        ? `Qty: ${item.qty}`
+        : "";
+
+    return {
+      title: item.label || productName || "Untitled item",
+      productName,
+      previewImage,
+      meta,
+    };
   };
 
   if (loading) {
@@ -256,7 +318,13 @@ export const PackageDetailPage = () => {
                 {pkg.tag}
               </span>
             ) : null}
-            <span className="rounded-full border border-surface-border px-2.5 py-0.5 text-xs text-surface-muted">
+            <span
+              className={`rounded-full border px-2.5 py-0.5 text-xs ${
+                pkg.active === false
+                  ? "border-red-500/30 text-red-300"
+                  : "border-emerald-500/30 text-emerald-300"
+              }`}
+            >
               {pkg.active === false ? "Inactive" : "Active"}
             </span>
           </div>
@@ -286,39 +354,46 @@ export const PackageDetailPage = () => {
 
           {pkg.type === "fixed" ? (
             <div className="space-y-3">
-              {form.items.map((item, index) => (
-                <div
-                  key={`${item.product_id ?? "manual"}-${index}`}
-                  className="rounded-xl border border-surface-border bg-surface-overlay/40 p-4"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <h4 className="text-sm font-medium text-white">
-                        {item.label || "Untitled item"}
-                      </h4>
-                      <p className="text-xs text-surface-muted break-all">
-                        {item.product_id || "No product selected"}
-                      </p>
-                    </div>
-                    {item.emoji ? (
-                      <span className="text-lg leading-none">{item.emoji}</span>
-                    ) : null}
-                  </div>
-                  <div className="mt-3 aspect-video overflow-hidden rounded-lg border border-surface-border bg-black/20">
-                    {item.image_url || item.product?.image_url ? (
-                      <img
-                        src={item.image_url || item.product?.image_url}
-                        alt={item.label}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-full items-center justify-center text-xs text-surface-muted">
-                        No preview image
+              {form.items.map((item, index) => {
+                const display = getItemDisplay(item);
+
+                return (
+                  <div
+                    key={`${item.product_id ?? "manual"}-${index}`}
+                    className="rounded-xl border border-surface-border bg-surface-overlay/40 p-4"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h4 className="text-sm font-medium text-white">
+                          {display.title}
+                        </h4>
+                        <p className="text-xs text-surface-muted">
+                          {display.productName || display.meta || "Manual item"}
+                        </p>
+                        <p className="mt-1 text-xs text-surface-muted">
+                          Qty: <span className="text-white">{item.qty}</span>
+                        </p>
                       </div>
-                    )}
+                      {item.emoji ? (
+                        <span className="text-lg leading-none">{item.emoji}</span>
+                      ) : null}
+                    </div>
+                    <div className="mt-3 aspect-video overflow-hidden rounded-lg border border-surface-border bg-black/20">
+                      {display.previewImage ? (
+                        <img
+                          src={display.previewImage}
+                          alt={display.title}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full items-center justify-center text-xs text-surface-muted">
+                          No preview image
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="rounded-xl border border-surface-border bg-surface-overlay/40 p-4">
@@ -343,13 +418,23 @@ export const PackageDetailPage = () => {
                 <Pencil size={15} />
                 Edit package
               </button>
-              <button
-                onClick={() => setDeleteOpen(true)}
-                className="rounded-lg border border-red-500/20 px-4 py-2 text-left text-sm text-red-400 hover:bg-red-500/10 transition-colors flex items-center gap-2"
-              >
-                <Trash2 size={15} />
-                Deactivate package
-              </button>
+              {pkg.active === false ? (
+                <button
+                  onClick={() => setReactivateOpen(true)}
+                  className="rounded-lg border border-emerald-500/20 px-4 py-2 text-left text-sm text-emerald-300 hover:bg-emerald-500/10 transition-colors flex items-center gap-2"
+                >
+                  <RotateCcw size={15} />
+                  Reactivate package
+                </button>
+              ) : (
+                <button
+                  onClick={() => setDeleteOpen(true)}
+                  className="rounded-lg border border-red-500/20 px-4 py-2 text-left text-sm text-red-400 hover:bg-red-500/10 transition-colors flex items-center gap-2"
+                >
+                  <Trash2 size={15} />
+                  Deactivate package
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -514,27 +599,44 @@ export const PackageDetailPage = () => {
                 </button>
               </div>
               <div className="grid gap-3 md:grid-cols-2">
-                {form.items.map((item, index) => (
-                  <div
-                    key={`${item.product_id ?? "manual"}-${index}`}
-                    className="rounded-xl border border-surface-border bg-surface-overlay/40 p-4"
-                  >
-                    <div className="text-sm text-white">{item.label}</div>
-                    <div className="text-xs text-surface-muted">
-                      {item.product_id || "No product"}
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setEditingItemIndex(index);
-                        setItemModalOpen(true);
-                      }}
-                      className="mt-3 rounded-lg border border-surface-border px-3 py-2 text-xs text-white hover:bg-surface-overlay transition-colors"
+                {form.items.map((item, index) => {
+                  const display = getItemDisplay(item);
+
+                  return (
+                    <div
+                      key={`${item.product_id ?? "manual"}-${index}`}
+                      className="rounded-xl border border-surface-border bg-surface-overlay/40 p-4"
                     >
-                      Edit item
-                    </button>
-                  </div>
-                ))}
+                      <div className="text-sm text-white">{display.title}</div>
+                      <div className="text-xs text-surface-muted">
+                        {display.productName || display.meta || "Manual item"}
+                      </div>
+                      <div className="mt-1 text-xs text-surface-muted">
+                        Qty: <span className="text-white">{item.qty}</span>
+                      </div>
+                      <div className="mt-3 flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingItemIndex(index);
+                            setItemModalOpen(true);
+                          }}
+                          className="rounded-lg border border-surface-border px-3 py-2 text-xs text-white hover:bg-surface-overlay transition-colors"
+                        >
+                          Edit item
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => requestRemoveItem(index)}
+                          disabled={form.items.length === 1}
+                          className="rounded-lg border border-surface-border px-3 py-2 text-xs text-surface-muted hover:text-red-400 hover:border-red-400 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                          Remove item
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </>
           ) : (
@@ -554,31 +656,6 @@ export const PackageDetailPage = () => {
               />
             </div>
           )}
-
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() =>
-                setForm((current) => ({ ...current, active: !current.active }))
-              }
-              className={`relative w-10 h-6 rounded-full transition-colors cursor-pointer ${
-                form.active
-                  ? "bg-white"
-                  : "bg-surface-overlay border border-surface-border"
-              }`}
-            >
-              <motion.div
-                className={`absolute top-0.5 w-5 h-5 rounded-full ${
-                  form.active ? "bg-black right-0.5" : "bg-surface-muted left-0.5"
-                }`}
-                layout
-                transition={{ type: "spring", stiffness: 400, damping: 25 }}
-              />
-            </button>
-            <span className="text-sm text-surface-muted">
-              {form.active ? "Active" : "Inactive"}
-            </span>
-          </div>
 
           <div className="flex justify-end gap-3 pt-2">
             <button
@@ -602,13 +679,39 @@ export const PackageDetailPage = () => {
 
       <PackageItemModal
         open={itemModalOpen}
-        onClose={() => setItemModalOpen(false)}
+        onClose={() => {
+          setItemModalOpen(false);
+          setEditingItemIndex(null);
+        }}
         onSave={handleSaveItem}
         products={products}
         initialItem={
           editingItemIndex === null ? null : form.items[editingItemIndex]
         }
       />
+
+      <Modal
+        open={removeItemIndex !== null}
+        onClose={() => setRemoveItemIndex(null)}
+        title="Remove Package Item"
+        description="This will remove the item from this fixed package when you save the package. If applications already use this package, the save will be rejected."
+        confirmLabel="Remove Item"
+        onConfirm={confirmRemoveItem}
+        variant="danger"
+      >
+        {removeItemIndex !== null && form.items[removeItemIndex] ? (
+          <div className="rounded-xl border border-surface-border bg-surface-overlay/40 p-4">
+            <p className="text-sm font-medium text-white">
+              {getItemDisplay(form.items[removeItemIndex]).title}
+            </p>
+            <p className="mt-1 text-xs text-surface-muted">
+              {getItemDisplay(form.items[removeItemIndex]).productName ||
+                getItemDisplay(form.items[removeItemIndex]).meta ||
+                "Manual item"}
+            </p>
+          </div>
+        ) : null}
+      </Modal>
 
       <Modal
         open={deleteOpen}
@@ -619,6 +722,15 @@ export const PackageDetailPage = () => {
         onConfirm={handleDelete}
         variant="danger"
         loading={deleting}
+      />
+      <Modal
+        open={reactivateOpen}
+        onClose={() => setReactivateOpen(false)}
+        title="Reactivate Package"
+        description="This will make the package available again."
+        confirmLabel="Reactivate"
+        onConfirm={handleReactivate}
+        loading={reactivating}
       />
     </div>
   );

@@ -48,7 +48,6 @@ export interface PackageFormInput {
   price: string | number;
   monthly?: string | number;
   items: PackageItem[] | string;
-  active?: boolean;
   popular?: boolean;
   tag?: string;
   tagline?: string;
@@ -74,73 +73,104 @@ const parseAmount = (value: unknown) => {
   return 0;
 };
 
-const normalizePackage = (type: PackageType, value: any): Package => {
+const asRecord = (value: unknown): Record<string, unknown> =>
+  value && typeof value === "object" ? (value as Record<string, unknown>) : {};
+
+const toStringValue = (value: unknown) =>
+  value == null ? "" : String(value);
+
+const toOptionalString = (value: unknown) =>
+  value == null ? undefined : String(value);
+
+const toOptionalBoolean = (value: unknown) =>
+  typeof value === "boolean" ? value : undefined;
+
+const toDisplayAmount = (value: unknown) =>
+  typeof value === "number" || typeof value === "string" ? value : "";
+
+const normalizePackageItem = (value: unknown): PackageItem => {
+  const item = asRecord(value);
+  const product = item.product ? asRecord(item.product) : null;
+
+  return {
+    product_id: toOptionalString(item.product_id),
+    qty: Number(item.qty ?? 1),
+    label: toStringValue(item.label ?? item.name),
+    emoji: toOptionalString(item.emoji),
+    image_url: toOptionalString(item.image_url),
+    product: product
+      ? {
+          id: toStringValue(product.id),
+          name: toStringValue(product.name),
+          image_url: toStringValue(product.image_url),
+          unit: toStringValue(product.unit),
+          active: Boolean(product.active),
+        }
+      : undefined,
+  };
+};
+
+const normalizePackage = (type: PackageType, source: unknown): Package => {
+  const value = asRecord(source);
+
   if (type === "fixed") {
     return {
-      id: String(value.id),
-      name: value.name ?? "",
-      price: value.price ?? "",
-      monthly: value.monthly ?? "",
+      id: toStringValue(value.id),
+      name: toStringValue(value.name),
+      price: toDisplayAmount(value.price),
+      monthly: toDisplayAmount(value.monthly),
       items: Array.isArray(value.items)
-        ? value.items.map((item: any) => ({
-            product_id: item.product_id == null ? undefined : String(item.product_id),
-            qty: Number(item.qty ?? 1),
-            label: item.label ?? item.name ?? "",
-            emoji: item.emoji ?? undefined,
-            image_url: item.image_url ?? undefined,
-            product: item.product
-              ? {
-                  id: String(item.product.id ?? ""),
-                  name: item.product.name ?? "",
-                  image_url: item.product.image_url ?? "",
-                  unit: item.product.unit ?? "",
-                  active: Boolean(item.product.active),
-                }
-              : undefined,
-          }))
+        ? value.items.map((item) => normalizePackageItem(item))
         : [],
-      active: value.active,
+      active: toOptionalBoolean(value.active),
       type,
       popular: Boolean(value.popular),
-      tag: value.tag,
-      tagline: value.tagline,
-      rice_options: value.rice_options,
+      tag: toOptionalString(value.tag),
+      tagline: toOptionalString(value.tagline),
+      rice_options: toOptionalString(value.rice_options),
     };
   }
 
   return {
-    id: String(value.id),
-    name: value.name ?? "",
+    id: toStringValue(value.id),
+    name: toStringValue(value.name),
     price: parseAmount(value.price),
     items:
       typeof value.items === "string"
         ? value.items
         : Array.isArray(value.items)
-          ? value.items.map((item: any) => item.label ?? item.name ?? "").join(" · ")
+          ? value.items
+              .map((item) => {
+                const row = asRecord(item);
+                return toStringValue(row.label ?? row.name);
+              })
+              .join(" · ")
           : "",
-    active: value.active,
+    active: toOptionalBoolean(value.active),
     type,
   };
 };
 
 export const fetchAllPackages = async (): Promise<Package[]> => {
   const response = await client.get("/admin/packages");
-  const data = response.data.data;
+  const data = response.data.data as unknown;
 
   if (Array.isArray(data)) {
     return data as Package[];
   }
 
-  const fixed = Array.isArray(data?.fixed_packages)
-    ? data.fixed_packages.map((pkg: any) => normalizePackage("fixed", pkg))
+  const grouped = asRecord(data);
+
+  const fixed = Array.isArray(grouped.fixed_packages)
+    ? grouped.fixed_packages.map((pkg) => normalizePackage("fixed", pkg))
     : [];
-  const provisions = Array.isArray(data?.provisions_packages)
-    ? data.provisions_packages.map((pkg: any) =>
+  const provisions = Array.isArray(grouped.provisions_packages)
+    ? grouped.provisions_packages.map((pkg) =>
         normalizePackage("provisions", pkg),
       )
     : [];
-  const detergents = Array.isArray(data?.detergent_packages)
-    ? data.detergent_packages.map((pkg: any) =>
+  const detergents = Array.isArray(grouped.detergent_packages)
+    ? grouped.detergent_packages.map((pkg) =>
         normalizePackage("detergents", pkg),
       )
     : [];
@@ -184,6 +214,16 @@ export const deletePackage = async (
   id: string,
 ): Promise<void> => {
   await client.delete(`/admin/packages/${packagePathMap[type]}/${id}`);
+};
+
+export const reactivatePackage = async (
+  type: PackageType,
+  id: string,
+): Promise<Package> => {
+  const response = await client.patch(
+    `/admin/packages/${packagePathMap[type]}/${id}/reactivate`,
+  );
+  return normalizePackage(type, response.data.data);
 };
 
 export const fetchDashboardStats = async (): Promise<{
