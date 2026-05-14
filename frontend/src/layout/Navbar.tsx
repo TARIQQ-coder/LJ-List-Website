@@ -68,7 +68,7 @@ export const Navbar = ({
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
 
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 flex-shrink-0">
+        <Link to="/" className="flex items-center gap-2 shrink-0">
           <LogoMark size={36} />
           <div className="hidden sm:block leading-tight">
             <p className="font-black text-gray-900 text-base leading-none">
@@ -103,7 +103,7 @@ export const Navbar = ({
         </div>
 
         {/* Right side icons — evenly spaced */}
-        <div className="flex items-center gap-4 flex-shrink-0">
+        <div className="flex items-center gap-4 shrink-0">
 
           {/* ── Logged out: Sign In link ── */}
           {!user && (
@@ -125,7 +125,7 @@ export const Navbar = ({
                 className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-gray-50 border border-transparent hover:border-gray-200 transition-all group"
               >
                 {/* Avatar circle */}
-                <div className="w-8 h-8 rounded-full bg-amber-400 flex items-center justify-center text-gray-900 font-black text-sm flex-shrink-0">
+                <div className="w-8 h-8 rounded-full bg-amber-400 flex items-center justify-center text-gray-900 font-black text-sm shrink-0">
                   {initial}
                 </div>
                 {/* Name */}
@@ -148,7 +148,7 @@ export const Navbar = ({
                   {/* User info header */}
                   <div className="px-4 py-3 bg-gray-50 border-b border-gray-100">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-full bg-amber-400 flex items-center justify-center text-gray-900 font-black text-base flex-shrink-0">
+                      <div className="w-9 h-9 rounded-full bg-amber-400 flex items-center justify-center text-gray-900 font-black text-base shrink-0">
                         {initial}
                       </div>
                       <div className="min-w-0">
@@ -175,7 +175,7 @@ export const Navbar = ({
                             : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                         }`}
                       >
-                        <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           {tab.icon}
                         </svg>
                         <span>{tab.label}</span>

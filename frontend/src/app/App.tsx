@@ -314,6 +314,7 @@ export default function App() {
         onSearch={setSearchQuery}
         user={user}
         categories={categories}
+        onLogout={logoutUser}
         onAccountClick={() => navigate(user ? '/profile' : '/auth/login')}
         onDeptClick={(catId) => {
           setSearchQuery('')
@@ -406,7 +407,7 @@ export default function App() {
         onApply={(pkgName) => { setPrefilled(pkgName); setTimeout(() => document.getElementById('apply')?.scrollIntoView({ behavior: 'smooth' }), 100) }} />
       <ApplySection user={user} prefilledPackage={prefilled} cartTotal={cartTotal} cartItems={cartItems} allProducts={liveProducts} packageOptions={packageOptions} minOrder={minOrder} onAuthRequired={() => navigate('/auth/login')} />
       <Footer />
-      <WhatsAppFloat />
+      <WhatsAppFloat user={user} />
     </div>
   )
 
