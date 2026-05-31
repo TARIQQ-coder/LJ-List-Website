@@ -7,7 +7,7 @@ export const HERO_IMAGES = [
 ]
 
 export const TRUST = [
-  { icon: '📅', title: '1-3 Month Plans', sub: 'Pay in easy instalments' },
+  { icon: '📅', title: '1-3 Month Plans', sub: 'Pay in easy installments' },
   { icon: '🏛️', title: 'Govt Workers Only', sub: 'All Ghana public sector' },
   { icon: '🚚', title: 'Bulk Delivery', sub: 'Nationwide across Ghana' },
   { icon: '📞', title: 'Call Us', sub: '0593041474 · 0244854206' },
