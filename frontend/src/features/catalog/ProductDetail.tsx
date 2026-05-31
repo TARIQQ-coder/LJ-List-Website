@@ -9,6 +9,12 @@ export const ProductDetail = ({ product, onAdd, onBack, onViewProduct, cartCount
   const cat = categories.find(c => c.id === product.cat)
   const related = allProducts.filter(p => p.cat === product.cat && p.id !== product.id).slice(0, 6)
 
+  const requiresInquiry = product.requires_inquiry === true
+  const isOrderable     = product.orderable !== false
+  const hasPrice        = product.price !== null && product.price !== undefined && product.price > 0
+  const showPrice       = hasPrice && !requiresInquiry
+  const inquiryHref     = `https://wa.me/233244854206?text=Hello%20List%20J!%20I'd%20like%20to%20enquire%20about%20${encodeURIComponent(product.name)}.`
+
   const handleAddToCart = () => {
     for (let i = 0; i < localQty; i++) onAdd()
     setAdded(true)
@@ -78,7 +84,22 @@ export const ProductDetail = ({ product, onAdd, onBack, onViewProduct, cartCount
               </span>
 
               {/* Name */}
-              <h1 className="text-2xl font-black text-gray-900 leading-tight mb-3">{product.name}</h1>
+              <h1 className="text-2xl font-black text-gray-900 leading-tight mb-2">{product.name}</h1>
+
+              {/* Description */}
+              {product.description && (
+                <p className="text-gray-500 text-sm leading-relaxed mb-3">{product.description}</p>
+              )}
+
+              {/* Instructions banner */}
+              {product.instructions && (
+                <div className="flex items-start gap-2.5 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-3">
+                  <svg className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                  <p className="text-amber-800 text-xs leading-relaxed">{product.instructions}</p>
+                </div>
+              )}
 
               {/* Rating placeholder */}
               <div className="flex items-center gap-2 mb-4">
@@ -94,7 +115,7 @@ export const ProductDetail = ({ product, onAdd, onBack, onViewProduct, cartCount
 
               {/* Price block */}
               <div className="flex items-baseline gap-3 mb-1">
-                {product.price !== null && product.price !== undefined
+                {showPrice
                   ? <span className="text-3xl font-black text-gray-900">{fmt(product.price)}</span>
                   : <span className="text-2xl font-black text-lime-700">Price on Request</span>
                 }
@@ -103,11 +124,11 @@ export const ProductDetail = ({ product, onAdd, onBack, onViewProduct, cartCount
 
               {/* Quantity + Add to cart */}
               <div className="flex items-center gap-3 mb-4">
-                {product.price === null || product.price === undefined ? (
-                  <a href="https://wa.me/233244854206?text=Hello%20List%20J!%20I'd%20like%20to%20enquire%20about%20the%20price%20for%20a%20basket%20of%20vegetables."
+                {requiresInquiry || !isOrderable ? (
+                  <a href={inquiryHref}
                     target="_blank" rel="noopener noreferrer"
                     className="flex-1 h-11 rounded-xl font-black text-sm bg-lime-100 hover:bg-lime-200 text-lime-800 transition-all active:scale-95 flex items-center justify-center gap-2">
-                    💬 WhatsApp to Request Price
+                    {requiresInquiry ? 'Enquire via WhatsApp' : 'Contact Us to Order'}
                   </a>
                 ) : !added ? (
                   <>

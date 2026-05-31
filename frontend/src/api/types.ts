@@ -9,6 +9,14 @@ export type ApiMeta = {
   has_prev: boolean
 }
 
+// Location fields — shared between ApiUser (profile defaults) and Application (snapshot)
+export type LocationFields = {
+  address?: string
+  landmark?: string
+  region?: string
+  city?: string
+}
+
 export type ApiUser = {
   id: UUID
   display_name: string
@@ -19,7 +27,7 @@ export type ApiUser = {
   ghana_card_number?: string
   created_at?: string
   updated_at?: string
-}
+} & LocationFields
 
 export type AuthResponse = {
   user: ApiUser
@@ -44,7 +52,11 @@ export type ApiProduct = {
   category: string
   price: number | null
   old_price?: number | null
-  tag?: string
+  display_tag?: string
+  description?: string
+  instructions?: string
+  requires_inquiry: boolean
+  orderable: boolean
   image_url?: string
   images?: ProductImage[]
   unit: string
@@ -54,6 +66,12 @@ export type ApiProduct = {
 export type ApiCategory = {
   id: UUID
   name: string
+  description?: string
+  instructions?: string
+  tag?: string
+  requires_inquiry?: boolean
+  orderable?: boolean
+  active?: boolean
 }
 
 export type ProductListResponse = {
@@ -123,9 +141,11 @@ export type Application = {
   mandate_number: string
   institution?: string
   ghana_card_number?: string
+  preferred_date?: string
+  notes?: string
   created_at: string
   updated_at: string
-}
+} & LocationFields   // address, landmark, region, city — snapshotted at submission time
 
 export type Conversation = {
   id: UUID

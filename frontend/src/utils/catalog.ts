@@ -12,14 +12,35 @@ export function normalizeApiCategory(category) {
   const id =
     category.id ||
     {
+      // Rice variations
       'rice-spaghetti-and-grains': 'rice',
       'rice-and-grains': 'rice',
+      'rice-grains': 'rice',
+      rice: 'rice',
+      // Oil
       'cooking-oil': 'oil',
+      oil: 'oil',
+      // Canned
       'canned-fish-and-tin-tomatoes': 'canned',
+      'canned-fish': 'canned',
+      canned: 'canned',
+      // Provisions — catch singular and plural
       provisions: 'provisions',
+      provision: 'provisions',
+      // Frozen
       'frozen-foods': 'frozen',
+      'frozen-food': 'frozen',
+      frozen: 'frozen',
+      // Detergents — catch singular and plural, and "cleaning"
       detergents: 'cleaning',
+      detergent: 'cleaning',
+      cleaning: 'cleaning',
+      'cleaning-products': 'cleaning',
+      // Vegetables / fresh
       vegetables: 'fresh',
+      vegetable: 'fresh',
+      fresh: 'fresh',
+      'fresh-produce': 'fresh',
     }[slug] ||
     slug
 

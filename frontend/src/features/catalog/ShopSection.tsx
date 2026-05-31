@@ -11,6 +11,7 @@ export const ShopSection = ({ cart, onAdd, onRemove, onCartOpen, cartTotal, cart
   const [offset, setOffset]       = useState(0)
   const [visible, setVisible]     = useState(true)
   const [activeCat, setActiveCat] = useState(defaultCat || 'all')
+  const [appliancesOpen, setAppliancesOpen] = useState(false)
   const pct = minOrder > 0 ? Math.min(100, Math.round((cartTotal / minOrder) * 100)) : 0
 
   // Build showcase pool from live products — 3 per category
@@ -67,6 +68,7 @@ export const ShopSection = ({ cart, onAdd, onRemove, onCartOpen, cartTotal, cart
   const currentPage = Math.floor(safeOffset / SHOWCASE_SIZE)
 
   return (
+    <>
     <section id="shop" className="bg-white py-10 px-4 border-b border-gray-100">
       <div className="max-w-7xl mx-auto">
 
@@ -122,6 +124,13 @@ export const ShopSection = ({ cart, onAdd, onRemove, onCartOpen, cartTotal, cart
               {cat.label}
             </button>
           ))}
+          {/* Kitchen Appliances — hardcoded pill, opens image lightbox */}
+          <button
+            onClick={() => setAppliancesOpen(true)}
+            className="whitespace-nowrap text-xs font-bold px-4 py-2 rounded-full transition-all flex-shrink-0 bg-orange-50 border border-orange-200 text-orange-700 hover:bg-orange-100 cursor-pointer"
+          >
+            Kitchen Appliances
+          </button>
         </div>
 
         {/* Vegetables seasonal notice */}
@@ -153,7 +162,7 @@ export const ShopSection = ({ cart, onAdd, onRemove, onCartOpen, cartTotal, cart
         )}
 
         {/* Provisions sub-packages */}
-        {activeCat === 'provisions' && (
+        {(activeCat === 'provisions' || activeCat?.toLowerCase?.().includes('provision')) && (
           <div className="mb-2">
             <div className="flex items-center gap-2.5 mb-4">
               <span className="w-1 h-5 bg-amber-400 rounded-full inline-block" />
@@ -164,7 +173,7 @@ export const ShopSection = ({ cart, onAdd, onRemove, onCartOpen, cartTotal, cart
         )}
 
         {/* Detergent sub-packages */}
-        {activeCat === 'cleaning' && (
+        {(activeCat === 'cleaning' || activeCat?.toLowerCase?.().includes('detergent') || activeCat?.toLowerCase?.().includes('cleaning')) && (
           <div className="mb-2">
             <div className="flex items-center gap-2.5 mb-4">
               <span className="w-1 h-5 bg-blue-400 rounded-full inline-block" />
@@ -175,7 +184,7 @@ export const ShopSection = ({ cart, onAdd, onRemove, onCartOpen, cartTotal, cart
         )}
 
         {/* Rotating 3-column grid — hidden for provisions & cleaning (packages only) */}
-        {activeCat === 'provisions' || activeCat === 'cleaning' ? null : productsLoading ? (
+        {(activeCat === 'provisions' || activeCat?.toLowerCase?.().includes('provision') || activeCat === 'cleaning' || activeCat?.toLowerCase?.().includes('detergent') || activeCat?.toLowerCase?.().includes('cleaning')) ? null : productsLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="rounded-2xl border border-gray-200 bg-white p-3 space-y-3">
@@ -286,7 +295,7 @@ export const ShopSection = ({ cart, onAdd, onRemove, onCartOpen, cartTotal, cart
         )}
 
         {/* View full catalogue CTA — only for depts with individual products */}
-        {activeCat !== 'provisions' && activeCat !== 'cleaning' && (
+        {!(activeCat === 'provisions' || activeCat?.toLowerCase?.().includes('provision') || activeCat === 'cleaning' || activeCat?.toLowerCase?.().includes('detergent') || activeCat?.toLowerCase?.().includes('cleaning')) && (
         <div className="mt-6 pt-5 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-gray-400 text-xs">
             Showing {shown.length} of {total} products
@@ -301,5 +310,35 @@ export const ShopSection = ({ cart, onAdd, onRemove, onCartOpen, cartTotal, cart
 
       </div>
     </section>
+
+    {/* Kitchen Appliances lightbox — rendered outside section to avoid fixed positioning issues */}
+    {appliancesOpen && (
+      <div
+        className="fixed inset-0 bg-black/90 flex items-center justify-center p-4"
+        style={{ zIndex: 9999 }}
+        onClick={() => setAppliancesOpen(false)}
+      >
+        {/* Close button — high z-index, pointer-events-auto */}
+        <button
+          onClick={e => { e.stopPropagation(); setAppliancesOpen(false) }}
+          className="absolute top-4 right-4 w-11 h-11 bg-white/20 hover:bg-white/40 text-white rounded-full flex items-center justify-center transition-colors cursor-pointer"
+          style={{ zIndex: 10000 }}
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+        <img
+          src="/images/Kitchen-Appliances.jpeg"
+          alt="Kitchen Appliances"
+          onClick={e => e.stopPropagation()}
+          className="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl"
+        />
+        <p className="absolute bottom-4 left-0 right-0 text-center text-white/40 text-xs">
+          Click outside image to close
+        </p>
+      </div>
+    )}
+    </>
   )
 }

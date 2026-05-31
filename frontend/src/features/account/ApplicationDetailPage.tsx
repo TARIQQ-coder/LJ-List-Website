@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { applications as applicationsApi } from '../../api'
+import { DeliveryCard } from '../checkout/DeliveryForm'
 import { LogoMark } from '../../layout/LogoMark'
 import { ApplicationSkeleton } from '../loading/LoadingSkeletons'
 import { fmt } from '../../utils/format'
@@ -136,6 +137,8 @@ export const ApplicationDetailPage = ({ user, loading = false }: any) => {
             </div>
           ))}
         </div>
+
+        <DeliveryCard application={application} />
 
         <div className="bg-white rounded-2xl border border-gray-200 p-5">
           <h2 className="text-gray-900 font-black text-sm mb-4">Cart Items</h2>
